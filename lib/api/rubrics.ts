@@ -1,67 +1,72 @@
 import { RubricDTO, CreateRubricRequest, UpdateRubricRequest } from '@/types/rubric';
 import { rubricClient } from './client';
+import { apiGet, apiPost, apiPut, apiDelete } from './utils';
 
 const ENDPOINT = '/api/rubrics';
 
-export const rubricApi = {
-  // Get all rubrics (for admin/instructor)
-  getRubrics: async (page = 1, limit = 20, courseId?: string) => {
-    const response = await rubricClient.get<{
-      rubrics: RubricDTO[];
-      total: number;
-      page: number;
-    }>(`${ENDPOINT}`, {
-      params: { page, limit, courseId },
-    });
-    return response.data;
-  },
+/**
+ * Get all rubrics with pagination (for admin/instructor)
+ */
+export async function getRubrics(page = 1, limit = 20, courseId?: string) {
+  return apiGet<{ rubrics: RubricDTO[]; total: number; page: number }>(
+    rubricClient,
+    ENDPOINT,
+    { params: { page, limit, courseId } }
+  );
+}
 
-  // Get single rubric
-  getRubric: async (id: string) => {
-    const response = await rubricClient.get<RubricDTO>(`${ENDPOINT}/${id}`);
-    return response.data;
-  },
+/**
+ * Get single rubric by ID
+ */
+export async function getRubric(id: string) {
+  return apiGet<RubricDTO>(rubricClient, `${ENDPOINT}/${id}`);
+}
 
-  // Create new rubric
-  createRubric: async (data: CreateRubricRequest) => {
-    const response = await rubricClient.post<RubricDTO>(`${ENDPOINT}`, data);
-    return response.data;
-  },
+/**
+ * Create new rubric
+ */
+export async function createRubric(data: CreateRubricRequest) {
+  return apiPost<RubricDTO>(rubricClient, ENDPOINT, data);
+}
 
-  // Update rubric
-  updateRubric: async (id: string, data: UpdateRubricRequest) => {
-    const response = await rubricClient.put<RubricDTO>(`${ENDPOINT}/${id}`, data);
-    return response.data;
-  },
+/**
+ * Update existing rubric
+ */
+export async function updateRubric(id: string, data: UpdateRubricRequest) {
+  return apiPut<RubricDTO>(rubricClient, `${ENDPOINT}/${id}`, data);
+}
 
-  // Delete rubric
-  deleteRubric: async (id: string) => {
-    await rubricClient.delete(`${ENDPOINT}/${id}`);
-  },
+/**
+ * Delete rubric
+ */
+export async function deleteRubric(id: string) {
+  return apiDelete(rubricClient, `${ENDPOINT}/${id}`);
+}
 
-  // Get rubric criteria
-  getRubricCriteria: async (rubricId: string) => {
-    const response = await rubricClient.get<any[]>(`${ENDPOINT}/${rubricId}/criteria`);
-    return response.data;
-  },
+/**
+ * Get rubric criteria
+ */
+export async function getRubricCriteria(rubricId: string) {
+  return apiGet<any[]>(rubricClient, `${ENDPOINT}/${rubricId}/criteria`);
+}
 
-  // Publish rubric to students
-  publishRubric: async (id: string) => {
-    const response = await rubricClient.post<RubricDTO>(`${ENDPOINT}/${id}/publish`, {});
-    return response.data;
-  },
+/**
+ * Publish rubric to students
+ */
+export async function publishRubric(id: string) {
+  return apiPost<RubricDTO>(rubricClient, `${ENDPOINT}/${id}/publish`, {});
+}
 
-  // Clone rubric
-  cloneRubric: async (id: string, newName: string) => {
-    const response = await rubricClient.post<RubricDTO>(`${ENDPOINT}/${id}/clone`, {
-      name: newName,
-    });
-    return response.data;
-  },
+/**
+ * Clone rubric with new name
+ */
+export async function cloneRubric(id: string, newName: string) {
+  return apiPost<RubricDTO>(rubricClient, `${ENDPOINT}/${id}/clone`, { name: newName });
+}
 
-  // Get rubrics by course
-  getRubricsByCourse: async (courseId: string) => {
-    const response = await rubricClient.get<RubricDTO[]>(`${ENDPOINT}/course/${courseId}`);
-    return response.data;
-  },
-};
+/**
+ * Get rubrics by course ID
+ */
+export async function getRubricsByCourse(courseId: string) {
+  return apiGet<RubricDTO[]>(rubricClient, `${ENDPOINT}/course/${courseId}`);
+}

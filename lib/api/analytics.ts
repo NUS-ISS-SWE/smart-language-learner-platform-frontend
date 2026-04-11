@@ -1,4 +1,5 @@
 import { analyticsClient } from './client';
+import { apiGet } from './utils';
 
 const ENDPOINT = '/api/analytics';
 
@@ -39,62 +40,65 @@ export interface PerformanceMetrics {
   topCourses: Array<{ courseId: string; enrollments: number }>;
 }
 
-export const analyticsApi = {
-  // Get user analytics
-  getUserAnalytics: async (userId?: string) => {
-    const response = await analyticsClient.get<UserAnalytics>(`${ENDPOINT}/user`, {
-      params: userId ? { userId } : {},
-    });
-    return response.data;
-  },
+/**
+ * Get user analytics (for self or specified user if admin)
+ */
+export async function getUserAnalytics(userId?: string) {
+  return apiGet<UserAnalytics>(analyticsClient, `${ENDPOINT}/user`, {
+    params: userId ? { userId } : {},
+  });
+}
 
-  // Get course analytics
-  getCourseAnalytics: async (courseId: string) => {
-    const response = await analyticsClient.get<CourseAnalytics>(
-      `${ENDPOINT}/course/${courseId}`
-    );
-    return response.data;
-  },
+/**
+ * Get course analytics
+ */
+export async function getCourseAnalytics(courseId: string) {
+  return apiGet<CourseAnalytics>(analyticsClient, `${ENDPOINT}/course/${courseId}`);
+}
 
-  // Get platform performance metrics (admin only)
-  getPerformanceMetrics: async () => {
-    const response = await analyticsClient.get<PerformanceMetrics>(`${ENDPOINT}/performance`);
-    return response.data;
-  },
+/**
+ * Get platform performance metrics (admin only)
+ */
+export async function getPerformanceMetrics() {
+  return apiGet<PerformanceMetrics>(analyticsClient, `${ENDPOINT}/performance`);
+}
 
-  // Get user engagement report
-  getUserEngagementReport: async (startDate: string, endDate: string) => {
-    const response = await analyticsClient.get<any>(`${ENDPOINT}/engagement`, {
-      params: { startDate, endDate },
-    });
-    return response.data;
-  },
+/**
+ * Get user engagement report for date range
+ */
+export async function getUserEngagementReport(startDate: string, endDate: string) {
+  return apiGet<any>(analyticsClient, `${ENDPOINT}/engagement`, {
+    params: { startDate, endDate },
+  });
+}
 
-  // Get evaluation distribution
-  getEvaluationDistribution: async (courseId: string) => {
-    const response = await analyticsClient.get<any>(
-      `${ENDPOINT}/evaluations/distribution`,
-      {
-        params: { courseId },
-      }
-    );
-    return response.data;
-  },
+/**
+ * Get evaluation score distribution for course
+ */
+export async function getEvaluationDistribution(courseId: string) {
+  return apiGet<any>(analyticsClient, `${ENDPOINT}/evaluations/distribution`, {
+    params: { courseId },
+  });
+}
 
-  // Get learning trends
-  getLearningTrends: async (timeframe: 'week' | 'month' | 'year' = 'month') => {
-    const response = await analyticsClient.get<any>(`${ENDPOINT}/trends`, {
-      params: { timeframe },
-    });
-    return response.data;
-  },
+/**
+ * Get learning trends over time
+ */
+export async function getLearningTrends(timeframe: 'week' | 'month' | 'year' = 'month') {
+  return apiGet<any>(analyticsClient, `${ENDPOINT}/trends`, {
+    params: { timeframe },
+  });
+}
 
-  // Export analytics report
-  exportAnalyticsReport: async (reportType: 'csv' | 'pdf', filters?: any) => {
-    const response = await analyticsClient.get(`${ENDPOINT}/export`, {
-      params: { reportType, ...filters },
-      responseType: 'blob',
-    });
-    return response.data;
-  },
-};
+/**
+ * Export analytics report in specified format
+ */
+export async function exportAnalyticsReport(
+  reportType: 'csv' | 'pdf',
+  filters?: any
+) {
+  return analyticsClient.get(`${ENDPOINT}/export`, {
+    params: { reportType, ...filters },
+    responseType: 'blob',
+  }).then(res => res.data);
+}

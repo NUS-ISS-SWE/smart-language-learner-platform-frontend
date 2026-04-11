@@ -1,64 +1,67 @@
 import { CompositionDTO, CreateCompositionRequest, UpdateCompositionRequest } from '@/types/composition';
 import { compositionClient } from './client';
+import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from './utils';
 
 const ENDPOINT = '/api/compositions';
 
-export const compositionApi = {
-  // Get user's compositions
-  getMyCompositions: async (page = 1, limit = 20) => {
-    const response = await compositionClient.get<{
-      compositions: CompositionDTO[];
-      total: number;
-      page: number;
-    }>(ENDPOINT, {
-      params: { page, limit },
-    });
-    return response.data;
-  },
+/**
+ * Get user's compositions with pagination
+ */
+export async function getMyCompositions(page = 1, limit = 20) {
+  return apiGet<{ compositions: CompositionDTO[]; total: number; page: number }>(
+    compositionClient,
+    ENDPOINT,
+    { params: { page, limit } }
+  );
+}
 
-  // Get single composition
-  getComposition: async (id: string) => {
-    const response = await compositionClient.get<CompositionDTO>(`${ENDPOINT}/${id}`);
-    return response.data;
-  },
+/**
+ * Get single composition by ID
+ */
+export async function getComposition(id: string) {
+  return apiGet<CompositionDTO>(compositionClient, `${ENDPOINT}/${id}`);
+}
 
-  // Create new composition
-  createComposition: async (data: CreateCompositionRequest) => {
-    const response = await compositionClient.post<CompositionDTO>(ENDPOINT, data);
-    return response.data;
-  },
+/**
+ * Create new composition
+ */
+export async function createComposition(data: CreateCompositionRequest) {
+  return apiPost<CompositionDTO>(compositionClient, ENDPOINT, data);
+}
 
-  // Update composition
-  updateComposition: async (id: string, data: UpdateCompositionRequest) => {
-    const response = await compositionClient.put<CompositionDTO>(`${ENDPOINT}/${id}`, data);
-    return response.data;
-  },
+/**
+ * Update existing composition
+ */
+export async function updateComposition(id: string, data: UpdateCompositionRequest) {
+  return apiPut<CompositionDTO>(compositionClient, `${ENDPOINT}/${id}`, data);
+}
 
-  // Submit composition for evaluation
-  submitForEvaluation: async (id: string) => {
-    const response = await compositionClient.post<CompositionDTO>(
-      `${ENDPOINT}/${id}/submit`,
-      {}
-    );
-    return response.data;
-  },
+/**
+ * Submit composition for evaluation
+ */
+export async function submitForEvaluation(id: string) {
+  return apiPost<CompositionDTO>(compositionClient, `${ENDPOINT}/${id}/submit`, {});
+}
 
-  // Delete composition
-  deleteComposition: async (id: string) => {
-    await compositionClient.delete(`${ENDPOINT}/${id}`);
-  },
+/**
+ * Delete composition
+ */
+export async function deleteComposition(id: string) {
+  return apiDelete(compositionClient, `${ENDPOINT}/${id}`);
+}
 
-  // Get composition history/versions
-  getCompositionHistory: async (id: string) => {
-    const response = await compositionClient.get<any[]>(`${ENDPOINT}/${id}/history`);
-    return response.data;
-  },
+/**
+ * Get composition history/versions
+ */
+export async function getCompositionHistory(id: string) {
+  return apiGet<any[]>(compositionClient, `${ENDPOINT}/${id}/history`);
+}
 
-  // Save composition draft
-  saveDraft: async (id: string, content: string) => {
-    const response = await compositionClient.patch<CompositionDTO>(`${ENDPOINT}/${id}/draft`, {
-      content,
-    });
-    return response.data;
-  },
-};
+/**
+ * Save composition draft
+ */
+export async function saveDraft(id: string, content: string) {
+  return apiPatch<CompositionDTO>(compositionClient, `${ENDPOINT}/${id}/draft`, {
+    content,
+  });
+}
