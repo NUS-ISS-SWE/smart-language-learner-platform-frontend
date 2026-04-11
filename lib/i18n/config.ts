@@ -1,9 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
 import { en, zh } from '@/locales';
 
-// Build namespace structure
+// Build namespace structure from in-memory locales
 const resources = {
   en: {
     auth: en.auth,
@@ -13,6 +12,7 @@ const resources = {
     evaluation: en.evaluation,
     admin: en.admin,
     vocabulary: en.vocabulary,
+    home: en.home,
   },
   zh: {
     auth: zh.auth,
@@ -22,28 +22,27 @@ const resources = {
     evaluation: zh.evaluation,
     admin: zh.admin,
     vocabulary: zh.vocabulary,
+    home: zh.home,
   },
 };
 
-// Only initialize in browser
-if (typeof window !== 'undefined') {
-  if (!i18n.isInitialized) {
-    i18n
-      .use(LanguageDetector)
-      .use(initReactI18next)
-      .init({
-        resources,
-        fallbackLng: 'en',
-        defaultNS: 'common',
-        interpolation: {
-          escapeValue: false,
-        },
-        detection: {
-          order: ['localStorage', 'navigator'],
-          caches: ['localStorage'],
-        },
-      });
-  }
-}
+// Initialize i18next with default settings
+i18n
+  .use(initReactI18next)
+  .init({
+    resources,
+    fallbackLng: 'en',
+    defaultNS: 'common',
+    ns: ['auth', 'common', 'course', 'composition', 'evaluation', 'admin', 'vocabulary', 'home'],
+    interpolation: {
+      escapeValue: false,
+    },
+    react: {
+      useSuspense: false,
+    },
+    cleanCode: true,
+    nonExplicitSupportedLngs: true,
+    load: 'currentOnly',
+  });
 
 export default i18n;

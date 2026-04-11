@@ -39,7 +39,8 @@ export function middleware(request: NextRequest) {
   }
 
   // For now, allow all authenticated users to access admin routes
-  // TODO: Implement proper role-based access control once user roles are added to token
+  // NOTE: Implement role-based access control once user roles are added to JWT token
+  // Extract role from token and verify user is 'admin' or 'instructor' before granting access
   if (isAdminRoute && token) {
     return NextResponse.next();
   }

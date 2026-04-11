@@ -1,14 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 interface NavbarProps {
   userRole?: string | 'learner' | 'instructor' | 'admin';
 }
 
 export function Navbar({ userRole = 'learner' }: NavbarProps) {
+  const { t } = useTranslation("common");
   const { user, isAuthenticated, signOut } = useAuth();
 
   return (
@@ -53,7 +56,8 @@ export function Navbar({ userRole = 'learner' }: NavbarProps) {
         )}
 
         {/* Auth buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher />
           {isAuthenticated ? (
             <>
               <span className="hidden sm:block text-sm text-gray-600">
@@ -66,10 +70,10 @@ export function Navbar({ userRole = 'learner' }: NavbarProps) {
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" size="sm">Sign in</Button>
+                <Button variant="ghost" size="sm">{t("signIn")}</Button>
               </Link>
               <Link href="/register">
-                <Button size="sm">Get started</Button>
+                <Button size="sm">{t("getStarted")}</Button>
               </Link>
             </>
           )}
