@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 
-export function Navbar() {
+interface NavbarProps {
+  userRole?: string | 'learner' | 'instructor' | 'admin';
+}
+
+export function Navbar({ userRole = 'learner' }: NavbarProps) {
   const { user, isAuthenticated, signOut } = useAuth();
 
   return (
@@ -18,7 +22,7 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Nav links */}
+        {/* Nav links - Role based */}
         {isAuthenticated && (
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
             <Link href="/dashboard" className="hover:text-indigo-600 transition-colors">
@@ -30,6 +34,21 @@ export function Navbar() {
             <Link href="/vocabulary" className="hover:text-indigo-600 transition-colors">
               Vocabulary
             </Link>
+            {(userRole === 'instructor' || userRole === 'admin') && (
+              <>
+                <Link href="/admin/dashboard" className="hover:text-indigo-600 transition-colors">
+                  Admin
+                </Link>
+                <Link href="/admin/rubrics" className="hover:text-indigo-600 transition-colors">
+                  Rubrics
+                </Link>
+              </>
+            )}
+            {userRole === 'admin' && (
+              <Link href="/admin/analytics" className="hover:text-indigo-600 transition-colors">
+                Analytics
+              </Link>
+            )}
           </nav>
         )}
 

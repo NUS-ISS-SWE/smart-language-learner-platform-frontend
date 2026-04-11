@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { I18nProvider } from "@/components/providers/I18nProvider";
 
 export const metadata: Metadata = {
   title: "SmartLangLearn – Language Learning Platform",
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-gray-50 antialiased">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <I18nProvider>{children}</I18nProvider>
+        </AuthProvider>
       </body>
     </html>
   );

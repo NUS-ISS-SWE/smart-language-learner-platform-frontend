@@ -7,6 +7,8 @@ const typeIcon: Record<Lesson["type"], string> = {
   READING: "📄",
   QUIZ: "❓",
   EXERCISE: "✏️",
+  COMPOSITION: "✍️",
+  ASSESSMENT: "📊",
 };
 
 const typeColor = {
@@ -14,6 +16,8 @@ const typeColor = {
   READING: "teal",
   QUIZ: "yellow",
   EXERCISE: "green",
+  COMPOSITION: "indigo",
+  ASSESSMENT: "red",
 } as const;
 
 interface LessonCardProps {

@@ -51,7 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (credentials: LoginRequest) => {
     const res = await login(credentials);
-    setUser({ id: res.userId, email: res.email, name: res.name });
+    const role = (res.role as 'learner' | 'instructor' | 'admin') || 'learner';
+    setUser({ id: res.userId, email: res.email, name: res.name, role });
     // Set a cookie so the proxy can verify authentication server-side
     document.cookie = "sllp_auth=1; path=/; SameSite=Lax";
     router.push("/dashboard");
@@ -59,7 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (payload: RegisterRequest) => {
     const res = await register(payload);
-    setUser({ id: res.userId, email: res.email, name: res.name });
+    const role = (res.role as 'learner' | 'instructor' | 'admin') || 'learner';
+    setUser({ id: res.userId, email: res.email, name: res.name, role });
     // Set a cookie so the proxy can verify authentication server-side
     document.cookie = "sllp_auth=1; path=/; SameSite=Lax";
     router.push("/dashboard");
