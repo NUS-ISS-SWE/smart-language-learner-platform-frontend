@@ -2,7 +2,7 @@ import React from "react";
 
 type Color = "gray" | "indigo" | "teal" | "green" | "yellow" | "red";
 
-interface BadgeProps {
+export interface BadgeProps {
   children: React.ReactNode;
   color?: Color;
   className?: string;
