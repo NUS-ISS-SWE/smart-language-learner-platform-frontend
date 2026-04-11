@@ -60,6 +60,22 @@ export const vocabularyClient = createServiceClient(
   process.env.NEXT_PUBLIC_VOCABULARY_SERVICE_URL ?? "http://localhost:8084"
 );
 
+export const compositionClient = createServiceClient(
+  process.env.NEXT_PUBLIC_COMPOSITION_SERVICE_URL ?? "http://localhost:8085"
+);
+
+export const evaluationClient = createServiceClient(
+  process.env.NEXT_PUBLIC_EVALUATION_SERVICE_URL ?? "http://localhost:8086"
+);
+
+export const rubricClient = createServiceClient(
+  process.env.NEXT_PUBLIC_RUBRIC_SERVICE_URL ?? "http://localhost:8087"
+);
+
+export const analyticsClient = createServiceClient(
+  process.env.NEXT_PUBLIC_ANALYTICS_SERVICE_URL ?? "http://localhost:8088"
+);
+
 // Generic helper to unwrap Axios responses
 export async function apiGet<T>(
   client: AxiosInstance,
