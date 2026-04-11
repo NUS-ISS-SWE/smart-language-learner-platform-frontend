@@ -15,7 +15,8 @@ export async function markLessonComplete(
 ): Promise<LessonProgress> {
   return apiPost<LessonProgress>(
     courseClient,
-    `/api/courses/${courseId}/lessons/${lessonId}/complete`
+    `/api/courses/${courseId}/lessons/${lessonId}/complete`,
+    {}
   );
 }
 
@@ -27,14 +28,15 @@ export async function getUserLessonProgress(courseId: string): Promise<LessonPro
   return apiGet<LessonProgress[]>(courseClient, `/api/courses/${courseId}/progress`);
 }
 
-export async function getLessonContent(courseId: string, lessonId: string): Promise<any> {
-  return apiGet<any>(courseClient, `/api/courses/${courseId}/lessons/${lessonId}/content`);
+export async function getLessonContent(courseId: string, lessonId: string): Promise<Record<string, unknown>> {
+  return apiGet<Record<string, unknown>>(courseClient, `/api/courses/${courseId}/lessons/${lessonId}/content`);
 }
 
 export async function startLesson(courseId: string, lessonId: string): Promise<LessonProgress> {
   return apiPost<LessonProgress>(
     courseClient,
-    `/api/courses/${courseId}/lessons/${lessonId}/start`
+    `/api/courses/${courseId}/lessons/${lessonId}/start`,
+    {}
   );
 }
 

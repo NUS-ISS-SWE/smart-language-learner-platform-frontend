@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-interface navItem {
-  href: string;
-  label: string;
-  icon: string;
-  roles?: string[];
+type UserRole = 'learner' | 'instructor' | 'admin';
+
+interface NavItem {
+  readonly href: string;
+  readonly label: string;
+  readonly icon: string;
+  readonly roles?: string[];
 }
 
-const learnerItems: navItem[] = [
+const learnerItems: readonly NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "🏠" },
   { href: "/courses", label: "Courses", icon: "📚" },
   { href: "/vocabulary", label: "Vocabulary", icon: "🔤" },
@@ -20,7 +22,7 @@ const learnerItems: navItem[] = [
   { href: "/profile", label: "Profile", icon: "👤" },
 ];
 
-const adminItems: navItem[] = [
+const adminItems: readonly NavItem[] = [
   { href: "/admin/dashboard", label: "Admin Dashboard", icon: "⚙️" },
   { href: "/admin/rubrics", label: "Rubrics", icon: "📋" },
   { href: "/admin/content", label: "Content", icon: "📝" },
@@ -29,7 +31,7 @@ const adminItems: navItem[] = [
 ];
 
 interface SidebarProps {
-  userRole?: string | 'learner' | 'instructor' | 'admin';
+  readonly userRole?: UserRole;
 }
 
 export function Sidebar({ userRole = 'learner' }: SidebarProps) {

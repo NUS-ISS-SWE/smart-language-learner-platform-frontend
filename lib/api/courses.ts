@@ -15,7 +15,7 @@ export async function getCourseById(id: string): Promise<Course> {
 }
 
 export async function enrollInCourse(courseId: string): Promise<CourseEnrollment> {
-  return apiPost<CourseEnrollment>(courseClient, `/api/courses/${courseId}/enroll`);
+  return apiPost<CourseEnrollment>(courseClient, `/api/courses/${courseId}/enroll`, {});
 }
 
 export async function getEnrolledCourses(): Promise<CourseEnrollment[]> {

@@ -3,7 +3,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 const TOKEN_KEY = "sllp_access_token";
 
 export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
+  if (globalThis.window === undefined) return null;
   return localStorage.getItem(TOKEN_KEY);
 }
 
@@ -31,8 +31,8 @@ function createServiceClient(baseURL: string): AxiosInstance {
     (error) => {
       if (error.response?.status === 401) {
         removeToken();
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
+        if (globalThis.window !== undefined) {
+          globalThis.window.location.href = "/login";
         }
       }
       return Promise.reject(error);

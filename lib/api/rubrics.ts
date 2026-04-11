@@ -1,4 +1,4 @@
-import { RubricDTO, CreateRubricRequest, UpdateRubricRequest } from '@/types/rubric';
+import { RubricDTO, RubricCriterion, CreateRubricRequest, UpdateRubricRequest } from '@/types/rubric';
 import { rubricClient } from './client';
 import { apiGet, apiPost, apiPut, apiDelete } from './utils';
 
@@ -26,14 +26,14 @@ export async function getRubric(id: string) {
  * Create new rubric
  */
 export async function createRubric(data: CreateRubricRequest) {
-  return apiPost<RubricDTO>(rubricClient, ENDPOINT, data);
+  return apiPost<RubricDTO, CreateRubricRequest>(rubricClient, ENDPOINT, data);
 }
 
 /**
  * Update existing rubric
  */
 export async function updateRubric(id: string, data: UpdateRubricRequest) {
-  return apiPut<RubricDTO>(rubricClient, `${ENDPOINT}/${id}`, data);
+  return apiPut<RubricDTO, UpdateRubricRequest>(rubricClient, `${ENDPOINT}/${id}`, data);
 }
 
 /**
@@ -47,21 +47,21 @@ export async function deleteRubric(id: string) {
  * Get rubric criteria
  */
 export async function getRubricCriteria(rubricId: string) {
-  return apiGet<any[]>(rubricClient, `${ENDPOINT}/${rubricId}/criteria`);
+  return apiGet<RubricCriterion[]>(rubricClient, `${ENDPOINT}/${rubricId}/criteria`);
 }
 
 /**
  * Publish rubric to students
  */
 export async function publishRubric(id: string) {
-  return apiPost<RubricDTO>(rubricClient, `${ENDPOINT}/${id}/publish`, {});
+  return apiPost<RubricDTO, Record<string, unknown>>(rubricClient, `${ENDPOINT}/${id}/publish`, {});
 }
 
 /**
  * Clone rubric with new name
  */
 export async function cloneRubric(id: string, newName: string) {
-  return apiPost<RubricDTO>(rubricClient, `${ENDPOINT}/${id}/clone`, { name: newName });
+  return apiPost<RubricDTO, { name: string }>(rubricClient, `${ENDPOINT}/${id}/clone`, { name: newName });
 }
 
 /**

@@ -3,9 +3,9 @@ import React from "react";
 type Color = "gray" | "indigo" | "teal" | "green" | "yellow" | "red";
 
 export interface BadgeProps {
-  children: React.ReactNode;
-  color?: Color;
-  className?: string;
+  readonly children: React.ReactNode;
+  readonly color?: Color;
+  readonly className?: string;
 }
 
 const colorClasses: Record<Color, string> = {

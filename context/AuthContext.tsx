@@ -5,11 +5,11 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import type { User } from "@/types/auth";
-import type { LoginRequest, RegisterRequest } from "@/types/auth";
+import type { User, LoginRequest, RegisterRequest } from "@/types/auth";
 import { login, logout, register, getCurrentUser } from "@/lib/api/auth";
 import { getToken } from "@/lib/api/client";
 
@@ -24,7 +24,7 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { readonly children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,14 +77,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        isAuthenticated: !!user,
-        signIn,
-        signUp,
-        signOut,
-      }}
+      value={useMemo(
+        () => ({
+          user,
+          isLoading,
+          isAuthenticated: !!user,
+          signIn,
+          signUp,
+          signOut,
+        }),
+        [user, isLoading, signIn, signUp, signOut]
+      )}
     >
       {children}
     </AuthContext.Provider>

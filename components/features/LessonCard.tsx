@@ -21,8 +21,8 @@ const typeColor = {
 } as const;
 
 interface LessonCardProps {
-  lesson: Lesson;
-  onClick?: () => void;
+  readonly lesson: Lesson;
+  readonly onClick?: () => void;
 }
 
 export function LessonCard({ lesson, onClick }: LessonCardProps) {

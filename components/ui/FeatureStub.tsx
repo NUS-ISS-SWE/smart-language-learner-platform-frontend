@@ -4,9 +4,9 @@ import { Card } from './Card';
 import { Badge } from './Badge';
 
 interface FeatureStubProps {
-  route: string;
-  sprint: number;
-  description?: string;
+  readonly route: string;
+  readonly sprint: number;
+  readonly description?: string;
 }
 
 export function FeatureStub({ route, sprint, description }: FeatureStubProps) {

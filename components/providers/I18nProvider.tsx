@@ -1,15 +1,15 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/lib/i18n/config';
 
 interface I18nProviderProps {
-  children: ReactNode;
+  readonly children: React.ReactNode;
 }
 
 export function I18nProvider({ children }: I18nProviderProps) {
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(() => i18n.isInitialized);
 
   useEffect(() => {
     if (!i18n.isInitialized) {
@@ -17,8 +17,6 @@ export function I18nProvider({ children }: I18nProviderProps) {
       i18n.changeLanguage(initialLng).then(() => {
         setIsReady(true);
       });
-    } else {
-      setIsReady(true);
     }
   }, []);
 

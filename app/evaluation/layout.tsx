@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 export default function EvaluationLayout({
   children,
 }: {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }) {
   const { user } = useAuth();
 

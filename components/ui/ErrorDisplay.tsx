@@ -4,9 +4,9 @@ import { Card } from './Card';
 import { Button } from './Button';
 
 interface ErrorDisplayProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-  isDevelopment?: boolean;
+  readonly error: Error & { digest?: string };
+  readonly reset: () => void;
+  readonly isDevelopment?: boolean;
 }
 
 export function ErrorDisplay({
@@ -65,7 +65,7 @@ export function ErrorDisplay({
               Try again
             </Button>
             <Button
-              onClick={() => (window.location.href = '/')}
+              onClick={() => (globalThis.window.location.href = '/')}
               className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
             >
               Go home

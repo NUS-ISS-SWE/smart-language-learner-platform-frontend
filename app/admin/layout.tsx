@@ -1,9 +1,8 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
-import { redirect } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
 export default function AdminLayout({
   children,

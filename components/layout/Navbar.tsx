@@ -6,8 +6,10 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
+type UserRole = 'learner' | 'instructor' | 'admin';
+
 interface NavbarProps {
-  userRole?: string | 'learner' | 'instructor' | 'admin';
+  readonly userRole?: UserRole;
 }
 
 export function Navbar({ userRole = 'learner' }: NavbarProps) {

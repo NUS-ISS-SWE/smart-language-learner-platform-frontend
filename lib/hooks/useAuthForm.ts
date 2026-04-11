@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import type { ChangeEvent as FormEvent } from 'react';
 
 interface UseAuthFormOptions {
   onSubmit: (data: Record<string, string>) => Promise<void>;
@@ -13,7 +14,7 @@ interface UseAuthFormReturn {
   errors: Record<string, string>;
   isLoading: boolean;
   handleChange: (field: string, value: string) => void;
-  handleSubmit: (e: React.FormEvent) => Promise<void>;
+  handleSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void>;
   setFieldError: (field: string, error: string) => void;
   clearErrors: () => void;
 }
@@ -86,7 +87,7 @@ export function useAuthForm({
    * Handle form submission with error handling and loading state.
    */
   const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
+    async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       clearErrors();
       setIsLoading(true);
@@ -99,7 +100,7 @@ export function useAuthForm({
           error instanceof Error ? error.message : 'An error occurred';
 
         // Try to set specific field error, otherwise set a generic error
-        const fieldMatch = message.match(/^(\w+):/);
+        const fieldMatch = /^(\w+):/.exec(message);
         if (fieldMatch) {
           setFieldError(fieldMatch[1], message.replace(`${fieldMatch[1]}: `, ''));
         } else {

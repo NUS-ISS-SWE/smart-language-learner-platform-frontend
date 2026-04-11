@@ -1,4 +1,4 @@
-import { CompositionDTO, CreateCompositionRequest, UpdateCompositionRequest } from '@/types/composition';
+import { CompositionDTO, CompositionVersion, CreateCompositionRequest, UpdateCompositionRequest } from '@/types/composition';
 import { compositionClient } from './client';
 import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from './utils';
 
@@ -26,21 +26,21 @@ export async function getComposition(id: string) {
  * Create new composition
  */
 export async function createComposition(data: CreateCompositionRequest) {
-  return apiPost<CompositionDTO>(compositionClient, ENDPOINT, data);
+  return apiPost<CompositionDTO, CreateCompositionRequest>(compositionClient, ENDPOINT, data);
 }
 
 /**
  * Update existing composition
  */
 export async function updateComposition(id: string, data: UpdateCompositionRequest) {
-  return apiPut<CompositionDTO>(compositionClient, `${ENDPOINT}/${id}`, data);
+  return apiPut<CompositionDTO, UpdateCompositionRequest>(compositionClient, `${ENDPOINT}/${id}`, data);
 }
 
 /**
  * Submit composition for evaluation
  */
 export async function submitForEvaluation(id: string) {
-  return apiPost<CompositionDTO>(compositionClient, `${ENDPOINT}/${id}/submit`, {});
+  return apiPost<CompositionDTO, Record<string, unknown>>(compositionClient, `${ENDPOINT}/${id}/submit`, {});
 }
 
 /**
@@ -54,14 +54,14 @@ export async function deleteComposition(id: string) {
  * Get composition history/versions
  */
 export async function getCompositionHistory(id: string) {
-  return apiGet<any[]>(compositionClient, `${ENDPOINT}/${id}/history`);
+  return apiGet<CompositionVersion[]>(compositionClient, `${ENDPOINT}/${id}/history`);
 }
 
 /**
  * Save composition draft
  */
 export async function saveDraft(id: string, content: string) {
-  return apiPatch<CompositionDTO>(compositionClient, `${ENDPOINT}/${id}/draft`, {
+  return apiPatch<CompositionDTO, { content: string }>(compositionClient, `${ENDPOINT}/${id}/draft`, {
     content,
   });
 }

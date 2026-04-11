@@ -5,16 +5,16 @@ import { Card } from './Card';
 import { Badge, type BadgeProps } from './Badge';
 
 interface BaseCardProps {
-  children: React.ReactNode;
-  header?: React.ReactNode;
-  footer?: React.ReactNode;
-  badge?: {
+  readonly children: React.ReactNode;
+  readonly header?: React.ReactNode;
+  readonly footer?: React.ReactNode;
+  readonly badge?: {
     label: string;
     color?: BadgeProps['color'];
   };
-  onClick?: () => void;
-  className?: string;
-  hoverable?: boolean;
+  readonly onClick?: () => void;
+  readonly className?: string;
+  readonly hoverable?: boolean;
 }
 
 export function BaseCard({

@@ -47,7 +47,7 @@ export async function submitEvaluation(
   compositionId: string,
   data: CreateEvaluationRequest
 ) {
-  return apiPost<EvaluationDTO>(
+  return apiPost<EvaluationDTO, CreateEvaluationRequest>(
     evaluationClient,
     `${ENDPOINT}/composition/${compositionId}`,
     data
@@ -68,7 +68,7 @@ export async function getEvaluationHistory(compositionId: string) {
  * Request revision/re-evaluation for a composition
  */
 export async function requestRevision(evaluationId: string, feedback: string) {
-  return apiPost<any>(evaluationClient, `${ENDPOINT}/${evaluationId}/request-revision`, {
+  return apiPost<{ id: string }, { feedback: string }>(evaluationClient, `${ENDPOINT}/${evaluationId}/request-revision`, {
     feedback,
   });
 }
