@@ -1,0 +1,23 @@
+{
+  "myCompositions": "我的作文",
+  "newComposition": "新建作文",
+  "writeComposition": "撰写作文",
+  "uploadDocument": "上传文档",
+  "aiAssistance": "AI 助手",
+  "generateComposition": "生成作文",
+  "refineSuggestion": "优化建议",
+  "submit": "提交评估",
+  "draft": "草稿",
+  "submitted": "已提交",
+  "evaluated": "已评估",
+  "savedAt": "保存于 {{time}}",
+  "uploadSupported": "支持格式: PDF, DOCX, TXT",
+  "compositionEditor": "作文编辑器",
+  "wordCount": "字数",
+  "characterCount": "字符数",
+  "compositionHistory": "作文历史",
+  "viewHistory": "查看历史",
+  "deleteComposition": "删除作文",
+  "confirmDelete": "确定要删除这篇作文吗?",
+  "noCompositions": "您还没有创建任何作文"
+}

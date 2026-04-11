@@ -1,0 +1,23 @@
+{
+  "myCompositions": "My Compositions",
+  "newComposition": "New Composition",
+  "writeComposition": "Write Composition",
+  "uploadDocument": "Upload Document",
+  "aiAssistance": "AI Assistance",
+  "generateComposition": "Generate Composition",
+  "refineSuggestion": "Refinement Suggestion",
+  "submit": "Submit for Evaluation",
+  "draft": "Draft",
+  "submitted": "Submitted",
+  "evaluated": "Evaluated",
+  "savedAt": "Saved at {{time}}",
+  "uploadSupported": "Supported formats: PDF, DOCX, TXT",
+  "compositionEditor": "Composition Editor",
+  "wordCount": "Word Count",
+  "characterCount": "Character Count",
+  "compositionHistory": "Composition History",
+  "viewHistory": "View History",
+  "deleteComposition": "Delete Composition",
+  "confirmDelete": "Are you sure you want to delete this composition?",
+  "noCompositions": "You haven't created any compositions yet"
+}
