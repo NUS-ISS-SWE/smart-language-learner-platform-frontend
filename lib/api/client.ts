@@ -1,82 +1,88 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import { API_BASE_URL, API_TIMEOUT } from "@/lib/constants";
+import {
+  getStoredAccessToken,
+  setStoredAccessToken,
+  clearStoredAccessToken,
+} from "@/lib/auth-storage";
+import { isUnauthorizedError, getApiErrorMessage } from "@/lib/api/errors";
 
-const TOKEN_KEY = "sllp_access_token";
+/**
+ * Single global API client for all backend communication.
+ * All requests go through the API Gateway at the configured base URL.
+ * Includes JWT authentication and error handling interceptors.
+ */
+export const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: API_TIMEOUT,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-export function getToken(): string | null {
-  if (globalThis.window === undefined) return null;
-  return localStorage.getItem(TOKEN_KEY);
-}
+/**
+ * Request interceptor: Attach JWT token to all outgoing requests.
+ * The token is read from localStorage and added as Bearer token.
+ */
+apiClient.interceptors.request.use((config) => {
+  const token = getStoredAccessToken();
 
-export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
-}
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-export function removeToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
-}
+  return config;
+});
 
-function createServiceClient(baseURL: string): AxiosInstance {
-  const instance = axios.create({ baseURL, timeout: 10000 });
-
-  instance.interceptors.request.use((config) => {
-    const token = getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  });
-
-  instance.interceptors.response.use(
-    (response: AxiosResponse) => response,
-    (error) => {
-      if (error.response?.status === 401) {
-        removeToken();
-        if (globalThis.window !== undefined) {
-          globalThis.window.location.href = "/login";
-        }
+/**
+ * Response interceptor: Handle 401 errors by clearing token and redirecting to login.
+ * This ensures users are logged out if their session expires or becomes invalid.
+ */
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (isUnauthorizedError(error)) {
+      clearStoredAccessToken();
+      // Redirect to login on 401 Unauthorized
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
       }
-      return Promise.reject(error);
     }
-  );
+    return Promise.reject(error);
+  }
+);
 
-  return instance;
+/**
+ * Legacy token management functions for backward compatibility.
+ * Prefer using the auth-storage module directly for new code.
+ *
+ * @deprecated Use getStoredAccessToken, setStoredAccessToken, clearStoredAccessToken instead
+ */
+export function getToken(): string | null {
+  return getStoredAccessToken();
 }
 
-// Each environment variable maps to a dedicated Spring Boot microservice.
-// Fall back to localhost defaults so the app works out-of-the-box.
-export const authClient = createServiceClient(
-  process.env.NEXT_PUBLIC_AUTH_SERVICE_URL ?? "http://localhost:8081"
-);
+/**
+ * @deprecated Use setStoredAccessToken instead
+ */
+export function setToken(token: string): void {
+  setStoredAccessToken(token);
+}
 
-export const userClient = createServiceClient(
-  process.env.NEXT_PUBLIC_USER_SERVICE_URL ?? "http://localhost:8082"
-);
+/**
+ * @deprecated Use clearStoredAccessToken instead
+ */
+export function removeToken(): void {
+  clearStoredAccessToken();
+}
 
-export const courseClient = createServiceClient(
-  process.env.NEXT_PUBLIC_COURSE_SERVICE_URL ?? "http://localhost:8083"
-);
+/**
+ * Helper functions for backward compatibility with existing API files.
+ * These wrap any axios client (typically apiClient) for a consistent interface.
+ * @deprecated - Refactor to use apiClient directly in Phase 5
+ */
 
-export const vocabularyClient = createServiceClient(
-  process.env.NEXT_PUBLIC_VOCABULARY_SERVICE_URL ?? "http://localhost:8084"
-);
-
-export const compositionClient = createServiceClient(
-  process.env.NEXT_PUBLIC_COMPOSITION_SERVICE_URL ?? "http://localhost:8085"
-);
-
-export const evaluationClient = createServiceClient(
-  process.env.NEXT_PUBLIC_EVALUATION_SERVICE_URL ?? "http://localhost:8086"
-);
-
-export const rubricClient = createServiceClient(
-  process.env.NEXT_PUBLIC_RUBRIC_SERVICE_URL ?? "http://localhost:8087"
-);
-
-export const analyticsClient = createServiceClient(
-  process.env.NEXT_PUBLIC_ANALYTICS_SERVICE_URL ?? "http://localhost:8088"
-);
-
-// Generic helper to unwrap Axios responses
 export async function apiGet<T>(
   client: AxiosInstance,
   url: string,
@@ -114,3 +120,17 @@ export async function apiDelete<T>(
   const res = await client.delete<T>(url, config);
   return res.data;
 }
+
+/**
+ * Service client aliases - All point to the same apiClient.
+ * Kept for backward compatibility with existing API files.
+ * @deprecated - Use apiClient directly
+ */
+export { apiClient as authClient };
+export { apiClient as courseClient };
+export { apiClient as compositionClient };
+export { apiClient as evaluationClient };
+export { apiClient as rubricClient };
+export { apiClient as vocabularyClient };
+export { apiClient as userClient };
+export { apiClient as analyticsClient };
