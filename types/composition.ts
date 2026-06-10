@@ -1,50 +1,24 @@
-export interface CompositionDTO {
-  id: string;
-  userId: string;
-  courseId: string;
+export type CompositionSource = "RAW_TEXT" | "FILE_PDF" | "FILE_DOCX" | "SYSTEM";
+export type CompositionLanguage = "ENGLISH" | "CHINESE";
+export type CompositionStatus = "DRAFT" | "GENERATING" | "GENERATION_FAILED" | "REVIEWING" | "REVIEWED";
+
+export type Composition = {
+  id?: number;
+  username?: string;
   title: string;
   content: string;
-  status: 'draft' | 'submitted' | 'evaluated' | 'revision_requested';
-  createdAt: string;
-  updatedAt: string;
-  submittedAt?: string;
-  wordCount: number;
-  language: 'en' | 'zh';
-  topic?: string;
-  rubricId?: string;
-  currentEvaluationId?: string;
-}
+  compositionSource?: CompositionSource;
+  language: CompositionLanguage;
+  compositionStatus?: CompositionStatus;
+  systemFeedback?: string | null;
+  storagePath?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};
 
-export interface CreateCompositionRequest {
-  courseId: string;
+export type CompositionDraft = {
   title: string;
   content: string;
-  language: 'en' | 'zh';
-  topic?: string;
-  rubricId?: string;
-}
-
-export interface UpdateCompositionRequest {
-  title?: string;
-  content?: string;
-  topic?: string;
-  status?: 'draft' | 'submitted';
-}
-
-export interface CompositionVersion {
-  id: string;
-  compositionId: string;
-  content: string;
-  version: number;
-  createdAt: string;
-}
-
-export interface CompositionFeedback {
-  id: string;
-  compositionId: string;
-  instructorId: string;
-  feedback: string;
-  type: 'inline' | 'general';
-  position?: number;
-  createdAt: string;
-}
+  language: CompositionLanguage;
+  compositionSource: CompositionSource;
+};

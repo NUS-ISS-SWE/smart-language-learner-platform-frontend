@@ -1,37 +1,40 @@
-export interface LoginRequest {
+export type LoginRequest = {
+  username: string;
+  password: string;
+};
+
+export type RegisterRequest = {
+  username: string;
   email: string;
   password: string;
-}
+  preferredLanguage: "ENGLISH" | "CHINESE";
+  difficultyLevel: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+};
 
-export interface RegisterRequest {
-  name: string;
+export type ForgotPasswordRequest = {
   email: string;
-  password: string;
-  role?: 'learner' | 'instructor';
-}
+};
 
-export interface AuthResponse {
+export type JwtAccessToken = {
   accessToken: string;
-  tokenType: string;
-  userId: string;
-  email: string;
-  name: string;
-  role?: string;
-  permissions?: string[];
-}
+  role: string;
+};
 
-export interface User {
-  id: string;
-  name: string;
+export type AppUser = {
+  id?: number;
+  username: string;
   email: string;
-  role?: 'learner' | 'instructor' | 'admin';
-  avatarUrl?: string;
-  nativeLanguage?: string;
-  learningLanguages?: string[];
-  createdAt?: string;
-  permissions?: UserPermission[];
-  profile?: UserProfile;
-}
+  role?: string;
+  status?: string;
+  preferredLanguage?: string;
+  difficultyLevel?: string;
+};
+
+// Used in AuthContext to represent signed-in state
+export type AuthUser = {
+  username: string;
+  role: string;
+};
 
 export interface UserProfile {
   bio?: string;
