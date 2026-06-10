@@ -1,83 +1,100 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ChangeEvent as FormEvent } from "react";
+import { type FormEvent, useState } from "react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/api/client";
 import { useAuth } from "@/context/AuthContext";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { Card, CardBody } from "@/components/ui/Card";
+import { Label } from "@/components/ui/Label";
 
 export default function LoginPage() {
   const { signIn } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<unknown>(null);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-    setIsLoading(true);
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setIsPending(true);
     try {
-      await signIn({ email, password });
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Invalid email or password.";
-      setError(msg);
+      await signIn({ username, password });
+    } catch (err) {
+      setError(err);
     } finally {
-      setIsLoading(false);
+      setIsPending(false);
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-teal-50 px-4">
-      <Card className="w-full max-w-md">
-        <CardBody className="flex flex-col gap-6">
-          {/* Logo */}
-          <div className="text-center">
-            <span className="text-4xl">🌐</span>
-            <h1 className="mt-2 text-2xl font-bold text-gray-900">Welcome back</h1>
-            <p className="text-sm text-gray-500">Sign in to continue learning</p>
+    <Card>
+      <CardHeader>
+        <CardTitle>Welcome back</CardTitle>
+        <CardDescription>Log in to continue writing and reviewing compositions.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          {error ? <ErrorState message={getApiErrorMessage(error)} /> : null}
+
+          <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              autoComplete="username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              required
+            />
           </div>
 
-          {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-              {error}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+                Forgot password?
+              </Link>
             </div>
-          )}
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0"
+                onClick={() => setShowPassword((current) => !current)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Input
-              label="Email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-            <Button type="submit" isLoading={isLoading} className="w-full mt-2">
-              Sign in
-            </Button>
-          </form>
+          <Button className="w-full" type="submit" disabled={isPending}>
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Log in
+          </Button>
+        </form>
 
-          <p className="text-center text-sm text-gray-500">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-indigo-600 font-medium hover:underline">
-              Create one
-            </Link>
-          </p>
-        </CardBody>
-      </Card>
-    </div>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          New to the platform?{" "}
+          <Link href="/register" className="font-medium text-primary hover:underline">
+            Create an account
+          </Link>
+        </p>
+      </CardContent>
+    </Card>
   );
 }
