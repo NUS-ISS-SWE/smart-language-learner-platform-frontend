@@ -2,67 +2,66 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BookOpenCheck, FileText, LayoutDashboard, PenLine } from "lucide-react";
+import { APP_NAME } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
-type UserRole = 'learner' | 'instructor' | 'admin';
-
-interface NavItem {
-  readonly href: string;
-  readonly label: string;
-  readonly icon: string;
-  readonly roles?: string[];
-}
-
-const learnerItems: readonly NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: "🏠" },
-  { href: "/courses", label: "Courses", icon: "📚" },
-  { href: "/vocabulary", label: "Vocabulary", icon: "🔤" },
-  { href: "/compositions", label: "Compositions", icon: "✍️" },
-  { href: "/evaluations", label: "Evaluations", icon: "📊" },
-  { href: "/progress", label: "Progress", icon: "📈" },
-  { href: "/profile", label: "Profile", icon: "👤" },
+const navigation = [
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, match: "exact" },
+  { label: "Compositions", href: "/compositions", icon: FileText, match: "compositions" },
+  { label: "New Composition", href: "/compositions/new", icon: PenLine, match: "new-composition" },
 ];
 
-const adminItems: readonly NavItem[] = [
-  { href: "/admin/dashboard", label: "Admin Dashboard", icon: "⚙️" },
-  { href: "/admin/rubrics", label: "Rubrics", icon: "📋" },
-  { href: "/admin/content", label: "Content", icon: "📝" },
-  { href: "/admin/users", label: "Users", icon: "👥" },
-  { href: "/admin/analytics", label: "Analytics", icon: "📊" },
-];
+type SidebarProps = {
+  width: number;
+};
 
-interface SidebarProps {
-  readonly userRole?: UserRole;
-}
-
-export function Sidebar({ userRole = 'learner' }: SidebarProps) {
+export function Sidebar({ width }: SidebarProps) {
   const pathname = usePathname();
 
-  // Determine which items to show based on role
-  const items = (userRole === 'admin' || userRole === 'instructor') 
-    ? [...learnerItems.slice(0, 5), ...adminItems]
-    : learnerItems;
+  function isNavigationActive(item: (typeof navigation)[number]) {
+    if (item.match === "new-composition") {
+      return pathname === "/compositions/new";
+    }
+    if (item.match === "compositions") {
+      return (
+        pathname === "/compositions" ||
+        (pathname.startsWith("/compositions/") && pathname !== "/compositions/new")
+      );
+    }
+    return pathname === item.href;
+  }
 
   return (
-    <aside className="hidden md:flex flex-col w-56 min-h-screen border-r border-gray-200 bg-gray-50 pt-6 pb-4 px-3 overflow-y-auto">
-      <nav className="flex flex-col gap-1">
-        {items.map(({ href, label, icon }) => {
-          const active = pathname === href || pathname.startsWith(`${href}/`);
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={[
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                active
-                  ? "bg-indigo-50 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
-              ].join(" ")}
-            >
-              <span className="text-base">{icon}</span>
-              {label}
-            </Link>
-          );
-        })}
+    <aside
+      className="hidden shrink-0 bg-primary text-primary-foreground lg:flex lg:flex-col"
+      style={{ width, flexBasis: width }}
+    >
+      <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-white/10 px-6">
+        <div className="rounded-lg bg-white/10 p-2 text-white">
+          <BookOpenCheck className="h-5 w-5" aria-hidden="true" />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-white">{APP_NAME}</p>
+          <p className="text-xs text-white/60">Writing workspace</p>
+        </div>
+      </Link>
+
+      <nav className="flex-1 space-y-1 px-3 py-4">
+        {navigation.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white",
+              isNavigationActive(item) &&
+                "bg-white/10 pl-4 text-white before:absolute before:left-0 before:top-1.5 before:h-5 before:w-1 before:rounded-full before:bg-accent",
+            )}
+          >
+            <item.icon className="h-4 w-4" aria-hidden="true" />
+            {item.label}
+          </Link>
+        ))}
       </nav>
     </aside>
   );
