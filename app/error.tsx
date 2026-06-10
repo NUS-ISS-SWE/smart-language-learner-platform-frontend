@@ -30,12 +30,12 @@ export default function ErrorBoundary({
           </div>
         )}
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-          <Button onClick={reset} variant="primary">
+          <Button onClick={reset}>
             Try Again
           </Button>
-          <Link href="/">
-            <Button variant="secondary">Go Home</Button>
-          </Link>
+          <Button variant="outline" asChild>
+            <Link href="/">Go Home</Link>
+          </Button>
         </div>
       </div>
     </div>
