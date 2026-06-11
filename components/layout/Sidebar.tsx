@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpenCheck, FileText, LayoutDashboard, PenLine } from "lucide-react";
+import { BookOpenCheck, FolderOpen, LayoutDashboard, PenLine, FileText } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +10,7 @@ const navigation = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, match: "exact" },
   { label: "Compositions", href: "/compositions", icon: FileText, match: "compositions" },
   { label: "New Composition", href: "/compositions/new", icon: PenLine, match: "new-composition" },
+  { label: "Documents", href: "/documents", icon: FolderOpen, match: "documents" },
 ];
 
 type SidebarProps = {
@@ -28,6 +29,9 @@ export function Sidebar({ width }: SidebarProps) {
         pathname === "/compositions" ||
         (pathname.startsWith("/compositions/") && pathname !== "/compositions/new")
       );
+    }
+    if (item.match === "documents") {
+      return pathname === "/documents" || pathname.startsWith("/documents/");
     }
     return pathname === item.href;
   }
