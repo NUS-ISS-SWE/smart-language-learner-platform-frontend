@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { BookOpenCheck, FileText, LayoutDashboard, LogOut, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Separator } from "@/components/ui/Separator";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { APP_NAME } from "@/lib/constants";
 import { cn, getInitials } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -34,6 +35,7 @@ export function Topbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           <div className="hidden text-right sm:block">
             <p className="text-sm font-medium">{user?.username ?? "Learner"}</p>
             <p className="text-xs text-muted-foreground">{user?.role ?? "User"}</p>
