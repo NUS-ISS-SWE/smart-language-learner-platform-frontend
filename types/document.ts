@@ -14,9 +14,9 @@ export interface DocumentUploadResponse {
 
 export interface DocumentsPage {
   documents: DocumentDTO[];
-  totalElements: number;
+  total: number;
   page: number;
-  size: number;
+  pageSize: number;
   hasMore: boolean;
 }
 
