@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { BookOpenCheck } from "lucide-react";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { APP_NAME } from "@/lib/constants";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </div>
             <span className="text-sm font-semibold sm:text-base">{APP_NAME}</span>
           </Link>
+          <LanguageSwitcher />
         </div>
       </header>
 
