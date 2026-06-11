@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, BookOpenCheck, FileText, LineChart, PenLine, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { APP_NAME } from "@/lib/constants";
 import { useAuth } from "@/context/AuthContext";
 
@@ -39,6 +40,7 @@ export default function LandingPage() {
           </Link>
 
           <nav className="flex items-center gap-2">
+            <LanguageSwitcher />
             {isAuthenticated ? (
               <Button asChild>
                 <Link href="/dashboard">
