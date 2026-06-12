@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { API_BASE_URL, API_TIMEOUT } from "@/lib/constants";
-import { getStoredAccessToken, clearStoredAccessToken } from "@/lib/auth-storage";
+import { getStoredAccessToken } from "@/lib/auth-storage";
 import type { ApiError } from "@/types/common";
 
 export const apiClient = axios.create({
@@ -21,12 +21,9 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      clearStoredAccessToken();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-    }
+    // Do not auto-redirect on 401 — data endpoints may return 401 for
+    // authorization reasons unrelated to session validity. The auth guard
+    // in (main)/layout.tsx handles unauthenticated navigation.
     return Promise.reject(error);
   }
 );

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
@@ -23,7 +22,6 @@ function getInitialSidebarWidth() {
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartRef = useRef({ x: 0, width: DEFAULT_SIDEBAR_WIDTH });
@@ -32,11 +30,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     setSidebarWidth(getInitialSidebarWidth());
   }, []);
 
+  // Client-side auth guard.
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace("/login");
+      window.location.href = "/login";
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated]);
 
   useEffect(() => {
     if (!isResizing) return;
@@ -88,10 +87,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <LoadingState label="Loading workspace" />
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return null;
   }
 
   return (
