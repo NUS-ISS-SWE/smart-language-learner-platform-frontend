@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { BookOpenCheck, FolderOpen, LayoutDashboard, PenLine, FileText } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const navigation = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, match: "exact" },
-  { label: "Compositions", href: "/compositions", icon: FileText, match: "compositions" },
-  { label: "New Composition", href: "/compositions/new", icon: PenLine, match: "new-composition" },
-  { label: "Documents", href: "/documents", icon: FolderOpen, match: "documents" },
+const navigationConfig = [
+  { key: "dashboard" as const, href: "/dashboard", icon: LayoutDashboard, match: "exact" },
+  { key: "compositions" as const, href: "/compositions", icon: FileText, match: "compositions" },
+  { key: "newComposition" as const, href: "/compositions/new", icon: PenLine, match: "new-composition" },
+  { key: "documents" as const, href: "/documents", icon: FolderOpen, match: "documents" },
 ];
 
 type SidebarProps = {
@@ -19,8 +20,9 @@ type SidebarProps = {
 
 export function Sidebar({ width }: SidebarProps) {
   const pathname = usePathname();
+  const { t } = useTranslation("common");
 
-  function isNavigationActive(item: (typeof navigation)[number]) {
+  function isNavigationActive(item: (typeof navigationConfig)[number]) {
     if (item.match === "new-composition") {
       return pathname === "/compositions/new";
     }
@@ -47,12 +49,12 @@ export function Sidebar({ width }: SidebarProps) {
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-white">{APP_NAME}</p>
-          <p className="text-xs text-white/60">Writing workspace</p>
+          <p className="text-xs text-white/60">{t("workspace")}</p>
         </div>
       </Link>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigation.map((item) => (
+        {navigationConfig.map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -63,7 +65,7 @@ export function Sidebar({ width }: SidebarProps) {
             )}
           >
             <item.icon className="h-4 w-4" aria-hidden="true" />
-            {item.label}
+            {t(item.key)}
           </Link>
         ))}
       </nav>

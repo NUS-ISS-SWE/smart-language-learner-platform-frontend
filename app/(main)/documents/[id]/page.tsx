@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, BookPlus, Download, Loader2, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -29,9 +30,9 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "
 
 /** Map document file type to the composition source enum value. */
 function toCompositionSource(fileType: string): CompositionSource {
-  const t = fileType.toLowerCase();
-  if (t === "pdf") return "FILE_PDF";
-  if (t === "docx") return "FILE_DOCX";
+  const ft = fileType.toLowerCase();
+  if (ft === "pdf") return "FILE_PDF";
+  if (ft === "docx") return "FILE_DOCX";
   return "RAW_TEXT";
 }
 
@@ -45,6 +46,7 @@ type Props = { params: Promise<{ id: string }> };
 export default function DocumentDetailPage({ params }: Props) {
   const { id } = use(params);
   const router = useRouter();
+  const { t } = useTranslation("documents");
   const { data, isLoading, isError, error } = useDocument(id);
   const contentQuery = useDocumentContent(id);
   const deleteMutation = useDeleteDocument();
@@ -54,7 +56,7 @@ export default function DocumentDetailPage({ params }: Props) {
   const [compositionTitle, setCompositionTitle] = useState("");
 
   function handleDelete() {
-    if (!window.confirm(`Delete "${data?.document?.filename}"?`)) return;
+    if (!globalThis.confirm(t("deleteConfirm", { filename: data?.document?.filename ?? "" }))) return;
     deleteMutation.mutate(id, {
       onSuccess: () => router.push("/documents"),
     });
@@ -89,7 +91,7 @@ export default function DocumentDetailPage({ params }: Props) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-label="Loading document" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-label={t("detail")} />
       </div>
     );
   }
@@ -100,7 +102,7 @@ export default function DocumentDetailPage({ params }: Props) {
         <Button variant="ghost" size="sm" asChild className="-ml-2">
           <Link href="/documents">
             <ArrowLeft className="mr-1 h-4 w-4" aria-hidden="true" />
-            Back to documents
+            {t("backToDocuments")}
           </Link>
         </Button>
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm text-destructive">
@@ -120,21 +122,21 @@ export default function DocumentDetailPage({ params }: Props) {
         <Button variant="ghost" size="sm" asChild className="-ml-2 mb-2">
           <Link href="/documents">
             <ArrowLeft className="mr-1 h-4 w-4" aria-hidden="true" />
-            Back to documents
+            {t("backToDocuments")}
           </Link>
         </Button>
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-primary">Document detail</p>
+            <p className="text-sm font-medium text-primary">{t("detail")}</p>
             <h1 className="mt-2 break-all text-3xl font-semibold tracking-normal">{doc.filename}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <Badge variant={STATUS_VARIANT[doc.status] ?? "secondary"} className="capitalize">
                 {doc.status.toLowerCase()}
               </Badge>
               <span className="uppercase">{doc.fileType}</span>
-              <span>Â·</span>
+              <span>·</span>
               <span>{formatBytes(doc.fileSize)}</span>
-              <span>Â·</span>
+              <span>·</span>
               <span>Uploaded {formatDate(doc.createdAt)}</span>
             </div>
           </div>
@@ -142,7 +144,7 @@ export default function DocumentDetailPage({ params }: Props) {
             {isExtracted && !showEvaluateForm ? (
               <Button variant="default" size="sm" onClick={openEvaluateForm}>
                 <BookPlus className="mr-1 h-4 w-4" aria-hidden="true" />
-                Evaluate as composition
+                {t("evaluateAsComposition")}
               </Button>
             ) : null}
             {downloadUrl ? (
@@ -158,14 +160,14 @@ export default function DocumentDetailPage({ params }: Props) {
               size="sm"
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              aria-label="Delete this document"
+              aria-label={t("deleteConfirm", { filename: doc.filename })}
             >
               {deleteMutation.isPending ? (
                 <Loader2 className="mr-1 h-4 w-4 animate-spin" />
               ) : (
                 <Trash2 className="mr-1 h-4 w-4 text-destructive" />
               )}
-              Delete
+              {t("common:delete")}
             </Button>
           </div>
         </div>
@@ -174,22 +176,21 @@ export default function DocumentDetailPage({ params }: Props) {
         ) : null}
       </div>
 
-      {/* Evaluate as composition â€” inline form */}
+      {/* Evaluate as composition — inline form */}
       {showEvaluateForm ? (
         <div className="rounded-xl border bg-muted/30 p-5">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-base font-semibold">Evaluate as composition</h2>
+              <h2 className="text-base font-semibold">{t("evaluateAsComposition")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                The extracted text will be sent to the composition service. You can request AI grading
-                from the composition page once it&apos;s created.
+                {t("evaluateDescription")}
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowEvaluateForm(false)}
               className="shrink-0 text-muted-foreground hover:text-foreground"
-              aria-label="Cancel evaluation"
+              aria-label={t("cancelEvaluation")}
             >
               <X className="h-4 w-4" />
             </button>
@@ -197,13 +198,13 @@ export default function DocumentDetailPage({ params }: Props) {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="flex-1">
               <Label htmlFor="composition-title" className="mb-1.5 block text-sm">
-                Composition title
+                {t("compositionTitle")}
               </Label>
               <Input
                 id="composition-title"
                 value={compositionTitle}
                 onChange={(e) => setCompositionTitle(e.target.value)}
-                placeholder="Enter a title for this composition"
+                placeholder={t("compositionTitlePlaceholder")}
                 disabled={createCompositionMutation.isPending}
               />
             </div>
@@ -216,10 +217,10 @@ export default function DocumentDetailPage({ params }: Props) {
                 {createCompositionMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                    Creatingâ€¦
+                    {t("creating")}
                   </>
                 ) : (
-                  "Create & go to composition"
+                  t("createAndGo")
                 )}
               </Button>
               <Button
@@ -228,7 +229,7 @@ export default function DocumentDetailPage({ params }: Props) {
                 onClick={() => setShowEvaluateForm(false)}
                 disabled={createCompositionMutation.isPending}
               >
-                Cancel
+                {t("common:cancel")}
               </Button>
             </div>
           </div>
@@ -242,11 +243,11 @@ export default function DocumentDetailPage({ params }: Props) {
 
       {/* Extracted content */}
       <div>
-        <h2 className="mb-3 text-lg font-semibold">Extracted content</h2>
+        <h2 className="mb-3 text-lg font-semibold">{t("extractedContent")}</h2>
         {contentQuery.isLoading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            Loading contentâ€¦
+            {t("loadingContent")}
           </div>
         ) : contentQuery.isError ? (
           <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm text-destructive">
@@ -255,11 +256,11 @@ export default function DocumentDetailPage({ params }: Props) {
         ) : contentQuery.data?.status === "PROCESSING" ? (
           <div className="flex items-center gap-2 rounded-xl border bg-muted/40 px-5 py-4 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            Extracting text from documentâ€¦
+            {t("extractingText")}
           </div>
         ) : contentQuery.data?.status === "FAILED" ? (
           <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm text-destructive">
-            Text extraction failed for this document.
+            {t("extractionFailed")}
           </div>
         ) : isExtracted ? (
           <div className="min-h-[460px] whitespace-pre-wrap rounded-lg border bg-white p-5 text-base leading-8">
@@ -267,7 +268,7 @@ export default function DocumentDetailPage({ params }: Props) {
           </div>
         ) : (
           <div className="rounded-xl border bg-muted/40 px-5 py-4 text-sm text-muted-foreground">
-            No extracted content available yet.
+            {t("noContent")}
           </div>
         )}
       </div>

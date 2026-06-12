@@ -2,31 +2,21 @@
 
 import Link from "next/link";
 import { ArrowRight, BookOpenCheck, FileText, LineChart, PenLine, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { APP_NAME } from "@/lib/constants";
 import { useAuth } from "@/context/AuthContext";
 
-const features = [
-  {
-    title: "Composition workspace",
-    description: "Draft English or Chinese compositions in a clean editor built for focused writing.",
-    icon: PenLine,
-  },
-  {
-    title: "AI-guided review",
-    description: "Request grading and read structured feedback tied to the submitted composition.",
-    icon: Sparkles,
-  },
-  {
-    title: "Learning history",
-    description: "Return to previous drafts, reviewed work, and writing progress from one dashboard.",
-    icon: LineChart,
-  },
-];
-
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation("home");
+
+  const features = [
+    { title: t("feature1Title"), description: t("feature1Desc"), icon: PenLine },
+    { title: t("feature2Title"), description: t("feature2Desc"), icon: Sparkles },
+    { title: t("feature3Title"), description: t("feature3Desc"), icon: LineChart },
+  ];
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -44,17 +34,17 @@ export default function LandingPage() {
             {isAuthenticated ? (
               <Button asChild>
                 <Link href="/dashboard">
-                  Dashboard
+                  {t("dashboard")}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
             ) : (
               <>
                 <Button variant="ghost" asChild>
-                  <Link href="/login">Log in</Link>
+                  <Link href="/login">{t("logIn")}</Link>
                 </Button>
                 <Button variant="accent" asChild>
-                  <Link href="/register">Sign up</Link>
+                  <Link href="/register">{t("signUp")}</Link>
                 </Button>
               </>
             )}
@@ -67,24 +57,23 @@ export default function LandingPage() {
           <div>
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
-                Professional composition learning
+                {t("categoryLabel")}
               </p>
               <h1 className="mt-5 text-4xl font-bold leading-tight tracking-normal text-balance sm:text-5xl">
-                Smart Language Learner Platform
+                {t("platformTitle")}
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-                A focused writing environment for learners to create compositions, receive AI-assisted feedback,
-                and improve language expression with a clear academic workflow.
+                {t("platformDescription")}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" variant="accent" asChild>
                   <Link href={isAuthenticated ? "/dashboard" : "/register"}>
-                    Start writing
+                    {t("startWriting")}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href={isAuthenticated ? "/compositions" : "/login"}>Open workspace</Link>
+                  <Link href={isAuthenticated ? "/compositions" : "/login"}>{t("openWorkspace")}</Link>
                 </Button>
               </div>
             </div>
@@ -109,8 +98,8 @@ export default function LandingPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-secondary">Platform workflow</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-normal">Built around writing improvement</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-secondary">{t("platformWorkflowLabel")}</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-normal">{t("builtForWriting")}</h2>
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -129,13 +118,13 @@ export default function LandingPage() {
       <section className="border-t bg-white">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 px-4 py-10 sm:px-6 md:flex-row md:items-center lg:px-8">
           <div>
-            <h2 className="text-2xl font-bold tracking-normal">Ready to start a composition?</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Create a learner account or continue to your workspace.</p>
+            <h2 className="text-2xl font-bold tracking-normal">{t("ctaTitle")}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{t("ctaDescription")}</p>
           </div>
           <Button variant="accent" asChild>
             <Link href={isAuthenticated ? "/compositions/new" : "/register"}>
               <FileText className="h-4 w-4" aria-hidden="true" />
-              New composition
+              {t("newComposition")}
             </Link>
           </Button>
         </div>
@@ -143,3 +132,15 @@ export default function LandingPage() {
     </main>
   );
 }
+
+            <Link href={isAuthenticated ? "/compositions/new" : "/register"}>
+              <FileText className="h-4 w-4" aria-hidden="true" />
+              {t("newComposition")}
+            </Link>
+          </Button>
+        </div>
+      </section>
+    </main>
+  );
+}
+

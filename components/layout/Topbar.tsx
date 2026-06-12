@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { BookOpenCheck, FileText, LayoutDashboard, LogOut, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Separator } from "@/components/ui/Separator";
@@ -10,15 +11,16 @@ import { APP_NAME } from "@/lib/constants";
 import { cn, getInitials } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
-const mobileNavigation = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Compositions", href: "/compositions", icon: FileText },
-  { label: "New", href: "/compositions/new", icon: PenLine },
-];
-
 export function Topbar() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const { t } = useTranslation("common");
+
+  const mobileNavigation = [
+    { label: t("dashboard"), href: "/dashboard", icon: LayoutDashboard },
+    { label: t("compositions"), href: "/compositions", icon: FileText },
+    { label: t("newComposition"), href: "/compositions/new", icon: PenLine },
+  ];
 
   return (
     <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
@@ -31,7 +33,7 @@ export function Topbar() {
         </Link>
 
         <div className="hidden lg:block">
-          <p className="text-sm text-muted-foreground">Workspace</p>
+          <p className="text-sm text-muted-foreground">{t("workspace")}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -43,7 +45,7 @@ export function Topbar() {
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-semibold">
             {getInitials(user?.username)}
           </div>
-          <Button variant="ghost" size="icon" type="button" onClick={signOut} aria-label="Log out">
+          <Button variant="ghost" size="icon" type="button" onClick={signOut} aria-label={t("logout")}>
             <LogOut className="h-4 w-4" />
           </Button>
         </div>

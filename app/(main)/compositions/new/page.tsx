@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { CompositionEditor } from "@/components/features/compositions/CompositionEditor";
 import { useCreateComposition } from "@/lib/hooks/useCompositions";
 import type { CompositionDraft } from "@/types/composition";
@@ -8,6 +9,7 @@ import type { CompositionDraft } from "@/types/composition";
 export default function NewCompositionPage() {
   const router = useRouter();
   const createMutation = useCreateComposition();
+  const { t } = useTranslation("composition");
 
   function handleSave(draft: CompositionDraft) {
     createMutation.mutate(draft, {
@@ -18,10 +20,10 @@ export default function NewCompositionPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-medium text-primary">New composition</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-normal">Start writing</h1>
+        <p className="text-sm font-medium text-primary">{t("newCompositionLabel")}</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-normal">{t("startWriting")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Compose in a clean editor and save your work to the backend composition service.
+          {t("editorSubtitle")}
         </p>
       </div>
 

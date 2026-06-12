@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
@@ -12,35 +13,36 @@ import { useCompositionList } from "@/lib/hooks/useCompositions";
 
 export default function CompositionsPage() {
   const { data = [], isLoading, isError, error } = useCompositionList();
+  const { t } = useTranslation("composition");
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-medium text-primary">Composition library</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-normal">Your compositions</h1>
+          <p className="text-sm font-medium text-primary">{t("library")}</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-normal">{t("myCompositions")}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Manage drafts, generated work, and graded submissions.
+            {t("manageAll")}
           </p>
         </div>
         <Button asChild>
           <Link href="/compositions/new">
             <Plus className="h-4 w-4" aria-hidden="true" />
-            New composition
+            {t("newComposition")}
           </Link>
         </Button>
       </div>
 
-      {isLoading ? <LoadingState label="Loading compositions" /> : null}
+      {isLoading ? <LoadingState label={t("loading")} /> : null}
       {isError ? <ErrorState message={getApiErrorMessage(error)} /> : null}
 
       {!isLoading && !isError && data.length === 0 ? (
         <EmptyState
-          title="No compositions yet"
-          description="Create your first composition, write manually, or generate a draft from a title."
+          title={t("noCompositions")}
+          description={t("createFirst")}
           action={
             <Button asChild>
-              <Link href="/compositions/new">Create composition</Link>
+              <Link href="/compositions/new">{t("creating")}</Link>
             </Button>
           }
         />
