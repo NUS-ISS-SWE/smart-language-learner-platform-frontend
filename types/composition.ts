@@ -4,7 +4,7 @@ export type CompositionStatus = "DRAFT" | "GENERATING" | "GENERATION_FAILED" | "
 
 export type Composition = {
   id?: number;
-  username?: string;
+  userId?: number;
   title: string;
   content: string;
   compositionSource?: CompositionSource;
