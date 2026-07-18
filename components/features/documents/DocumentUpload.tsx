@@ -14,6 +14,7 @@ const ACCEPTED_MIME = [
   "text/plain",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ];
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB — must match backend spring.servlet.multipart.max-file-size
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -27,12 +28,18 @@ export function DocumentUpload({ onSuccess }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const uploadMutation = useUploadDocument();
 
   const handleFileSelect = useCallback((selected: File | null) => {
     if (!selected) return;
+    setFileError(null);
     if (!ACCEPTED_MIME.includes(selected.type)) {
-      alert(`Unsupported file type. Accepted: ${ACCEPTED_TYPES.join(", ")}`);
+      setFileError(`Unsupported file type. Accepted: ${ACCEPTED_TYPES.join(", ")}`);
+      return;
+    }
+    if (selected.size > MAX_FILE_SIZE) {
+      setFileError(`File is too large (${formatBytes(selected.size)}). Maximum size is ${formatBytes(MAX_FILE_SIZE)}.`);
       return;
     }
     setFile(selected);
@@ -88,7 +95,7 @@ export function DocumentUpload({ onSuccess }: Props) {
         <p className="text-sm text-muted-foreground">
           Drag and drop a file here, or <span className="text-primary font-medium">click to browse</span>
         </p>
-        <p className="text-xs text-muted-foreground">Supports PDF, DOCX, PPTX, TXT</p>
+        <p className="text-xs text-muted-foreground">Supports PDF, DOCX, PPTX, TXT &middot; Max 25 MB</p>
       </div>
       <input
         ref={inputRef}
@@ -108,13 +115,17 @@ export function DocumentUpload({ onSuccess }: Props) {
           </div>
           <button
             type="button"
-            onClick={() => { setFile(null); uploadMutation.reset(); }}
+            onClick={() => { setFile(null); setFileError(null); uploadMutation.reset(); }}
             className="ml-3 shrink-0 text-muted-foreground hover:text-foreground"
             aria-label="Remove selected file"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
+      ) : null}
+
+      {fileError ? (
+        <p role="alert" className="text-sm text-destructive">{fileError}</p>
       ) : null}
 
       {uploadMutation.isError ? (
