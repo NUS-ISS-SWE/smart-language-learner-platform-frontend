@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, FileText, LineChart, PenLine, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpenCheck,
+  FileText,
+  LineChart,
+  PenLine,
+  Sparkles,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
@@ -13,9 +20,21 @@ export default function LandingPage() {
   const { t } = useTranslation("home");
 
   const features = [
-    { title: t("feature1Title"), description: t("feature1Desc"), icon: PenLine },
-    { title: t("feature2Title"), description: t("feature2Desc"), icon: Sparkles },
-    { title: t("feature3Title"), description: t("feature3Desc"), icon: LineChart },
+    {
+      title: t("feature1Title"),
+      description: t("feature1Desc"),
+      icon: PenLine,
+    },
+    {
+      title: t("feature2Title"),
+      description: t("feature2Desc"),
+      icon: Sparkles,
+    },
+    {
+      title: t("feature3Title"),
+      description: t("feature3Desc"),
+      icon: LineChart,
+    },
   ];
 
   return (
@@ -26,7 +45,9 @@ export default function LandingPage() {
             <div className="rounded-lg bg-primary p-2 text-primary-foreground">
               <BookOpenCheck className="h-5 w-5" aria-hidden="true" />
             </div>
-            <span className="text-sm font-semibold sm:text-base">{APP_NAME}</span>
+            <span className="text-sm font-semibold sm:text-base">
+              {APP_NAME}
+            </span>
           </Link>
 
           <nav className="flex items-center gap-2">
@@ -73,7 +94,9 @@ export default function LandingPage() {
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href={isAuthenticated ? "/compositions" : "/login"}>{t("openWorkspace")}</Link>
+                  <Link href={isAuthenticated ? "/compositions" : "/login"}>
+                    {t("openWorkspace")}
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -98,18 +121,27 @@ export default function LandingPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-secondary">{t("platformWorkflowLabel")}</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-normal">{t("builtForWriting")}</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+            {t("platformWorkflowLabel")}
+          </p>
+          <h2 className="mt-3 text-3xl font-bold tracking-normal">
+            {t("builtForWriting")}
+          </h2>
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {features.map((feature) => (
-            <article key={feature.title} className="rounded-lg border bg-white p-6">
+            <article
+              key={feature.title}
+              className="rounded-lg border bg-white p-6"
+            >
               <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-[#d3e4fe] text-primary">
                 <feature.icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-semibold">{feature.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">{feature.description}</p>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                {feature.description}
+              </p>
             </article>
           ))}
         </div>
@@ -118,8 +150,12 @@ export default function LandingPage() {
       <section className="border-t bg-white">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 px-4 py-10 sm:px-6 md:flex-row md:items-center lg:px-8">
           <div>
-            <h2 className="text-2xl font-bold tracking-normal">{t("ctaTitle")}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{t("ctaDescription")}</p>
+            <h2 className="text-2xl font-bold tracking-normal">
+              {t("ctaTitle")}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t("ctaDescription")}
+            </p>
           </div>
           <Button variant="accent" asChild>
             <Link href={isAuthenticated ? "/compositions/new" : "/register"}>
@@ -132,15 +168,3 @@ export default function LandingPage() {
     </main>
   );
 }
-
-            <Link href={isAuthenticated ? "/compositions/new" : "/register"}>
-              <FileText className="h-4 w-4" aria-hidden="true" />
-              {t("newComposition")}
-            </Link>
-          </Button>
-        </div>
-      </section>
-    </main>
-  );
-}
-
