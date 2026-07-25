@@ -3,40 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { BookOpenCheck, FolderOpen, LayoutDashboard, PenLine, FileText } from "lucide-react";
+import { BookOpenCheck } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-const navigationConfig = [
-  { key: "dashboard" as const, href: "/dashboard", icon: LayoutDashboard, match: "exact" },
-  { key: "compositions" as const, href: "/compositions", icon: FileText, match: "compositions" },
-  { key: "newComposition" as const, href: "/compositions/new", icon: PenLine, match: "new-composition" },
-  { key: "documents" as const, href: "/documents", icon: FolderOpen, match: "documents" },
-];
+import { navigationConfig } from "@/lib/navigation";
 
 type SidebarProps = {
-  width: number;
+  readonly width: number;
 };
 
 export function Sidebar({ width }: SidebarProps) {
   const pathname = usePathname();
   const { t } = useTranslation("common");
-
-  function isNavigationActive(item: (typeof navigationConfig)[number]) {
-    if (item.match === "new-composition") {
-      return pathname === "/compositions/new";
-    }
-    if (item.match === "compositions") {
-      return (
-        pathname === "/compositions" ||
-        (pathname.startsWith("/compositions/") && pathname !== "/compositions/new")
-      );
-    }
-    if (item.match === "documents") {
-      return pathname === "/documents" || pathname.startsWith("/documents/");
-    }
-    return pathname === item.href;
-  }
 
   return (
     <aside
@@ -60,7 +38,7 @@ export function Sidebar({ width }: SidebarProps) {
             href={item.href}
             className={cn(
               "relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white",
-              isNavigationActive(item) &&
+              item.isActive(pathname) &&
                 "bg-white/10 pl-4 text-white before:absolute before:left-0 before:top-1.5 before:h-5 before:w-1 before:rounded-full before:bg-accent",
             )}
           >

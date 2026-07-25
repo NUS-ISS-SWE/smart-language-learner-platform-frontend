@@ -1,26 +1,52 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { BookOpenCheck, FileText, LayoutDashboard, LogOut, PenLine } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { BookOpenCheck, CreditCard, LogOut } from "lucide-react";
 import { Separator } from "@/components/ui/Separator";
+import { Badge } from "@/components/ui/Badge";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { APP_NAME } from "@/lib/constants";
 import { cn, getInitials } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { useCurrentSubscription } from "@/lib/hooks/useSubscription";
+import { planBadgeLabel } from "@/lib/subscription-utils";
+import { navigationConfig } from "@/lib/navigation";
+
+const MENU_ITEM = "flex items-center gap-2.5 px-4 py-2 text-sm";
 
 export function Topbar() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const { data: subscription } = useCurrentSubscription();
   const { t } = useTranslation("common");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const mobileNavigation = [
-    { label: t("dashboard"), href: "/dashboard", icon: LayoutDashboard },
-    { label: t("compositions"), href: "/compositions", icon: FileText },
-    { label: t("newComposition"), href: "/compositions/new", icon: PenLine },
-  ];
+  const mobileNavigation = navigationConfig.map((item) => ({
+    ...item,
+    label: t(item.key),
+  }));
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [menuOpen]);
 
   return (
     <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
@@ -36,18 +62,68 @@ export function Topbar() {
           <p className="text-sm text-muted-foreground">{t("workspace")}</p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <LanguageSwitcher />
-          <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium">{user?.username ?? "Learner"}</p>
-            <p className="text-xs text-muted-foreground">{user?.role ?? "User"}</p>
-          </div>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-semibold">
+        {/* User menu */}
+        <div className="relative" ref={menuRef}>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            aria-label="User menu"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-secondary-foreground hover:ring-2 hover:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             {getInitials(user?.username)}
-          </div>
-          <Button variant="ghost" size="icon" type="button" onClick={signOut} aria-label={t("logout")}>
-            <LogOut className="h-4 w-4" />
-          </Button>
+          </button>
+
+          {menuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 top-11 z-50 min-w-[200px] rounded-lg border bg-popover py-1 shadow-soft"
+            >
+              <div className="px-4 py-2.5">
+                <p className="text-sm font-medium leading-none">{user?.username ?? "Learner"}</p>
+                {subscription && (
+                  <Badge
+                    variant={subscription.planType === "PREMIUM" ? "default" : "secondary"}
+                    className="mt-2 text-[10px]"
+                  >
+                    {planBadgeLabel(subscription.planType)}
+                  </Badge>
+                )}
+              </div>
+
+              <Separator />
+
+              <Link
+                href="/subscription"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className={cn(MENU_ITEM, "hover:bg-muted")}
+              >
+                <CreditCard className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                {t("subscription")}
+              </Link>
+
+              <Separator />
+
+              <div className="px-4 py-2.5">
+                <p className="mb-2 text-xs text-muted-foreground">{t("language")}</p>
+                <LanguageSwitcher />
+              </div>
+
+              <Separator />
+
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => { setMenuOpen(false); signOut(); }}
+                className={cn(MENU_ITEM, "w-full text-destructive hover:bg-destructive/10")}
+              >
+                <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
+                {t("logout")}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -60,7 +136,7 @@ export function Topbar() {
             href={item.href}
             className={cn(
               "flex items-center justify-center gap-2 rounded-md px-2 py-2 text-xs font-medium text-muted-foreground",
-              pathname === item.href && "bg-secondary text-foreground",
+              item.isActive(pathname) && "bg-secondary text-foreground",
             )}
           >
             <item.icon className="h-4 w-4" aria-hidden="true" />

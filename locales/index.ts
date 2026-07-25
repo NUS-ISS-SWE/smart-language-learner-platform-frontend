@@ -64,6 +64,7 @@ export const en = {
     workspace: 'Workspace',
     back: 'Back',
     newComposition: 'New composition',
+    subscription: 'Subscription',
   },
   course: {
     allCourses: 'All Courses',
@@ -285,6 +286,7 @@ export const zh = {
     workspace: '工作区',
     back: '返回',
     newComposition: '新建作文',
+    subscription: '订阅',
   },
   course: {
     allCourses: '所有课程',
