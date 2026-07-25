@@ -4,10 +4,10 @@ import { PlanCard } from "./PlanCard";
 import type { SubscriptionPlan, SubscriptionPlanInfo, UserSubscription } from "@/types/subscription";
 
 type PlanSelectorProps = {
-  plans: SubscriptionPlanInfo[];
-  currentSubscription: UserSubscription | undefined;
-  onSelect: (plan: SubscriptionPlan) => void;
-  isLoading: boolean;
+  readonly plans: SubscriptionPlanInfo[];
+  readonly currentSubscription: UserSubscription | undefined;
+  readonly onSelect: (plan: SubscriptionPlan) => void;
+  readonly isLoading: boolean;
 };
 
 export function PlanSelector({ plans, currentSubscription, onSelect, isLoading }: PlanSelectorProps) {

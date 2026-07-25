@@ -8,14 +8,15 @@ import { cn } from "@/lib/utils";
 import type { SubscriptionPlan, SubscriptionPlanInfo } from "@/types/subscription";
 
 type PlanCardProps = {
-  plan: SubscriptionPlanInfo;
-  isCurrentPlan: boolean;
-  onSelect: (plan: SubscriptionPlan) => void;
-  isLoading: boolean;
+  readonly plan: SubscriptionPlanInfo;
+  readonly isCurrentPlan: boolean;
+  readonly onSelect: (plan: SubscriptionPlan) => void;
+  readonly isLoading: boolean;
 };
 
 export function PlanCard({ plan, isCurrentPlan, onSelect, isLoading }: PlanCardProps) {
   const isPremium = plan.plan === "PREMIUM";
+  const buttonVariant = isPremium && !isCurrentPlan ? "default" : "outline";
 
   return (
     <Card
@@ -37,12 +38,9 @@ export function PlanCard({ plan, isCurrentPlan, onSelect, isLoading }: PlanCardP
       <div className="mb-4">
         <h3 className="text-lg font-semibold">{plan.displayName}</h3>
         <p className="mt-1 text-2xl font-bold">{plan.price}</p>
-        {plan.durationDays != null && (
-          <p className="text-xs text-muted-foreground">per {plan.durationDays} days</p>
-        )}
-        {plan.durationDays == null && (
-          <p className="text-xs text-muted-foreground">no expiry</p>
-        )}
+        <p className="text-xs text-muted-foreground">
+          {plan.durationDays != null ? `per ${plan.durationDays} days` : "no expiry"}
+        </p>
       </div>
 
       <ul className="mb-6 flex-1 space-y-2" aria-label={`${plan.displayName} features`}>
@@ -55,7 +53,7 @@ export function PlanCard({ plan, isCurrentPlan, onSelect, isLoading }: PlanCardP
       </ul>
 
       <Button
-        variant={isCurrentPlan ? "outline" : isPremium ? "default" : "outline"}
+        variant={buttonVariant}
         className="w-full"
         disabled={isCurrentPlan || isLoading}
         onClick={() => onSelect(plan.plan)}
