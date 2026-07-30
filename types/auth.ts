@@ -1,3 +1,5 @@
+import type { SubscriptionPlan } from "./subscription";
+
 export type LoginRequest = {
   username: string;
   password: string;
@@ -9,6 +11,8 @@ export type RegisterRequest = {
   password: string;
   preferredLanguage: "ENGLISH" | "CHINESE";
   difficultyLevel: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  /** Optional plan selected during sign-up. Defaults to FREE_TRIAL when omitted. */
+  planType?: SubscriptionPlan;
 };
 
 export type ForgotPasswordRequest = {
