@@ -38,6 +38,11 @@ export function useDocumentContent(id: string | null) {
     queryKey: id ? documentKeys.content(id) : documentKeys.all,
     queryFn: () => getDocumentContent(id as string),
     enabled: id !== null,
+    // Poll while the backend is still extracting text
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === "PROCESSING" || status === "UPLOADED" ? 3000 : false;
+    },
   });
 }
 
