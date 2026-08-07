@@ -7,6 +7,8 @@
   "generateComposition": "Generate Composition",
   "refineSuggestion": "Refinement Suggestion",
   "submit": "Submit for Evaluation",
+  "saveDraft": "Save draft",
+  "submitForReview": "Submit for review",
   "draft": "Draft",
   "submitted": "Submitted",
   "evaluated": "Evaluated",

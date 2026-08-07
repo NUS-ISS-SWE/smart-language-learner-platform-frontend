@@ -3,17 +3,28 @@
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { CompositionEditor } from "@/components/features/compositions/CompositionEditor";
-import { useCreateComposition } from "@/lib/hooks/useCompositions";
+import { useCreateComposition, useRequestGrading } from "@/lib/hooks/useCompositions";
 import type { CompositionDraft } from "@/types/composition";
 
 export default function NewCompositionPage() {
   const router = useRouter();
   const createMutation = useCreateComposition();
+  const gradingMutation = useRequestGrading();
   const { t } = useTranslation("composition");
 
   function handleSave(draft: CompositionDraft) {
     createMutation.mutate(draft, {
       onSuccess: (composition) => router.push(`/compositions/${composition.id}`),
+    });
+  }
+
+  function handleSubmitForReview(draft: CompositionDraft) {
+    createMutation.mutate(draft, {
+      onSuccess: (composition) => {
+        gradingMutation.mutate(composition.id!, {
+          onSuccess: () => router.push(`/compositions/${composition.id}`),
+        });
+      },
     });
   }
 
@@ -32,6 +43,9 @@ export default function NewCompositionPage() {
         isSaving={createMutation.isPending}
         saveError={createMutation.error}
         onSave={handleSave}
+        onSubmitForReview={handleSubmitForReview}
+        isSubmitting={gradingMutation.isPending}
+        submitError={gradingMutation.error}
       />
     </div>
   );
