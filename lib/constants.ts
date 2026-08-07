@@ -19,6 +19,12 @@ export const API_BASE_URL =
 export const TOKEN_KEY = "sllp.accessToken";
 
 /**
+ * Key used for storing the autosave preference in localStorage.
+ * Absence or any value other than "false" means autosave is enabled.
+ */
+export const AUTOSAVE_STORAGE_KEY = "sllp.autosave.enabled";
+
+/**
  * Default timeout for API requests in milliseconds.
  */
 export const API_TIMEOUT = 10000;
