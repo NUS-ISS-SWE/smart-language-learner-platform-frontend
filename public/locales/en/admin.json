@@ -23,5 +23,14 @@
   "systemMetrics": "System Metrics",
   "uptime": "Uptime",
   "responseTime": "Response Time",
-  "errorRate": "Error Rate"
+  "errorRate": "Error Rate",
+  "changeStatus": "Change Status",
+  "changeRole": "Change Role",
+  "deleteUser": "Delete User",
+  "confirmDeleteUser": "This user will be soft-deleted and can no longer log in.",
+  "searchPlaceholder": "Search username or email\u2026",
+  "allStatuses": "All statuses",
+  "allRoles": "All roles",
+  "backToUsers": "Back to users",
+  "adminPanel": "Admin Panel"
 }
