@@ -6,12 +6,14 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Download, Edit, FileText, Loader2, Trash2 } from "lucide-react";
 import { getApiErrorMessage } from "@/lib/api/client";
+import { useAuth } from "@/context/AuthContext";
 import { CompositionFeedback } from "@/components/features/compositions/CompositionFeedback";
 import {
   useComposition,
   useDeleteComposition,
   useRequestGrading,
 } from "@/lib/hooks/useCompositions";
+import { useAdminCompositionDetail } from "@/lib/hooks/useAdmin";
 import { useDocument } from "@/lib/hooks/useDocuments";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
@@ -19,7 +21,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Separator } from "@/components/ui/Separator";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatBytes } from "@/lib/utils";
 
 type Props = { readonly params: Promise<{ id: string }> };
 
@@ -38,10 +40,16 @@ export default function CompositionDetailPage({ params }: Props) {
     return Number.isNaN(n) ? null : n;
   }, [id]);
 
-  const compositionQuery = useComposition(compositionId);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
+  // Admin uses the admin endpoint (no user-scoped ownership check); normal users use the regular endpoint.
+  const compositionQuery = useComposition(isAdmin ? null : compositionId);
+  const adminQuery = useAdminCompositionDetail(isAdmin ? compositionId : null);
+  const resolvedQuery = isAdmin ? adminQuery : compositionQuery;
   const gradeMutation = useRequestGrading();
   const deleteMutation = useDeleteComposition();
-  const composition = compositionQuery.data;
+  const composition = resolvedQuery.data;
 
   // Retrieve linked document ID stored when auto-creating from a document
   const linkedDocId = useMemo(() => {
@@ -63,12 +71,12 @@ export default function CompositionDetailPage({ params }: Props) {
     });
   }
 
-  if (compositionQuery.isLoading) {
+  if (resolvedQuery.isLoading) {
     return <LoadingState label={t("loadingComposition")} />;
   }
 
-  if (compositionQuery.isError || !composition) {
-    return <ErrorState message={getApiErrorMessage(compositionQuery.error)} />;
+  if (resolvedQuery.isError || !composition) {
+    return <ErrorState message={getApiErrorMessage(resolvedQuery.error)} />;
   }
 
   return (

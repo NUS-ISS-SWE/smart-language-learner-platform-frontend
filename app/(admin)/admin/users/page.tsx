@@ -1,7 +1,7 @@
 "use client";
 
+import { Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { UserTable } from "@/components/features/admin/UserTable";
@@ -10,12 +10,11 @@ import { Button } from "@/components/ui/Button";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { getApiErrorMessage } from "@/lib/api/client";
+import { ADMIN_USER_STATUSES, ADMIN_USER_ROLES } from "@/lib/constants";
 
-const USER_STATUSES = ["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING_EMAIL_VERIFICATION"];
-const USER_ROLES = ["ADMIN", "USER_FREE_TRIAL", "USER_BASIC", "USER_PREMIUM"];
 const PAGE_SIZE = 20;
 
-export default function AdminUsersPage() {
+function AdminUsersContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -70,7 +69,7 @@ export default function AdminUsersPage() {
           className="w-48"
         >
           <option value="">All statuses</option>
-          {USER_STATUSES.map((s) => (
+          {ADMIN_USER_STATUSES.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>
@@ -83,7 +82,7 @@ export default function AdminUsersPage() {
           className="w-48"
         >
           <option value="">All roles</option>
-          {USER_ROLES.map((r) => (
+          {ADMIN_USER_ROLES.map((r) => (
             <option key={r} value={r}>
               {r}
             </option>
@@ -122,5 +121,13 @@ export default function AdminUsersPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function AdminUsersPage() {
+  return (
+    <Suspense>
+      <AdminUsersContent />
+    </Suspense>
   );
 }

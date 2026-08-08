@@ -1,7 +1,7 @@
 import { apiClient } from "./client";
 import type { AdminUser, AdminUsersPage, UpdateRoleRequest, UpdateStatusRequest } from "@/types/admin";
 import type { Composition } from "@/types/composition";
-import type { DocumentDTO } from "@/types/document";
+import type { DocumentContent, DocumentDTO, DocumentUploadResponse } from "@/types/document";
 
 export type AdminUsersParams = {
   page?: number;
@@ -43,10 +43,25 @@ export async function deleteAdminUser(id: number) {
   await apiClient.delete(`/api/v1/admin/users/${id}`);
 }
 
+export async function getAdminCompositionById(id: number) {
+  const response = await apiClient.get<Composition>(`/api/v1/admin/compositions/${id}`);
+  return response.data;
+}
+
 export async function getAdminUserCompositions(userId: number, params: { page?: number; size?: number } = {}) {
   const response = await apiClient.get<Composition[]>("/api/v1/admin/compositions", {
     params: { userId, ...params },
   });
+  return response.data;
+}
+
+export async function getAdminDocumentById(id: string) {
+  const response = await apiClient.get<DocumentUploadResponse>(`/api/documents/admin/${id}`);
+  return response.data;
+}
+
+export async function getAdminDocumentContent(id: string) {
+  const response = await apiClient.get<DocumentContent>(`/api/documents/admin/${id}/content`);
   return response.data;
 }
 

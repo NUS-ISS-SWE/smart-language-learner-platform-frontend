@@ -20,9 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { getApiErrorMessage } from "@/lib/api/client";
-
-const USER_STATUSES = ["ACTIVE", "INACTIVE", "SUSPENDED"];
-const USER_ROLES = ["ADMIN", "USER_FREE_TRIAL", "USER_BASIC", "USER_PREMIUM"];
+import { ADMIN_CHANGEABLE_STATUSES, ADMIN_USER_ROLES } from "@/lib/constants";
 
 type Props = { readonly params: Promise<{ id: string }> };
 type Tab = "compositions" | "documents";
@@ -145,7 +143,7 @@ export default function AdminUserDetailPage({ params }: Props) {
         title="Change User Status"
         label="New status"
         selectId="status-select"
-        options={USER_STATUSES}
+        options={[...ADMIN_CHANGEABLE_STATUSES]}
         currentValue={user.status}
         onConfirm={(status) =>
           statusMutation.mutate({ id: numId, body: { status } }, { onSuccess: () => setStatusModalOpen(false) })
@@ -159,7 +157,7 @@ export default function AdminUserDetailPage({ params }: Props) {
         title="Change User Role"
         label="New role"
         selectId="role-select"
-        options={USER_ROLES}
+        options={[...ADMIN_USER_ROLES]}
         currentValue={user.role}
         onConfirm={(role) =>
           roleMutation.mutate({ id: numId, body: { role } }, { onSuccess: () => setRoleModalOpen(false) })

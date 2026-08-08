@@ -120,6 +120,7 @@ export default function RegisterPage() {
                   value={form.password}
                   onChange={(e) => update("password", e.target.value)}
                   required
+                  minLength={6}
                 />
                 <Button
                   type="button"
@@ -136,6 +137,7 @@ export default function RegisterPage() {
                   )}
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

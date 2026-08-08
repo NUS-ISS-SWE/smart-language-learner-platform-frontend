@@ -45,3 +45,7 @@ export const QUERY_STALE_TIME = 30000;
  * Data will be garbage collected after this duration.
  */
 export const QUERY_CACHE_TIME = 5 * 60 * 1000;
+
+export const ADMIN_USER_STATUSES = ["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING_EMAIL_VERIFICATION"] as const;
+export const ADMIN_CHANGEABLE_STATUSES = ["ACTIVE", "INACTIVE", "SUSPENDED"] as const;
+export const ADMIN_USER_ROLES = ["ADMIN", "USER_FREE_TRIAL", "USER_BASIC", "USER_PREMIUM"] as const;

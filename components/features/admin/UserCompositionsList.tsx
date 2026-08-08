@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
@@ -6,7 +7,7 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import type { Composition } from "@/types/composition";
 
 type UserCompositionsListProps = {
-  query: UseQueryResult<Composition[]>;
+  readonly query: UseQueryResult<Composition[]>;
 };
 
 export function UserCompositionsList({ query }: UserCompositionsListProps) {
@@ -22,13 +23,17 @@ export function UserCompositionsList({ query }: UserCompositionsListProps) {
   return (
     <div className="space-y-2">
       {compositions.map((c) => (
-        <div key={c.id} className="flex items-center justify-between rounded-md border px-4 py-3 text-sm">
+        <Link
+          key={c.id}
+          href={`/compositions/${c.id}`}
+          className="flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors hover:bg-muted/40"
+        >
           <div className="min-w-0">
             <p className="truncate font-medium">{c.title || "(Untitled)"}</p>
-            <p className="text-xs text-muted-foreground">{c.language} · {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</p>
+            <p className="text-xs text-muted-foreground">{c.language} · {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "\u2014"}</p>
           </div>
           <StatusBadge status={c.compositionStatus} />
-        </div>
+        </Link>
       ))}
     </div>
   );

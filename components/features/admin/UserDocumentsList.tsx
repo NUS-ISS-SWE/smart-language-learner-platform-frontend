@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { formatBytes } from "@/lib/utils";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { getApiErrorMessage } from "@/lib/api/client";
@@ -21,15 +23,19 @@ export function UserDocumentsList({ query }: UserDocumentsListProps) {
   return (
     <div className="space-y-2">
       {documents.map((doc) => (
-        <div key={doc.id} className="flex items-center justify-between rounded-md border px-4 py-3 text-sm">
+        <Link
+          key={doc.id}
+          href={`/documents/${doc.id}`}
+          className="flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors hover:bg-muted/40"
+        >
           <div className="min-w-0">
             <p className="truncate font-medium">{doc.filename}</p>
             <p className="text-xs text-muted-foreground">
-              {doc.fileType} · {(doc.fileSize / 1024).toFixed(1)} KB · {new Date(doc.createdAt).toLocaleDateString()}
+              {doc.fileType} · {formatBytes(doc.fileSize)} · {new Date(doc.createdAt).toLocaleDateString()}
             </p>
           </div>
           <span className="ml-3 shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs">{doc.status}</span>
-        </div>
+        </Link>
       ))}
     </div>
   );

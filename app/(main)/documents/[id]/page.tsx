@@ -5,10 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Download, FileText, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { useDeleteDocument, useDocument, useDocumentContent } from "@/lib/hooks/useDocuments";
+import { useAdminDocumentDetail, useAdminDocumentContent } from "@/lib/hooks/useAdmin";
 import { useCreateComposition } from "@/lib/hooks/useCompositions";
+import { useAuth } from "@/context/AuthContext";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { ErrorState } from "@/components/shared/ErrorState";
+import { formatDate, formatBytes } from "@/lib/utils";
 import type { CompositionSource } from "@/types/composition";
 
 function stripExtension(filename: string): string {
@@ -45,6 +50,73 @@ function ConversionLoadingScreen({ filename, isPending }: { readonly filename: s
       <p className="max-w-xs text-xs text-muted-foreground">
         You&apos;ll be redirected automatically once ready.
       </p>
+    </div>
+  );
+}
+
+const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  UPLOADED: "secondary", PROCESSING: "secondary", READY: "default", FAILED: "destructive",
+};
+
+function formatBytes(b: number): string {
+  if (b < 1024) return `${b} B`;
+  if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
+  return `${(b / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/** Read-only view used when an admin opens another user's document */
+function AdminDocumentView({ id }: { readonly id: string }) {
+  const { data, isLoading, isError, error } = useAdminDocumentDetail(id);
+  const contentQuery = useAdminDocumentContent(id);
+
+  if (isLoading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
+  if (isError || !data) return <ErrorState message={isError ? getApiErrorMessage(error) : "Document not found."} />;
+
+  const { document: doc, downloadUrl } = data;
+  const extractedText = contentQuery.data?.extractedText;
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-2">
+          <Link href="/compositions?tab=documents"><ArrowLeft className="mr-1 h-4 w-4" aria-hidden="true" />Back</Link>
+        </Button>
+        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-primary">Document</p>
+            <h1 className="mt-2 break-all text-3xl font-semibold tracking-normal">{doc.filename}</h1>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <Badge variant={STATUS_VARIANT[doc.status] ?? "secondary"} className="capitalize">{doc.status.toLowerCase()}</Badge>
+              <span className="uppercase">{doc.fileType}</span>
+              <span>·</span>
+              <span>{formatBytes(doc.fileSize)}</span>
+              <span>·</span>
+              <span>Uploaded {formatDate(doc.createdAt)}</span>
+            </div>
+          </div>
+          {downloadUrl ? (
+            <Button variant="outline" size="sm" asChild className="shrink-0">
+              <a href={downloadUrl} target="_blank" rel="noopener noreferrer" download={doc.filename}>
+                <Download className="mr-1 h-4 w-4" aria-hidden="true" />Download
+              </a>
+            </Button>
+          ) : null}
+        </div>
+      </div>
+      <Card>
+        <CardHeader><CardTitle>Extracted Content</CardTitle></CardHeader>
+        <CardContent>
+          {contentQuery.isLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Loading…</div>
+          ) : null}
+          {!contentQuery.isLoading && extractedText ? (
+            <div className="min-h-[200px] whitespace-pre-wrap rounded-lg border bg-white p-5 text-sm leading-7">{extractedText}</div>
+          ) : null}
+          {!contentQuery.isLoading && !extractedText ? (
+            <p className="text-sm text-muted-foreground">No extracted content available.</p>
+          ) : null}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -162,5 +234,8 @@ type Props = { readonly params: Promise<{ id: string }> };
 
 export default function DocumentDetailPage({ params }: Props) {
   const { id } = use(params);
+  const { user } = useAuth();
+
+  if (user?.role === "ADMIN") return <AdminDocumentView id={id} />;
   return <DocumentDetailContent id={id} />;
 }

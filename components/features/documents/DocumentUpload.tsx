@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { CloudUpload, FileText, Loader2, X } from "lucide-react";
+import { formatBytes } from "@/lib/utils";
 import { useUploadDocument } from "@/lib/hooks/useDocuments";
 import { getApiErrorMessage } from "@/lib/api/client";
 import type { DocumentUploadResponse } from "@/types/document";
@@ -14,12 +15,6 @@ const ACCEPTED_MIME = [
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ];
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB — must match backend spring.servlet.multipart.max-file-size
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 type Props = { readonly onSuccess: (document: DocumentUploadResponse) => void };
 
