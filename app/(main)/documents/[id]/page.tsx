@@ -58,12 +58,6 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "
   UPLOADED: "secondary", PROCESSING: "secondary", READY: "default", FAILED: "destructive",
 };
 
-function formatBytes(b: number): string {
-  if (b < 1024) return `${b} B`;
-  if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
-  return `${(b / (1024 * 1024)).toFixed(1)} MB`;
-}
-
 /** Read-only view used when an admin opens another user's document */
 function AdminDocumentView({ id }: { readonly id: string }) {
   const { data, isLoading, isError, error } = useAdminDocumentDetail(id);

@@ -25,12 +25,6 @@ import { formatDate, formatBytes } from "@/lib/utils";
 
 type Props = { readonly params: Promise<{ id: string }> };
 
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
 export default function CompositionDetailPage({ params }: Props) {
   const { id } = use(params);
   const router = useRouter();
