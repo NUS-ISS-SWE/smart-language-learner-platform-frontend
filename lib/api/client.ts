@@ -39,6 +39,7 @@ export function getApiErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
     const data = error.response?.data as ApiError | string | undefined;
     if (typeof data === "string" && data.trim().length > 0) return data;
+    if (typeof data === "object" && data?.detail) return data.detail;
     if (typeof data === "object" && data?.message) return data.message;
     if (typeof data === "object" && data?.error) return data.error;
     if (error.message) return error.message;

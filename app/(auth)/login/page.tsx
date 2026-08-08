@@ -5,6 +5,7 @@ import { type FormEvent, useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getApiErrorMessage } from "@/lib/api/client";
+import { AxiosError } from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { Button } from "@/components/ui/Button";
@@ -34,6 +35,13 @@ export default function LoginPage() {
     }
   }
 
+  function errorMessage(): string {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      return "Incorrect username or password. Please try again.";
+    }
+    return getApiErrorMessage(error);
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -42,7 +50,7 @@ export default function LoginPage() {
       </CardHeader>
       <CardContent>
         <form className="space-y-5" onSubmit={handleSubmit}>
-          {error ? <ErrorState message={getApiErrorMessage(error)} /> : null}
+          {error ? <ErrorState message={errorMessage()} /> : null}
 
           <div className="space-y-2">
             <Label htmlFor="username">{t("username")}</Label>
