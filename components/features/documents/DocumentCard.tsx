@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { FileText, Loader2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -23,13 +24,22 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "
   FAILED: "destructive",
 };
 
-type Props = { document: DocumentDTO };
+type Props = { readonly document: DocumentDTO };
 
 export function DocumentCard({ document }: Props) {
+  const router = useRouter();
   const deleteMutation = useDeleteDocument();
+  // Read once on mount — check if this document was already converted to a composition
+  const [compositionId] = useState(() =>
+    typeof window !== "undefined" ? localStorage.getItem(`sllp.doc.${document.id}.compositionId`) : null,
+  );
+
+  function handleView() {
+    router.push(compositionId ? `/compositions/${compositionId}` : `/documents/${document.id}`);
+  }
 
   function handleDelete() {
-    if (!window.confirm(`Delete "${document.filename}"?`)) return;
+    if (!globalThis.confirm(`Delete "${document.filename}"?`)) return;
     deleteMutation.mutate(document.id);
   }
 
@@ -53,8 +63,8 @@ export function DocumentCard({ document }: Props) {
           <span className="col-span-2">Uploaded: {formatDate(document.createdAt)}</span>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" asChild className="flex-1">
-            <Link href={`/documents/${document.id}`}>View</Link>
+          <Button variant="outline" size="sm" className="flex-1" onClick={handleView}>
+            {compositionId ? "View composition" : "View"}
           </Button>
           <Button
             variant="ghost"

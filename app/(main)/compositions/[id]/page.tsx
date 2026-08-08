@@ -4,7 +4,7 @@ import Link from "next/link";
 import { use, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Edit, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Edit, FileText, Loader2, Trash2 } from "lucide-react";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { CompositionFeedback } from "@/components/features/compositions/CompositionFeedback";
 import {
@@ -12,6 +12,7 @@ import {
   useDeleteComposition,
   useRequestGrading,
 } from "@/lib/hooks/useCompositions";
+import { useDocument } from "@/lib/hooks/useDocuments";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { StatusBadge } from "@/components/shared/StatusBadge";
@@ -20,7 +21,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Separator } from "@/components/ui/Separator";
 import { formatDate } from "@/lib/utils";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { readonly params: Promise<{ id: string }> };
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export default function CompositionDetailPage({ params }: Props) {
   const { id } = use(params);
@@ -35,6 +42,14 @@ export default function CompositionDetailPage({ params }: Props) {
   const gradeMutation = useRequestGrading();
   const deleteMutation = useDeleteComposition();
   const composition = compositionQuery.data;
+
+  // Retrieve linked document ID stored when auto-creating from a document
+  const linkedDocId = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(`sllp.comp.${id}.docId`);
+  }, [id]);
+
+  const { data: linkedDocData } = useDocument(linkedDocId);
 
   function handleGrade() {
     if (!compositionId) return;
@@ -107,6 +122,33 @@ export default function CompositionDetailPage({ params }: Props) {
 
       {gradeMutation.isError ? <ErrorState message={getApiErrorMessage(gradeMutation.error)} /> : null}
       {deleteMutation.isError ? <ErrorState message={getApiErrorMessage(deleteMutation.error)} /> : null}
+
+      {linkedDocData && (
+        <Card>
+          <CardContent className="flex items-center justify-between gap-4 p-5">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="rounded-lg bg-muted p-2 shrink-0">
+                <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-muted-foreground">Source document</p>
+                <p className="truncate text-sm font-medium">{linkedDocData.document.filename}</p>
+                <p className="text-xs text-muted-foreground">
+                  {linkedDocData.document.fileType.toUpperCase()} &middot; {formatBytes(linkedDocData.document.fileSize)} &middot; Uploaded {formatDate(linkedDocData.document.createdAt)}
+                </p>
+              </div>
+            </div>
+            {linkedDocData.downloadUrl && (
+              <Button variant="outline" size="sm" asChild className="shrink-0">
+                <a href={linkedDocData.downloadUrl} target="_blank" rel="noopener noreferrer" download={linkedDocData.document.filename}>
+                  <Download className="mr-1 h-4 w-4" aria-hidden="true" />
+                  Download
+                </a>
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
         <Card>

@@ -15,6 +15,12 @@ import { useCurrentSubscription } from "@/lib/hooks/useSubscription";
 import { planBadgeLabel } from "@/lib/subscription-utils";
 import { navigationConfig } from "@/lib/navigation";
 
+function planBadgeVariant(planType: string): "default" | "secondary" | "warning" {
+  if (planType === "PREMIUM") return "warning";
+  if (planType === "BASIC") return "default";
+  return "secondary";
+}
+
 const MENU_ITEM = "flex items-center gap-2.5 px-4 py-2 text-sm";
 
 export function Topbar() {
@@ -70,9 +76,22 @@ export function Topbar() {
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             aria-label="User menu"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-secondary-foreground hover:ring-2 hover:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5 hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            {getInitials(user?.username)}
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
+              {getInitials(user?.username)}
+            </span>
+            <span className="hidden max-w-[120px] truncate text-sm font-medium sm:block">
+              {user?.username ?? "Learner"}
+            </span>
+            {subscription && (
+              <Badge
+                variant={planBadgeVariant(subscription.planType)}
+                className="hidden text-xs sm:inline-flex"
+              >
+                {planBadgeLabel(subscription.planType)}
+              </Badge>
+            )}
           </button>
 
           {menuOpen && (

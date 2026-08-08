@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Save, SendHorizontal, WandSparkles } from "lucide-react";
 import { AUTOSAVE_STORAGE_KEY } from "@/lib/constants";
 import { getApiErrorMessage } from "@/lib/api/client";
@@ -25,6 +25,7 @@ type CompositionEditorProps = {
   readonly isSaving: boolean;
   readonly saveError?: unknown;
   readonly onSave: (draft: CompositionDraft) => void;
+  readonly onDraftChange?: (draft: CompositionDraft) => void;
   readonly onSubmitForReview?: (draft: CompositionDraft) => void;
   readonly isSubmitting?: boolean;
   readonly submitError?: unknown;
@@ -47,11 +48,23 @@ export function CompositionEditor({
   isSaving,
   saveError,
   onSave,
+  onDraftChange,
   onSubmitForReview,
   isSubmitting,
   submitError,
 }: CompositionEditorProps) {
-  const [draft, setDraft] = useState<CompositionDraft>(emptyDraft);
+  const [draft, setDraft] = useState<CompositionDraft>(() => {
+    if (!initialValue) return emptyDraft;
+    return {
+      title: initialValue.title ?? "",
+      content: initialValue.content ?? "",
+      language: initialValue.language ?? "ENGLISH",
+      compositionSource: initialValue.compositionSource ?? "RAW_TEXT",
+    };
+  });
+  const onDraftChangeRef = useRef(onDraftChange);
+  useEffect(() => { onDraftChangeRef.current = onDraftChange; });
+  useEffect(() => { onDraftChangeRef.current?.(draft); }, [draft]);
   const [autosaveEnabled, setAutosaveEnabled] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem(AUTOSAVE_STORAGE_KEY) !== "false";
@@ -63,19 +76,6 @@ export function CompositionEditor({
   const isNewComposition = !compositionId;
   const isDirty = isNewComposition && isDraftDirty(draft);
   useUnsavedWarning(isDirty);
-
-  useEffect(() => {
-    if (!initialValue) {
-      setDraft(emptyDraft);
-      return;
-    }
-    setDraft({
-      title: initialValue.title ?? "",
-      content: initialValue.content ?? "",
-      language: initialValue.language ?? "ENGLISH",
-      compositionSource: initialValue.compositionSource ?? "RAW_TEXT",
-    });
-  }, [initialValue]);
 
   function updateDraft<Key extends keyof CompositionDraft>(key: Key, value: CompositionDraft[Key]) {
     setDraft((current) => ({ ...current, [key]: value }));

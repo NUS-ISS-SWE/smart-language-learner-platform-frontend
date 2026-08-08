@@ -2,7 +2,6 @@
 
 import { useCallback, useRef, useState } from "react";
 import { CloudUpload, FileText, Loader2, X } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import { useUploadDocument } from "@/lib/hooks/useDocuments";
 import { getApiErrorMessage } from "@/lib/api/client";
 import type { DocumentUploadResponse } from "@/types/document";
@@ -22,7 +21,7 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-type Props = { onSuccess: (document: DocumentUploadResponse) => void };
+type Props = { readonly onSuccess: (document: DocumentUploadResponse) => void };
 
 export function DocumentUpload({ onSuccess }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,7 +31,7 @@ export function DocumentUpload({ onSuccess }: Props) {
   const uploadMutation = useUploadDocument();
 
   const handleFileSelect = useCallback((selected: File | null) => {
-    if (!selected) return;
+    if (!selected || uploadMutation.isPending) return;
     setFileError(null);
     if (!ACCEPTED_MIME.includes(selected.type)) {
       setFileError(`Unsupported file type. Accepted: ${ACCEPTED_TYPES.join(", ")}`);
@@ -44,7 +43,13 @@ export function DocumentUpload({ onSuccess }: Props) {
     }
     setFile(selected);
     uploadMutation.reset();
-  }, [uploadMutation]);
+    uploadMutation.mutate(selected, {
+      onSuccess: (data) => {
+        setFile(null);
+        onSuccess(data);
+      },
+    });
+  }, [uploadMutation, onSuccess]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -61,18 +66,7 @@ export function DocumentUpload({ onSuccess }: Props) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFileSelect(e.target.files?.[0] ?? null);
-    // Reset input so the same file can be selected again after clearing
     e.target.value = "";
-  };
-
-  const handleSubmit = () => {
-    if (!file) return;
-    uploadMutation.mutate(file, {
-      onSuccess: (data) => {
-        setFile(null);
-        onSuccess(data);
-      },
-    });
   };
 
   return (
@@ -109,18 +103,24 @@ export function DocumentUpload({ onSuccess }: Props) {
       {file ? (
         <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-4 py-3 text-sm">
           <div className="flex items-center gap-2 min-w-0">
-            <FileText className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            {uploadMutation.isPending ? (
+              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" aria-hidden="true" />
+            ) : (
+              <FileText className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            )}
             <span className="truncate font-medium">{file.name}</span>
             <span className="shrink-0 text-muted-foreground">{formatBytes(file.size)}</span>
           </div>
-          <button
-            type="button"
-            onClick={() => { setFile(null); setFileError(null); uploadMutation.reset(); }}
-            className="ml-3 shrink-0 text-muted-foreground hover:text-foreground"
-            aria-label="Remove selected file"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          {!uploadMutation.isPending ? (
+            <button
+              type="button"
+              onClick={() => { setFile(null); setFileError(null); uploadMutation.reset(); }}
+              className="ml-3 shrink-0 text-muted-foreground hover:text-foreground"
+              aria-label="Remove selected file"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : null}
         </div>
       ) : null}
 
@@ -131,22 +131,6 @@ export function DocumentUpload({ onSuccess }: Props) {
       {uploadMutation.isError ? (
         <p className="text-sm text-destructive">{getApiErrorMessage(uploadMutation.error)}</p>
       ) : null}
-
-      <Button
-        type="button"
-        onClick={handleSubmit}
-        disabled={!file || uploadMutation.isPending}
-        className="w-full sm:w-auto self-start"
-      >
-        {uploadMutation.isPending ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-            Uploading…
-          </>
-        ) : (
-          "Upload document"
-        )}
-      </Button>
     </div>
   );
 }
