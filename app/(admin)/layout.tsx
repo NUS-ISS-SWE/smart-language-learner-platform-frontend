@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ShieldCheck, Users } from "lucide-react";
+import { ListChecks, ShieldCheck, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Topbar } from "@/components/layout/Topbar";
@@ -12,7 +12,10 @@ import { APP_NAME } from "@/lib/constants";
 
 const SIDEBAR_WIDTH = 240;
 
-const adminNavItems = [{ href: "/admin/users", icon: Users, label: "User Management" }];
+const adminNavItems = [
+  { href: "/admin/users", icon: Users, label: "User Management" },
+  { href: "/admin/rubrics", icon: ListChecks, label: "Rubric Management" },
+];
 
 export default function AdminLayout({ children }: { readonly children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -71,6 +74,21 @@ export default function AdminLayout({ children }: { readonly children: React.Rea
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar />
+        <nav className="flex gap-2 overflow-x-auto border-b bg-background px-4 py-2 lg:hidden">
+          {adminNavItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
+                pathname.startsWith(item.href) && "bg-secondary text-secondary-foreground",
+              )}
+            >
+              <item.icon className="h-4 w-4" aria-hidden="true" />
+              {item.label}
+            </Link>
+          ))}
+        </nav>
         <main className="flex-1 overflow-y-auto p-6 lg:p-8">{children}</main>
       </div>
     </div>
