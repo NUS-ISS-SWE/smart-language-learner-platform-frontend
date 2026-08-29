@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { apiClient } from "@/lib/api/client";
+import { updateComposition } from "@/lib/api/composition";
 import type { CompositionDraft } from "@/types/composition";
 
 export type AutosaveStatus = "idle" | "saving" | "saved" | "error";
@@ -25,7 +25,7 @@ export function useAutosave(
     timerRef.current = setTimeout(async () => {
       setAutosaveStatus("saving");
       try {
-        await apiClient.put(`/api/v1/composition/${compositionId}`, draft);
+        await updateComposition(Number(compositionId), { title: draft.title, content: draft.content });
         setAutosaveStatus("saved");
         setLastSavedAt(new Date());
       } catch {

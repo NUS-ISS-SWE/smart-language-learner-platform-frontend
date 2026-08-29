@@ -159,7 +159,7 @@ export default function CompositionDetailPage({ params }: Props) {
           </CardHeader>
           <CardContent>
             <div className="min-h-[460px] whitespace-pre-wrap rounded-lg border bg-white p-5 text-base leading-8">
-              {composition.content}
+              {composition.content ?? ""}
             </div>
             <Separator className="my-5" />
             <div className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">

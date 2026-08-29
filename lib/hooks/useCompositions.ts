@@ -10,10 +10,14 @@ import {
   requestCompositionGrading,
   updateComposition,
 } from "@/lib/api/composition";
-import type { CompositionDraft } from "@/types/composition";
+import type { Composition, CompositionDraft, CompositionRequest } from "@/types/composition";
 
-function toNum(id: string | number): number {
+export function compositionId(id: string | number): number {
   return typeof id === "string" ? parseInt(id, 10) : id;
+}
+
+function draftRequest(draft: CompositionDraft): CompositionRequest {
+  return { title: draft.title, content: draft.content };
 }
 
 export const compositionKeys = {
@@ -21,8 +25,13 @@ export const compositionKeys = {
   lists: () => [...compositionKeys.all, "list"] as const,
   list: (page: number, size: number) => [...compositionKeys.lists(), page, size] as const,
   details: () => [...compositionKeys.all, "detail"] as const,
-  detail: (id: number | string) => [...compositionKeys.details(), toNum(id)] as const,
+  detail: (id: number | string) => [...compositionKeys.details(), compositionId(id)] as const,
 };
+
+function refreshCompositionCache(queryClient: ReturnType<typeof useQueryClient>, composition: Composition): void {
+  void queryClient.invalidateQueries({ queryKey: compositionKeys.lists() });
+  queryClient.setQueryData(compositionKeys.detail(composition.id), composition);
+}
 
 export function useCompositionList(page = 0, size = 20) {
   return useQuery({
@@ -32,7 +41,7 @@ export function useCompositionList(page = 0, size = 20) {
 }
 
 export function useComposition(id: string | number | null) {
-  const numId = id !== null ? toNum(id) : null;
+  const numId = id !== null ? compositionId(id) : null;
   return useQuery({
     queryKey: numId ? compositionKeys.detail(numId) : compositionKeys.details(),
     queryFn: () => getComposition(numId as number),
@@ -43,13 +52,11 @@ export function useComposition(id: string | number | null) {
 export function useCreateComposition() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createComposition,
-    onSuccess: (composition) => {
-      void queryClient.invalidateQueries({ queryKey: compositionKeys.lists() });
-      if (composition.id) {
-        queryClient.setQueryData(compositionKeys.detail(composition.id), composition);
-      }
-    },
+    mutationFn: (draft: CompositionDraft | CompositionRequest) => createComposition({
+      title: draft.title,
+      content: draft.content,
+    }),
+    onSuccess: (composition) => refreshCompositionCache(queryClient, composition),
   });
 }
 
@@ -57,20 +64,15 @@ export function useUpdateComposition() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, draft }: { id: string | number; draft: CompositionDraft }) =>
-      updateComposition(toNum(id), draft),
-    onSuccess: (composition) => {
-      void queryClient.invalidateQueries({ queryKey: compositionKeys.lists() });
-      if (composition.id) {
-        queryClient.setQueryData(compositionKeys.detail(composition.id), composition);
-      }
-    },
+      updateComposition(compositionId(id), draftRequest(draft)),
+    onSuccess: (composition) => refreshCompositionCache(queryClient, composition),
   });
 }
 
 export function useDeleteComposition() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string | number) => deleteComposition(toNum(id)),
+    mutationFn: (id: string | number) => deleteComposition(compositionId(id)),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: compositionKeys.lists() });
     },
@@ -80,13 +82,8 @@ export function useDeleteComposition() {
 export function useRequestGrading() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string | number) => requestCompositionGrading(toNum(id)),
-    onSuccess: (composition) => {
-      void queryClient.invalidateQueries({ queryKey: compositionKeys.lists() });
-      if (composition.id) {
-        queryClient.setQueryData(compositionKeys.detail(composition.id), composition);
-      }
-    },
+    mutationFn: (id: string | number) => requestCompositionGrading(compositionId(id)),
+    onSuccess: (composition) => refreshCompositionCache(queryClient, composition),
   });
 }
 

@@ -3,17 +3,17 @@ export type CompositionLanguage = "ENGLISH" | "CHINESE";
 export type CompositionStatus = "DRAFT" | "GENERATING" | "GENERATION_FAILED" | "REVIEWING" | "REVIEWED";
 
 export type Composition = {
-  id?: number;
-  userId?: number;
+  id: number;
+  userId: number;
   title: string;
-  content: string;
-  compositionSource?: CompositionSource;
+  content: string | null;
+  compositionSource: CompositionSource;
   language: CompositionLanguage;
-  compositionStatus?: CompositionStatus;
+  compositionStatus: CompositionStatus;
   systemFeedback?: string | null;
   storagePath?: string | null;
-  createdAt?: string | null;
-  updatedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type CompositionDraft = {
@@ -22,3 +22,9 @@ export type CompositionDraft = {
   language: CompositionLanguage;
   compositionSource: CompositionSource;
 };
+
+/** Payload accepted when creating or updating a learner-authored composition. */
+export type CompositionRequest = Pick<CompositionDraft, "title" | "content">;
+
+/** Payload accepted by the AI generation endpoint. */
+export type GenerateCompositionRequest = Pick<CompositionDraft, "title">;
