@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ShieldCheck, Users } from "lucide-react";
+import { BarChart3, ShieldCheck, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Topbar } from "@/components/layout/Topbar";
@@ -12,7 +12,10 @@ import { APP_NAME } from "@/lib/constants";
 
 const SIDEBAR_WIDTH = 240;
 
-const adminNavItems = [{ href: "/admin/users", icon: Users, label: "User Management" }];
+const adminNavItems = [
+  { href: "/admin/users", icon: Users, label: "User Management" },
+  { href: "/admin/metrics", icon: BarChart3, label: "Usage Metrics" },
+];
 
 export default function AdminLayout({ children }: { readonly children: React.ReactNode }) {
   const { user, isLoading } = useAuth();

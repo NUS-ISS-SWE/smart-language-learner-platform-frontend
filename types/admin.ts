@@ -27,3 +27,26 @@ export type UpdateStatusRequest = {
 export type UpdateRoleRequest = {
   role: string;
 };
+
+export type DailyUsageMetric = {
+  date: string;
+  newUsers: number;
+  compositionsCreated: number;
+  compositionsReviewed: number;
+  documentsUploaded: number;
+};
+
+export type SystemUsageMetrics = {
+  from: string;
+  to: string;
+  summary: {
+    totalUsers: number;
+    activeUsers: number;
+    newUsers: number;
+    compositionsCreated: number;
+    compositionsReviewed: number;
+    documentsUploaded: number;
+    aiTokensUsed: number;
+  };
+  daily: DailyUsageMetric[];
+};

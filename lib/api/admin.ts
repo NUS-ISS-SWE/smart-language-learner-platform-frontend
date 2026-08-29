@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { AdminUser, AdminUsersPage, UpdateRoleRequest, UpdateStatusRequest } from "@/types/admin";
+import type { AdminUser, AdminUsersPage, SystemUsageMetrics, UpdateRoleRequest, UpdateStatusRequest } from "@/types/admin";
 import type { Composition } from "@/types/composition";
 import type { DocumentContent, DocumentDTO, DocumentUploadResponse } from "@/types/document";
 
@@ -18,6 +18,16 @@ export type AdminUserDocumentsResponse = {
   pageSize: number;
   hasMore: boolean;
 };
+
+export type AdminMetricsParams = {
+  from?: string;
+  to?: string;
+};
+
+export async function getSystemUsageMetrics(params: AdminMetricsParams = {}) {
+  const response = await apiClient.get<SystemUsageMetrics>("/api/v1/admin/metrics", { params });
+  return response.data;
+}
 
 export async function getAdminUser(id: number) {
   const response = await apiClient.get<AdminUser>(`/api/v1/admin/users/${id}`);

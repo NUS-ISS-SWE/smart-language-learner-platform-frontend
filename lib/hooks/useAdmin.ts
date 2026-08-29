@@ -9,11 +9,12 @@ import {
   getAdminUser,
   getAdminUserCompositions,
   getAdminUserDocuments,
+  getSystemUsageMetrics,
   listAdminUsers,
   updateUserRole,
   updateUserStatus,
 } from "@/lib/api/admin";
-import type { AdminUsersParams } from "@/lib/api/admin";
+import type { AdminMetricsParams, AdminUsersParams } from "@/lib/api/admin";
 import type { UpdateRoleRequest, UpdateStatusRequest } from "@/types/admin";
 
 export const adminKeys = {
@@ -24,7 +25,15 @@ export const adminKeys = {
   detail: (id: number) => [...adminKeys.details(), id] as const,
   userCompositions: (userId: number) => [...adminKeys.all, "compositions", userId] as const,
   userDocuments: (userId: number) => [...adminKeys.all, "documents", userId] as const,
+  metrics: (params: AdminMetricsParams) => [...adminKeys.all, "metrics", params] as const,
 };
+
+export function useSystemUsageMetrics(params: AdminMetricsParams = {}) {
+  return useQuery({
+    queryKey: adminKeys.metrics(params),
+    queryFn: () => getSystemUsageMetrics(params),
+  });
+}
 
 export function useAdminUser(id: number) {
   return useQuery({
