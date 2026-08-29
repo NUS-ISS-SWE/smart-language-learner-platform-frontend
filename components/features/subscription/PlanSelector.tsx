@@ -1,12 +1,12 @@
 "use client";
 
 import { PlanCard } from "./PlanCard";
-import type { SubscriptionPlan, SubscriptionPlanInfo, UserSubscription } from "@/types/subscription";
+import type { SubscriptionPlanCode, SubscriptionPlanInfo, UserSubscription } from "@/types/subscription";
 
 type PlanSelectorProps = {
   readonly plans: SubscriptionPlanInfo[];
   readonly currentSubscription: UserSubscription | undefined;
-  readonly onSelect: (plan: SubscriptionPlan) => void;
+  readonly onSelect: (plan: SubscriptionPlanCode) => void;
   readonly isLoading: boolean;
 };
 
@@ -15,10 +15,10 @@ export function PlanSelector({ plans, currentSubscription, onSelect, isLoading }
     <div className="grid gap-6 sm:grid-cols-3">
       {plans.map((plan) => (
         <PlanCard
-          key={plan.plan}
+          key={plan.code}
           plan={plan}
           isCurrentPlan={
-            currentSubscription?.planType === plan.plan &&
+            currentSubscription?.plan.code === plan.code &&
             currentSubscription?.status === "ACTIVE"
           }
           onSelect={onSelect}

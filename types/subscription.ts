@@ -1,10 +1,10 @@
 export type SubscriptionStatus = "ACTIVE" | "EXPIRED" | "CANCELLED" | "PENDING";
 
-export type SubscriptionPlan = "FREE_TRIAL" | "BASIC" | "PREMIUM";
+export type SubscriptionPlanCode = string;
 
 export type UserSubscription = {
   id: number | null;
-  planType: SubscriptionPlan;
+  plan: SubscriptionPlanSnapshot;
   status: SubscriptionStatus;
   startDate: string | null;
   endDate: string | null;
@@ -13,15 +13,28 @@ export type UserSubscription = {
 };
 
 export type SubscriptionPlanInfo = {
-  plan: SubscriptionPlan;
+  code: SubscriptionPlanCode;
   displayName: string;
-  price: string;
+  description: string | null;
+  priceMinor: number;
+  currency: string;
+  billingInterval: "MONTHLY";
   durationDays: number | null;
+  features: string[];
+  active: boolean;
+  displayOrder: number;
+};
+
+export type SubscriptionPlanSnapshot = {
+  code: SubscriptionPlanCode;
+  displayName: string;
+  priceMinor: number;
+  currency: string;
   features: string[];
 };
 
 export type SelectPlanRequest = {
-  plan: SubscriptionPlan;
+  planCode: SubscriptionPlanCode;
   /** Reserved for Stripe PaymentIntent ID — populated once Stripe integration is complete. */
   paymentToken?: string;
 };

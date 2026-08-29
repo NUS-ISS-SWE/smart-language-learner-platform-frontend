@@ -15,7 +15,7 @@ import { useAdminUsers } from "@/lib/hooks/useAdmin";
 import { RecentCompositions } from "@/components/features/dashboard/RecentCompositions";
 import { ScoreSummary } from "@/components/features/dashboard/ScoreSummary";
 import { useAuth } from "@/context/AuthContext";
-import { planBadgeLabel, planDisplayName, subscriptionStatusVariant } from "@/lib/subscription-utils";
+import { planBadgeLabel, subscriptionStatusVariant } from "@/lib/subscription-utils";
 
 /** Renders only for ADMIN users — safe to call admin hooks unconditionally here */
 function AdminOverview() {
@@ -79,7 +79,7 @@ export default function DashboardPage() {
             <p className="text-sm font-medium text-primary">{t("title")}</p>
             {subscription && (
               <Badge variant={subscriptionStatusVariant(subscription.status)} className="text-xs">
-                {planBadgeLabel(subscription.planType)}
+                {planBadgeLabel(subscription.plan.code)}
               </Badge>
             )}
           </div>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
               <div>
                 <p className="font-medium">Subscription</p>
                 <p className="text-xs text-muted-foreground">
-                  {subscription ? planDisplayName(subscription.planType) : "Manage plan"}
+                  {subscription ? subscription.plan.displayName : "Manage plan"}
                 </p>
               </div>
             </Link>

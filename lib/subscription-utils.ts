@@ -1,28 +1,14 @@
 import type { BadgeProps } from "@/components/ui/Badge";
-import type { SubscriptionPlan, SubscriptionStatus } from "@/types/subscription";
+import type { SubscriptionStatus } from "@/types/subscription";
 
 /** Full display name for use in headings, banners, and labels. */
-export function planDisplayName(plan: SubscriptionPlan): string {
-  switch (plan) {
-    case "FREE_TRIAL":
-      return "Free Trial";
-    case "BASIC":
-      return "Basic";
-    case "PREMIUM":
-      return "Premium";
-  }
+export function planDisplayName(plan: string): string {
+  return plan.split("_").map((part) => part.charAt(0) + part.slice(1).toLowerCase()).join(" ");
 }
 
 /** Short label for compact UI elements such as badges in the topbar. */
-export function planBadgeLabel(plan: SubscriptionPlan): string {
-  switch (plan) {
-    case "FREE_TRIAL":
-      return "Free";
-    case "BASIC":
-      return "Basic";
-    case "PREMIUM":
-      return "Premium";
-  }
+export function planBadgeLabel(plan: string): string {
+  return plan === "FREE_TRIAL" ? "Free" : planDisplayName(plan);
 }
 
 /** Badge colour variant that corresponds to a subscription status. */
@@ -40,6 +26,3 @@ export function subscriptionStatusVariant(status: SubscriptionStatus): BadgeProp
 }
 
 /** Returns true for plans that carry an expiry date and require payment. */
-export function isPaidPlan(plan: SubscriptionPlan): boolean {
-  return plan !== "FREE_TRIAL";
-}

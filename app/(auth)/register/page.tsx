@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Select } from "@/components/ui/Select";
 import type { RegisterRequest } from "@/types/auth";
-import type { SubscriptionPlan } from "@/types/subscription";
+import type { SubscriptionPlanCode } from "@/types/subscription";
 
 type Step = 1 | 2;
 
@@ -37,7 +37,7 @@ export default function RegisterPage() {
     preferredLanguage: "ENGLISH",
     difficultyLevel: "INTERMEDIATE",
   });
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan>("FREE_TRIAL");
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanCode>("FREE_TRIAL");
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -214,9 +214,9 @@ export default function RegisterPage() {
             <div className="space-y-3">
               {plans?.map((plan) => (
                 <PlanPickerCard
-                  key={plan.plan}
+                  key={plan.code}
                   plan={plan}
-                  isSelected={selectedPlan === plan.plan}
+                  isSelected={selectedPlan === plan.code}
                   onSelect={setSelectedPlan}
                 />
               ))}

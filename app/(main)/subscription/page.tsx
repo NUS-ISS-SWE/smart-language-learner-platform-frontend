@@ -11,8 +11,7 @@ import { PlanSelector } from "@/components/features/subscription/PlanSelector";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { getApiErrorMessage } from "@/lib/api/client";
-import { isPaidPlan } from "@/lib/subscription-utils";
-import type { SubscriptionPlan } from "@/types/subscription";
+import type { SubscriptionPlanCode } from "@/types/subscription";
 
 export default function SubscriptionPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -33,13 +32,13 @@ export default function SubscriptionPage() {
     setErrorMessage(null);
   }
 
-  function handleSelectPlan(plan: SubscriptionPlan) {
+  function handleSelectPlan(planCode: SubscriptionPlanCode) {
     clearMessages();
     selectPlanMutation.mutate(
-      { plan },
+      { planCode },
       {
         onSuccess: () => setSuccessMessage(
-          isPaidPlan(plan) ? "Plan updated successfully." : "Subscription cancelled."
+          "Plan updated successfully."
         ),
         onError: (err) => setErrorMessage(getApiErrorMessage(err)),
       },

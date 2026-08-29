@@ -5,24 +5,24 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
-import type { SubscriptionPlan, SubscriptionPlanInfo } from "@/types/subscription";
+import type { SubscriptionPlanCode, SubscriptionPlanInfo } from "@/types/subscription";
 
 type PlanCardProps = {
   readonly plan: SubscriptionPlanInfo;
   readonly isCurrentPlan: boolean;
-  readonly onSelect: (plan: SubscriptionPlan) => void;
+  readonly onSelect: (plan: SubscriptionPlanCode) => void;
   readonly isLoading: boolean;
 };
 
 export function PlanCard({ plan, isCurrentPlan, onSelect, isLoading }: PlanCardProps) {
-  const isPremium = plan.plan === "PREMIUM";
-  const buttonVariant = isPremium && !isCurrentPlan ? "default" : "outline";
+  const buttonVariant = !isCurrentPlan && plan.priceMinor > 0 ? "default" : "outline";
+  const price = new Intl.NumberFormat(undefined, { style: "currency", currency: plan.currency }).format(plan.priceMinor / 100);
 
   return (
     <Card
       className={cn(
         "relative flex flex-col p-6",
-        isPremium && !isCurrentPlan && "border-primary ring-1 ring-primary",
+        plan.priceMinor > 0 && !isCurrentPlan && "border-primary ring-1 ring-primary",
         isCurrentPlan && "border-emerald-500 ring-1 ring-emerald-500",
       )}
     >
@@ -31,13 +31,10 @@ export function PlanCard({ plan, isCurrentPlan, onSelect, isLoading }: PlanCardP
           Current Plan
         </Badge>
       )}
-      {isPremium && !isCurrentPlan && (
-        <Badge className="absolute -top-3 left-4">Popular</Badge>
-      )}
 
       <div className="mb-4">
         <h3 className="text-lg font-semibold">{plan.displayName}</h3>
-        <p className="mt-1 text-2xl font-bold">{plan.price}</p>
+        <p className="mt-1 text-2xl font-bold">{price}</p>
         <p className="text-xs text-muted-foreground">
           {plan.durationDays != null ? `per ${plan.durationDays} days` : "no expiry"}
         </p>
@@ -56,7 +53,7 @@ export function PlanCard({ plan, isCurrentPlan, onSelect, isLoading }: PlanCardP
         variant={buttonVariant}
         className="w-full"
         disabled={isCurrentPlan || isLoading}
-        onClick={() => onSelect(plan.plan)}
+        onClick={() => onSelect(plan.code)}
         aria-label={isCurrentPlan ? `${plan.displayName} — current plan` : `Select ${plan.displayName}`}
       >
         {isCurrentPlan ? "Current Plan" : "Select"}

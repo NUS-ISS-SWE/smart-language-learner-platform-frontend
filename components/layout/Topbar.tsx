@@ -86,10 +86,10 @@ export function Topbar() {
             </span>
             {subscription && (
               <Badge
-                variant={planBadgeVariant(subscription.planType)}
+                variant={planBadgeVariant(subscription.plan.code)}
                 className="hidden text-xs sm:inline-flex"
               >
-                {planBadgeLabel(subscription.planType)}
+                {planBadgeLabel(subscription.plan.code)}
               </Badge>
             )}
           </button>
@@ -103,10 +103,10 @@ export function Topbar() {
                 <p className="text-sm font-medium leading-none">{user?.username ?? "Learner"}</p>
                 {subscription && (
                   <Badge
-                    variant={subscription.planType === "PREMIUM" ? "default" : "secondary"}
+                    variant={subscription.plan.code === "PREMIUM" ? "default" : "secondary"}
                     className="mt-2 text-[10px]"
                   >
-                    {planBadgeLabel(subscription.planType)}
+                    {planBadgeLabel(subscription.plan.code)}
                   </Badge>
                 )}
               </div>

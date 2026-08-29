@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BarChart3, ListChecks, ShieldCheck, Users } from "lucide-react";
+import { BarChart3, ListChecks, ShieldCheck, Users, WalletCards } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Topbar } from "@/components/layout/Topbar";
@@ -15,6 +15,7 @@ const SIDEBAR_WIDTH = 240;
 const adminNavItems = [
   { href: "/admin/users", icon: Users, label: "User Management" },
   { href: "/admin/rubrics", icon: ListChecks, label: "Rubric Management" },
+  { href: "/admin/pricing-plans", icon: WalletCards, label: "Pricing Plans" },
   { href: "/admin/metrics", icon: BarChart3, label: "Usage Metrics" },
 ];
 
