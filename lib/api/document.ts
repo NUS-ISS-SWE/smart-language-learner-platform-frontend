@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/client";
-import type { DocumentContent, DocumentDTO, DocumentsPage, DocumentUploadResponse } from "@/types/document";
+import type { DocumentContent, DocumentsPage, DocumentUploadResponse } from "@/types/document";
 
 export async function uploadDocument(file: File): Promise<DocumentUploadResponse> {
   const form = new FormData();

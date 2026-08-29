@@ -27,7 +27,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const resizeStartRef = useRef({ x: 0, width: DEFAULT_SIDEBAR_WIDTH });
 
   useEffect(() => {
-    setSidebarWidth(getInitialSidebarWidth());
+    const timer = window.setTimeout(() => {
+      setSidebarWidth(getInitialSidebarWidth());
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   // Client-side auth guard.

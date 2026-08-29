@@ -22,20 +22,21 @@ export function AuthProvider({ children }: { readonly children: React.ReactNode 
 
   // Rehydrate auth state from stored token on mount
   useEffect(() => {
-    const token = getStoredAccessToken();
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
-    const storedUser = window.localStorage.getItem("sllp.user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser) as AuthUser);
-      } catch {
-        setUser(null);
+    const timer = window.setTimeout(() => {
+      const token = getStoredAccessToken();
+      if (token) {
+        const storedUser = window.localStorage.getItem("sllp.user");
+        if (storedUser) {
+          try {
+            setUser(JSON.parse(storedUser) as AuthUser);
+          } catch {
+            setUser(null);
+          }
+        }
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const signIn = useCallback(async (credentials: LoginRequest) => {
