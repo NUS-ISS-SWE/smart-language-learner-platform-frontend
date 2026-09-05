@@ -1,0 +1,15 @@
+import type { AdminMetricsParams } from "@/lib/api/admin-metrics";
+import type { AdminUsersParams } from "@/lib/api/admin-users";
+
+export const adminKeys = {
+  all: ["admin"] as const,
+  lists: () => [...adminKeys.all, "list"] as const,
+  list: (params: AdminUsersParams) => [...adminKeys.lists(), params] as const,
+  details: () => [...adminKeys.all, "detail"] as const,
+  detail: (id: number) => [...adminKeys.details(), id] as const,
+  userCompositions: (userId: number) => [...adminKeys.all, "compositions", userId] as const,
+  userDocuments: (userId: number) => [...adminKeys.all, "documents", userId] as const,
+  metrics: (params: AdminMetricsParams) => [...adminKeys.all, "metrics", params] as const,
+  userUsageMetrics: (userId: number, params: AdminMetricsParams) =>
+    [...adminKeys.all, "user-usage-metrics", userId, params] as const,
+};
