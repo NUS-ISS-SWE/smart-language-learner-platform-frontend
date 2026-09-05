@@ -28,6 +28,10 @@ export const compositionKeys = {
   detail: (id: number | string) => [...compositionKeys.details(), compositionId(id)] as const,
 };
 
+export function compositionRefetchInterval(status?: Composition["compositionStatus"]): number | false {
+  return status === "REVIEWING" ? 3000 : false;
+}
+
 function refreshCompositionCache(queryClient: ReturnType<typeof useQueryClient>, composition: Composition): void {
   void queryClient.invalidateQueries({ queryKey: compositionKeys.lists() });
   queryClient.setQueryData(compositionKeys.detail(composition.id), composition);
@@ -48,8 +52,7 @@ export function useComposition(id: string | number | null) {
     enabled: numId !== null,
     // Grading is asynchronous: Kafka completion changes REVIEWING to REVIEWED
     // and stores the orchestrator feedback after the initial HTTP request.
-    refetchInterval: (query) =>
-      query.state.data?.compositionStatus === "REVIEWING" ? 3000 : false,
+    refetchInterval: (query) => compositionRefetchInterval(query.state.data?.compositionStatus),
   });
 }
 

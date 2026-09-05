@@ -40,6 +40,14 @@ export function formatUsdMicros(micros: number): string {
   }).format(micros / 1_000_000);
 }
 
+/** Formats a currency amount stored in its smallest unit, such as cents. */
+export function formatCurrencyMinor(amountMinor: number, currency: string): string {
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency,
+  }).format(amountMinor / 100);
+}
+
 /**
  * Extract initials from a name string.
  * Returns up to 2 characters from the first 2 words.

@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrencyMinor } from "@/lib/utils";
 import type { SubscriptionPlanCode, SubscriptionPlanInfo } from "@/types/subscription";
 
 type PlanPickerCardProps = {
@@ -11,7 +11,7 @@ type PlanPickerCardProps = {
 };
 
 export function PlanPickerCard({ plan, isSelected, onSelect }: PlanPickerCardProps) {
-  const price = new Intl.NumberFormat(undefined, { style: "currency", currency: plan.currency }).format(plan.priceMinor / 100);
+  const price = formatCurrencyMinor(plan.priceMinor, plan.currency);
 
   return (
     <button

@@ -10,40 +10,12 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { useSystemUsageMetrics } from "@/lib/hooks/useAdmin";
+import { normalizeMetricsDateRange, utcIsoDate } from "@/lib/metrics-date-range";
 import { formatUsdMicros } from "@/lib/utils";
 import type { DailyUsageMetric, RetentionCohortMetric } from "@/types/admin";
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "UTC" });
 const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
-const MAXIMUM_RANGE_DAYS = 366;
-
-function isoDate(offsetDays = 0) {
-  const date = new Date();
-  date.setUTCDate(date.getUTCDate() + offsetDays);
-  return date.toISOString().slice(0, 10);
-}
-
-function shiftIsoDate(value: string, offsetDays: number) {
-  const date = new Date(`${value}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + offsetDays);
-  return date.toISOString().slice(0, 10);
-}
-
-function isIsoDate(value: string | null): value is string {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const date = new Date(`${value}T00:00:00Z`);
-  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
-}
-
-function normalizeDateRange(fromValue: string | null, toValue: string | null) {
-  const today = isoDate();
-  const to = isIsoDate(toValue) && toValue <= today ? toValue : today;
-  const earliestAllowedFrom = shiftIsoDate(to, -(MAXIMUM_RANGE_DAYS - 1));
-  const requestedFrom = isIsoDate(fromValue) ? fromValue : shiftIsoDate(to, -29);
-  const from = requestedFrom > to ? to : requestedFrom < earliestAllowedFrom ? earliestAllowedFrom : requestedFrom;
-  return { from, to, earliestAllowedFrom };
-}
-
 function MetricCard({
   label,
   value,
@@ -133,11 +105,11 @@ function RetentionCohortTable({ cohorts }: { readonly cohorts: RetentionCohortMe
 function UsageMetricsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { from, to, earliestAllowedFrom } = normalizeDateRange(searchParams.get("from"), searchParams.get("to"));
+  const { from, to, earliestAllowedFrom } = normalizeMetricsDateRange(searchParams.get("from"), searchParams.get("to"));
   const metricsQuery = useSystemUsageMetrics({ from, to });
 
   const updateDate = useCallback((key: "from" | "to", value: string) => {
-    const nextRange = normalizeDateRange(key === "from" ? value : from, key === "to" ? value : to);
+    const nextRange = normalizeMetricsDateRange(key === "from" ? value : from, key === "to" ? value : to);
     const params = new URLSearchParams(searchParams.toString());
     params.set("from", nextRange.from);
     params.set("to", nextRange.to);
@@ -146,7 +118,7 @@ function UsageMetricsContent() {
 
   const selectRange = useCallback((days: number) => {
     const params = new URLSearchParams();
-    const range = normalizeDateRange(isoDate(-(days - 1)), isoDate());
+    const range = normalizeMetricsDateRange(utcIsoDate(-(days - 1)), utcIsoDate());
     params.set("from", range.from);
     params.set("to", range.to);
     router.replace(`/admin/metrics?${params.toString()}`);
@@ -172,7 +144,7 @@ function UsageMetricsContent() {
           <Input type="date" value={from} min={earliestAllowedFrom} max={to} onChange={(event) => updateDate("from", event.target.value)} />
         </label>
         <label className="grid gap-1.5 text-sm font-medium">To
-          <Input type="date" value={to} min={from} max={isoDate()} onChange={(event) => updateDate("to", event.target.value)} />
+          <Input type="date" value={to} min={from} max={utcIsoDate()} onChange={(event) => updateDate("to", event.target.value)} />
         </label>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => selectRange(7)}>Last 7 days</Button>

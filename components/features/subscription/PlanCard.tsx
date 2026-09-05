@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrencyMinor } from "@/lib/utils";
 import type { SubscriptionPlanCode, SubscriptionPlanInfo } from "@/types/subscription";
 
 type PlanCardProps = {
@@ -16,7 +16,7 @@ type PlanCardProps = {
 
 export function PlanCard({ plan, isCurrentPlan, onSelect, isLoading }: PlanCardProps) {
   const buttonVariant = !isCurrentPlan && plan.priceMinor > 0 ? "default" : "outline";
-  const price = new Intl.NumberFormat(undefined, { style: "currency", currency: plan.currency }).format(plan.priceMinor / 100);
+  const price = formatCurrencyMinor(plan.priceMinor, plan.currency);
 
   return (
     <Card

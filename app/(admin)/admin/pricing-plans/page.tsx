@@ -13,6 +13,7 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { createPricingPlan, listPricingPlans, setPricingPlanStatus, updatePricingPlan } from "@/lib/api/admin";
 import { getApiErrorMessage } from "@/lib/api/client";
+import { formatCurrencyMinor } from "@/lib/utils";
 import type { PricingPlan, PricingPlanRequest } from "@/types/pricing-plan";
 
 const key = ["admin", "pricing-plans"] as const;
@@ -26,7 +27,7 @@ export default function PricingPlansPage() {
   if (query.isLoading) return <LoadingState label="Loading pricing plans…" />;
   if (query.isError) return <ErrorState message={getApiErrorMessage(query.error)} />;
   return <div className="space-y-6"><div className="flex items-start justify-between"><div><h1 className="text-3xl font-semibold">Pricing Plans</h1><p className="mt-1 text-sm text-muted-foreground">Manage the plans customers can select.</p></div><Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Add plan</Button></div>
-    <Card><CardHeader><CardTitle>Catalog</CardTitle></CardHeader><CardContent className="space-y-3">{query.data?.map((plan) => <div key={plan.code} className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-semibold">{plan.displayName} <span className="text-sm font-normal text-muted-foreground">({plan.code})</span></p><p className="text-sm text-muted-foreground">{new Intl.NumberFormat(undefined,{style:"currency",currency:plan.currency}).format(plan.priceMinor/100)} · {plan.durationDays ? `${plan.durationDays} days` : "no expiry"} · {plan.features.join(", ")}</p></div><div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setEditing(plan)}>Edit</Button><Button size="sm" variant="outline" disabled={status.isPending} onClick={() => status.mutate({code:plan.code,active:!plan.active})}>{plan.active ? "Retire" : "Activate"}</Button></div></div>)}</CardContent></Card>
+    <Card><CardHeader><CardTitle>Catalog</CardTitle></CardHeader><CardContent className="space-y-3">{query.data?.map((plan) => <div key={plan.code} className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-semibold">{plan.displayName} <span className="text-sm font-normal text-muted-foreground">({plan.code})</span></p><p className="text-sm text-muted-foreground">{formatCurrencyMinor(plan.priceMinor, plan.currency)} · {plan.durationDays ? `${plan.durationDays} days` : "no expiry"} · {plan.features.join(", ")}</p></div><div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setEditing(plan)}>Edit</Button><Button size="sm" variant="outline" disabled={status.isPending} onClick={() => status.mutate({code:plan.code,active:!plan.active})}>{plan.active ? "Retire" : "Activate"}</Button></div></div>)}</CardContent></Card>
     {(createOpen || editing) && <PricingPlanDialog plan={editing} onClose={() => {setCreateOpen(false);setEditing(null);}} onSaved={invalidate} />}
   </div>;
 }
