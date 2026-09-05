@@ -32,8 +32,10 @@ export type DailyUsageMetric = {
   date: string;
   newUsers: number;
   compositionsCreated: number;
-  compositionsReviewed: number;
+  successfulReviews: number;
   documentsUploaded: number;
+  aiTokensUsed: number;
+  estimatedAiCostMicros: number;
 };
 
 export type SystemUsageMetrics = {
@@ -44,9 +46,49 @@ export type SystemUsageMetrics = {
     activeUsers: number;
     newUsers: number;
     compositionsCreated: number;
-    compositionsReviewed: number;
+    activeLearners: number;
+    reviewRequests: number;
+    successfulReviews: number;
+    failedReviews: number;
+    averageReviewLatencyMillis: number | null;
     documentsUploaded: number;
+    documentsProcessed: number;
+    documentsReady: number;
+    documentsFailed: number;
+    totalAiTokensUsed: number;
     aiTokensUsed: number;
+    estimatedAiCostMicros: number;
+  };
+  daily: DailyUsageMetric[];
+  retentionCohorts: RetentionCohortMetric[];
+};
+
+export type RetentionCohortMetric = {
+  cohortStart: string;
+  cohortSize: number;
+  week0Retained: number;
+  week1Retained: number;
+  week2Retained: number;
+  week3Retained: number;
+  week4Retained: number;
+};
+
+export type UserUsageMetrics = {
+  userId: number;
+  from: string;
+  to: string;
+  summary: {
+    activeDays: number;
+    compositionsCreated: number;
+    reviewRequests: number;
+    successfulReviews: number;
+    failedReviews: number;
+    documentsUploaded: number;
+    documentsReady: number;
+    documentsFailed: number;
+    aiTokensUsed: number;
+    estimatedAiCostMicros: number;
+    lastActivityAt: string | null;
   };
   daily: DailyUsageMetric[];
 };

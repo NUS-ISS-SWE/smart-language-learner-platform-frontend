@@ -7,6 +7,7 @@ import {
   getAdminDocumentById,
   getAdminDocumentContent,
   getAdminUser,
+  getAdminUserUsageMetrics,
   getAdminUserCompositions,
   getAdminUserDocuments,
   getSystemUsageMetrics,
@@ -26,12 +27,21 @@ export const adminKeys = {
   userCompositions: (userId: number) => [...adminKeys.all, "compositions", userId] as const,
   userDocuments: (userId: number) => [...adminKeys.all, "documents", userId] as const,
   metrics: (params: AdminMetricsParams) => [...adminKeys.all, "metrics", params] as const,
+  userUsageMetrics: (userId: number, params: AdminMetricsParams) => [...adminKeys.all, "user-usage-metrics", userId, params] as const,
 };
 
 export function useSystemUsageMetrics(params: AdminMetricsParams = {}) {
   return useQuery({
     queryKey: adminKeys.metrics(params),
     queryFn: () => getSystemUsageMetrics(params),
+  });
+}
+
+export function useAdminUserUsageMetrics(userId: number, params: AdminMetricsParams = {}) {
+  return useQuery({
+    queryKey: adminKeys.userUsageMetrics(userId, params),
+    queryFn: () => getAdminUserUsageMetrics(userId, params),
+    enabled: userId > 0,
   });
 }
 

@@ -31,6 +31,15 @@ export function formatDate(value?: string | null) {
   }).format(date);
 }
 
+/** Formats a USD amount stored as integer micros, preserving the ledger precision. */
+export function formatUsdMicros(micros: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 4,
+  }).format(micros / 1_000_000);
+}
+
 /**
  * Extract initials from a name string.
  * Returns up to 2 characters from the first 2 words.

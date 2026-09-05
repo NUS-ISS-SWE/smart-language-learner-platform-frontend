@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { AdminUser, AdminUsersPage, SystemUsageMetrics, UpdateRoleRequest, UpdateStatusRequest } from "@/types/admin";
+import type { AdminUser, AdminUsersPage, SystemUsageMetrics, UpdateRoleRequest, UpdateStatusRequest, UserUsageMetrics } from "@/types/admin";
 import type { Composition } from "@/types/composition";
 import type { DocumentContent, DocumentDTO, DocumentUploadResponse } from "@/types/document";
 import type { PricingPlan, PricingPlanRequest } from "@/types/pricing-plan";
@@ -27,6 +27,11 @@ export type AdminMetricsParams = {
 
 export async function getSystemUsageMetrics(params: AdminMetricsParams = {}) {
   const response = await apiClient.get<SystemUsageMetrics>("/api/v1/admin/metrics", { params });
+  return response.data;
+}
+
+export async function getAdminUserUsageMetrics(id: number, params: AdminMetricsParams = {}) {
+  const response = await apiClient.get<UserUsageMetrics>(`/api/v1/admin/metrics/users/${id}`, { params });
   return response.data;
 }
 
