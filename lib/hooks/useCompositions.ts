@@ -46,6 +46,10 @@ export function useComposition(id: string | number | null) {
     queryKey: numId ? compositionKeys.detail(numId) : compositionKeys.details(),
     queryFn: () => getComposition(numId as number),
     enabled: numId !== null,
+    // Grading is asynchronous: Kafka completion changes REVIEWING to REVIEWED
+    // and stores the orchestrator feedback after the initial HTTP request.
+    refetchInterval: (query) =>
+      query.state.data?.compositionStatus === "REVIEWING" ? 3000 : false,
   });
 }
 

@@ -11,6 +11,7 @@ export type Composition = {
   language: CompositionLanguage;
   compositionStatus: CompositionStatus;
   systemFeedback?: string | null;
+  gradingProgressMessage?: string | null;
   storagePath?: string | null;
   createdAt: string;
   updatedAt: string;

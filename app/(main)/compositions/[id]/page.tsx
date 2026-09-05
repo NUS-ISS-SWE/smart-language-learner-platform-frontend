@@ -169,7 +169,22 @@ export default function CompositionDetailPage({ params }: Props) {
           </CardContent>
         </Card>
 
-        <CompositionFeedback feedback={composition.systemFeedback} />
+        <div className="space-y-4">
+          {composition.compositionStatus === "REVIEWING" ? (
+            <Card aria-live="polite">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  {t("assessmentInProgress")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                {composition.gradingProgressMessage || t("preparingAssessment")}
+              </CardContent>
+            </Card>
+          ) : null}
+          <CompositionFeedback feedback={composition.systemFeedback} />
+        </div>
       </div>
     </div>
   );
