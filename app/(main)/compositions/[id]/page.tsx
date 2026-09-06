@@ -8,6 +8,7 @@ import { ArrowLeft, Download, Edit, FileText, Loader2, Trash2 } from "lucide-rea
 import { getApiErrorMessage } from "@/lib/api/client";
 import { useAuth } from "@/context/AuthContext";
 import { CompositionFeedback } from "@/components/features/compositions/CompositionFeedback";
+import { AssessmentProgress } from "@/components/features/compositions/AssessmentProgress";
 import {
   useComposition,
   useDeleteComposition,
@@ -101,7 +102,12 @@ export default function CompositionDetailPage({ params }: Props) {
               {t("editComposition")}
             </Link>
           </Button>
-          <Button variant="outline" type="button" onClick={handleGrade} disabled={gradeMutation.isPending}>
+          <Button
+            variant="outline"
+            type="button"
+            onClick={handleGrade}
+            disabled={gradeMutation.isPending || composition?.compositionStatus !== "DRAFT"}
+          >
             {gradeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {t("requestGrading")}
           </Button>
@@ -178,8 +184,11 @@ export default function CompositionDetailPage({ params }: Props) {
                   {t("assessmentInProgress")}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                {composition.gradingProgressMessage || t("preparingAssessment")}
+              <CardContent>
+                <AssessmentProgress
+                  stage={composition.gradingProgressStage}
+                  message={composition.gradingProgressMessage}
+                />
               </CardContent>
             </Card>
           ) : null}

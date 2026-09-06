@@ -1,4 +1,16 @@
 {
+  "requestGrading": "请求评分",
+  "assessmentInProgress": "正在评估你的作文",
+  "preparingAssessment": "正在准备评估…",
+  "assessmentComplete": "已完成",
+  "assessmentCurrent": "进行中",
+  "assessmentStages": {
+    "preparing": "准备评估",
+    "grading": "评估作文",
+    "reviewing": "检查评估准确性",
+    "refining": "优化评估",
+    "suggesting": "生成改进建议"
+  },
   "myCompositions": "我的作文",
   "newComposition": "新建作文",
   "writeComposition": "撰写作文",

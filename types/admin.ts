@@ -50,7 +50,7 @@ export type SystemUsageMetrics = {
     reviewRequests: number;
     successfulReviews: number;
     failedReviews: number;
-    averageReviewLatencyMillis: number | null;
+    averageReviewLatencyMillis?: number | null;
     documentsUploaded: number;
     documentsProcessed: number;
     documentsReady: number;
@@ -61,16 +61,37 @@ export type SystemUsageMetrics = {
   };
   daily: DailyUsageMetric[];
   retentionCohorts: RetentionCohortMetric[];
+  workflowReliability: WorkflowReliabilityMetric;
+  agentMetrics: AgentMetrics[];
 };
 
 export type RetentionCohortMetric = {
   cohortStart: string;
   cohortSize: number;
-  week0Retained: number;
-  week1Retained: number;
-  week2Retained: number;
-  week3Retained: number;
-  week4Retained: number;
+  week0Retained?: number | null;
+  week1Retained?: number | null;
+  week2Retained?: number | null;
+  week3Retained?: number | null;
+  week4Retained?: number | null;
+};
+
+export type WorkflowReliabilityMetric = {
+  received: number;
+  completed: number;
+  failed: number;
+  pending: number;
+  completionPercent?: number | null;
+  failurePercent?: number | null;
+  averageCompletionLatencyMillis?: number | null;
+};
+
+export type AgentMetrics = {
+  agent: string;
+  attempts: number;
+  failedAttempts: number;
+  failurePercent?: number | null;
+  aiTokensUsed: number;
+  estimatedAiCostMicros: number;
 };
 
 export type UserUsageMetrics = {

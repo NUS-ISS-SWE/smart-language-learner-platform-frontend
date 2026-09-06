@@ -1,6 +1,7 @@
 export type CompositionSource = "RAW_TEXT" | "FILE_PDF" | "FILE_DOCX" | "SYSTEM";
 export type CompositionLanguage = "ENGLISH" | "CHINESE";
 export type CompositionStatus = "DRAFT" | "GENERATING" | "GENERATION_FAILED" | "REVIEWING" | "REVIEWED";
+export type GradingProgressStage = "PREPARING" | "GRADING" | "REVIEWING" | "REGRADING" | "SUGGESTING";
 
 export type Composition = {
   id: number;
@@ -12,6 +13,7 @@ export type Composition = {
   compositionStatus: CompositionStatus;
   systemFeedback?: string | null;
   gradingProgressMessage?: string | null;
+  gradingProgressStage?: GradingProgressStage | null;
   storagePath?: string | null;
   createdAt: string;
   updatedAt: string;
