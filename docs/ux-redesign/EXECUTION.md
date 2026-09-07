@@ -1,6 +1,6 @@
 # Execution, acceptance and continuation record
 
-Read [handoff](../../UX_REDESIGN_PLAN.md), [design specification](DESIGN_SPEC.md), [visual craft guide](VISUAL_CRAFT.md) and [workflow contract](WORKFLOW_CONTRACT.md) first. **Application implementation is not yet authorized.** The checkboxes below describe future work; documentation creation does not complete them.
+Read [handoff](../../UX_REDESIGN_PLAN.md), [design specification](DESIGN_SPEC.md), [visual craft guide](VISUAL_CRAFT.md) and [workflow contract](WORKFLOW_CONTRACT.md) first. **Implementation is authorized.** The checkboxes below describe future work; complete one only when its listed acceptance criteria are met.
 
 ## 1. Operating rules for every session
 
@@ -125,15 +125,16 @@ For CSS-only slices, focus on visual/keyboard checks plus lint/type checks; run 
 
 ### Current checkpoint: 7 September 2026
 
-- Approval: **pending; no redesign application changes authorized or implemented**.
+- Approval: **granted 7 September 2026 for the documented redesign scope**.
 - Reviewed refs: frontend `3c859bf`, backend `e8efc85`, both on `review/assessment-metrics-20260906`.
 - Active redesign branch in each repository: `feature/calm-writing-studio-20260906`.
-- Completed: preimplementation working-tree review/checkpoints and this documentation handoff.
+- Completed: preimplementation working-tree review/checkpoints and this documentation handoff. T00 test foundation is in place: Playwright with Chromium, a local web-server configuration, and landing reference tests/screenshots. It remains open until contract fixtures cover the specified learner/admin states.
+- In progress: T01 shared visual primitives and T11 public landing. The initial public reference is implemented and inspected at 1440px and 390px; remaining signed-in and Chinese runtime browser checks keep both tasks open.
 - Visual handoff strengthened following the user's request: VISUAL_CRAFT.md records the intended art direction, three representative screen blueprints, asset rules and a required visual refinement procedure. This remains documentation, not an implemented or approved mockup.
 - Browser evidence: none yet; plan is source-grounded.
 - Newly recorded gaps: runtime translation resource mismatch; two skipped Java integration tests in the earlier passing reactor run. See handoff for precise baseline scope.
 - Pending product decisions: semantic replacement of composition-language selector; any durable document/revision relationship or new backend scope. Preserve current control/contract while pending.
-- Next action: present the recorded plan to the user. Begin T00 only after explicit implementation approval.
+- Next action: finish T00's deterministic contract fixtures, then implement T02 shared navigation before continuing the learner workflow slices. Re-run the language switcher interaction check during T02; its headless development test did not observe the pre-existing control's client-side update, so no conclusion has been recorded about its production behavior.
 
 Append one entry per completed or handed-off slice, using this template:
 

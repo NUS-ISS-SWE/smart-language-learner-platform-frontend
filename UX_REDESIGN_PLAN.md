@@ -1,6 +1,6 @@
 # Calm writing studio: implementation handoff
 
-**Status: planning complete enough to begin a first slice; implementation awaits explicit user approval.**
+**Status: implementation approved and underway; testing/finalization remains with the user.**
 
 Updated 7 September 2026. This file is the entry point for a fresh session or a different model. Read the linked documents before editing application code. The user explicitly requested the review and checkpoint commits first, followed by a prompt before any redesign implementation. Preparing this documentation does not constitute that approval.
 
