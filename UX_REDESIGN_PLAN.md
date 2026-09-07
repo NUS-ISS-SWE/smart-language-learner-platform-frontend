@@ -8,8 +8,9 @@ Updated 7 September 2026. This file is the entry point for a fresh session or a 
 
 1. This file: intent, decisions, scope, branch state, and approval boundary.
 2. [Design and screen specification](docs/ux-redesign/DESIGN_SPEC.md): concrete visual defaults and requirements for every existing screen.
-3. [Workflow and functionality contract](docs/ux-redesign/WORKFLOW_CONTRACT.md): preservation inventory, API constraints, and exact behavior for saving, reviewing, revising, and uploading.
-4. [Execution and acceptance checklist](docs/ux-redesign/EXECUTION.md): bounded tasks, dependencies, test scenarios, evidence requirements, and continuation log.
+3. [Visual craft guide](docs/ux-redesign/VISUAL_CRAFT.md): art direction, layout blueprints, asset choices, visual critique and refinement procedure. This explains how to achieve the intended finish, beyond applying tokens.
+4. [Workflow and functionality contract](docs/ux-redesign/WORKFLOW_CONTRACT.md): preservation inventory, API constraints, and exact behavior for saving, reviewing, revising, and uploading.
+5. [Execution and acceptance checklist](docs/ux-redesign/EXECUTION.md): bounded tasks, dependencies, test scenarios, evidence requirements, and continuation log.
 
 These documents are the canonical plan. The backend repository contains a pointer, not a competing specification. If later user instructions change a decision, update the decision and affected acceptance criteria together. Do not silently reinterpret the design in a new session.
 
@@ -74,6 +75,6 @@ Out of scope unless separately approved: persistent revision history, course or 
 
 Use this instruction with either model:
 
-> Read UX_REDESIGN_PLAN.md and all three linked specifications in the frontend repository; if starting in the backend, follow its UX_REDESIGN_PLAN.md pointer. Inspect the current branches and changes. Preserve the reviewed checkpoints and all capabilities in the retention inventory. Consult the execution log and continue the first unfinished task only when implementation has been explicitly approved in this conversation. Do not substitute your own visual direction or call a task complete without its required evidence. If approval is absent, report readiness and ask before editing application code.
+> Read UX_REDESIGN_PLAN.md and all four linked specifications in the frontend repository, including VISUAL_CRAFT.md; if starting in the backend, follow its UX_REDESIGN_PLAN.md pointer. Inspect the current branches and changes. Preserve the reviewed checkpoints and all capabilities in the retention inventory. Consult the execution log and continue the first unfinished task only when implementation has been explicitly approved in this conversation. Follow the visual craft guide's composition and render-inspect-refine process. Do not substitute your own visual direction or call a task complete without its required evidence. If approval is absent, report readiness and ask before editing application code.
 
 The execution log must carry decisions, completed work, evidence and the exact next action between sessions. A smaller model may need smaller tasks or more iterations; it must meet the same acceptance criteria. Written specifications reduce variation but cannot guarantee identical output. The first rendered reference screens and the recorded verification evidence are essential additional anchors.

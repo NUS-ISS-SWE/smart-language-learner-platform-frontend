@@ -1,6 +1,6 @@
 # Execution, acceptance and continuation record
 
-Read [handoff](../../UX_REDESIGN_PLAN.md), [design specification](DESIGN_SPEC.md) and [workflow contract](WORKFLOW_CONTRACT.md) first. **Application implementation is not yet authorized.** The checkboxes below describe future work; documentation creation does not complete them.
+Read [handoff](../../UX_REDESIGN_PLAN.md), [design specification](DESIGN_SPEC.md), [visual craft guide](VISUAL_CRAFT.md) and [workflow contract](WORKFLOW_CONTRACT.md) first. **Application implementation is not yet authorized.** The checkboxes below describe future work; documentation creation does not complete them.
 
 ## 1. Operating rules for every session
 
@@ -8,7 +8,7 @@ Read [handoff](../../UX_REDESIGN_PLAN.md), [design specification](DESIGN_SPEC.md
 2. Confirm explicit user approval for implementation exists in the active conversation. If absent, ask before changing application code. Once granted, record its scope/date here and do not repeatedly ask for the same scope.
 3. Select the first unfinished task whose dependencies are complete. Read the affected source. Identify relevant S, R and W IDs before editing. Keep each task small enough to verify; split it further if needed without dropping requirements.
 4. Implement the agreed design and actual behavior. Do not replace real API flows with fixtures to make a screenshot look successful. Test fixtures belong only to the test environment; the labelled landing example is intentionally static.
-5. Run the task's relevant checks and inspect the rendered result. Fix failures before claiming completion. Compile/lint success cannot substitute for keyboard, responsive and interaction checks.
+5. Run the task's relevant checks and inspect the rendered result using the visual craft guide's three-pass procedure. Record concrete visual defects and inspect their fixes before claiming completion. Compile/lint success cannot substitute for visual, keyboard, responsive and interaction checks.
 6. Review the diff for lost functionality, accidental API changes, unrelated edits and untranslated labels. Record evidence and exact limitations. Complete a task checkbox only when its exit criteria are met.
 7. Update this record before handing off: commit/ref, changed areas, test commands/results, screenshots, decisions, known failures and next concrete action. Commit focused slices when authorized; do not push, merge or deploy just because local work is complete.
 
@@ -103,7 +103,7 @@ Check normal text contrast at least 4.5:1, large text at least 3:1, meaningful c
 
 Capture before/after screenshots of the same viewport and state. Initial reference set: landing hero (T11), editor (T05), admin users (T08). Put shareable fictional-data screenshots in `docs/ux-redesign/evidence/` when available, named like `T05-editor-desktop-en.png`. Large temporary browser traces may stay untracked, but record their location and relevant findings. No evidence assets exist yet. Do not create fake evidence files to satisfy the checklist.
 
-If a reference receives explicit user approval, record that approval and use it to constrain later screens. Otherwise label it implemented/verified, not user-approved. A visual failure blocks completion even if automated tests pass.
+If a reference receives explicit user approval, record that approval and use it to constrain later screens. Otherwise label it implemented/verified, not user-approved. A visual failure blocks completion even if automated tests pass. Each visual task must also include the short critique record from [VISUAL_CRAFT.md](VISUAL_CRAFT.md); merely saving a screenshot does not establish that it was inspected.
 
 ## 5. Commands and check scope
 
@@ -129,6 +129,7 @@ For CSS-only slices, focus on visual/keyboard checks plus lint/type checks; run 
 - Reviewed refs: frontend `3c859bf`, backend `e8efc85`, both on `review/assessment-metrics-20260906`.
 - Active redesign branch in each repository: `feature/calm-writing-studio-20260906`.
 - Completed: preimplementation working-tree review/checkpoints and this documentation handoff.
+- Visual handoff strengthened following the user's request: VISUAL_CRAFT.md records the intended art direction, three representative screen blueprints, asset rules and a required visual refinement procedure. This remains documentation, not an implemented or approved mockup.
 - Browser evidence: none yet; plan is source-grounded.
 - Newly recorded gaps: runtime translation resource mismatch; two skipped Java integration tests in the earlier passing reactor run. See handoff for precise baseline scope.
 - Pending product decisions: semantic replacement of composition-language selector; any durable document/revision relationship or new backend scope. Preserve current control/contract while pending.

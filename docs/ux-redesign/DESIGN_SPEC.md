@@ -1,6 +1,6 @@
 # Visual and screen specification
 
-Authority and approval status: [handoff](../../UX_REDESIGN_PLAN.md). Behavior and preservation rules: [workflow contract](WORKFLOW_CONTRACT.md). Required evidence: [execution checklist](EXECUTION.md).
+Authority and approval status: [handoff](../../UX_REDESIGN_PLAN.md). Composition and refinement method: [visual craft guide](VISUAL_CRAFT.md). Behavior and preservation rules: [workflow contract](WORKFLOW_CONTRACT.md). Required evidence: [execution checklist](EXECUTION.md).
 
 ## 1. Design defaults
 
