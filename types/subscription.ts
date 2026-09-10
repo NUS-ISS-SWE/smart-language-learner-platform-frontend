@@ -10,6 +10,8 @@ export type UserSubscription = {
   endDate: string | null;
   durationDays: number | null;
   createdAt: string | null;
+  /** Set only when status is PENDING — redirect the browser here to pay via Stripe. */
+  checkoutUrl: string | null;
 };
 
 export type SubscriptionPlanInfo = {

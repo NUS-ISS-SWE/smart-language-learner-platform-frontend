@@ -1,13 +1,13 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from "@tanstack/react-query";
 import {
   cancelSubscription,
   getAvailablePlans,
   getCurrentSubscription,
   selectPlan,
 } from "@/lib/api/subscription";
-import type { SelectPlanRequest } from "@/types/subscription";
+import type { SelectPlanRequest, UserSubscription } from "@/types/subscription";
 
 export const subscriptionKeys = {
   all: ["subscription"] as const,
@@ -16,10 +16,13 @@ export const subscriptionKeys = {
   history: () => [...subscriptionKeys.all, "history"] as const,
 };
 
-export function useCurrentSubscription() {
+export function useCurrentSubscription(
+  refetchInterval?: UseQueryOptions<UserSubscription>["refetchInterval"],
+) {
   return useQuery({
     queryKey: subscriptionKeys.current(),
     queryFn: getCurrentSubscription,
+    refetchInterval,
   });
 }
 
@@ -35,8 +38,12 @@ export function useSelectPlan() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (request: SelectPlanRequest) => selectPlan(request),
-    onSuccess: () => {
+    onSuccess: (data) => {
       void queryClient.invalidateQueries({ queryKey: subscriptionKeys.current() });
+      // Paid plans come back PENDING with a Stripe Payment Link to complete payment on.
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      }
     },
   });
 }

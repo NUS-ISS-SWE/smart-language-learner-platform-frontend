@@ -21,7 +21,9 @@ export default function SubscriptionPage() {
     data: currentSubscription,
     isLoading: isCurrentLoading,
     isError: isCurrentError,
-  } = useCurrentSubscription();
+  } = useCurrentSubscription((query) =>
+    query.state.data?.status === "PENDING" ? 3000 : false,
+  );
   const { data: plans, isLoading: isPlansLoading } = useAvailablePlans();
   const selectPlanMutation = useSelectPlan();
 
@@ -72,6 +74,12 @@ export default function SubscriptionPage() {
         <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {errorMessage}
         </div>
+      )}
+
+      {currentSubscription?.status === "PENDING" && (
+        <output className="block rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Waiting for Stripe to confirm your payment — this updates automatically.
+        </output>
       )}
 
       {currentSubscription && (
