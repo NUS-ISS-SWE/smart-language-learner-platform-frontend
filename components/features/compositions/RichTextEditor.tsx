@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 
 type RichTextEditorProps = {
   readonly value: string;
+  readonly disabled?: boolean;
   readonly onChange: (html: string) => void;
 };
 
@@ -66,11 +67,12 @@ function ToolbarDivider() {
   return <div className="mx-1 h-5 w-px bg-border" aria-hidden="true" />;
 }
 
-export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, disabled = false }: RichTextEditorProps) {
   // Track the last HTML emitted by the editor to distinguish user edits from external updates
   const editorHtmlRef = useRef(value);
 
   const editor = useEditor({
+    editable: !disabled,
     extensions: [
       StarterKit,
       Underline,
@@ -93,6 +95,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   });
 
   // Sync content when changed from outside (initial load, AI generation)
+  useEffect(() => { editor?.setEditable(!disabled, false); }, [editor, disabled]);
   useEffect(() => {
     if (!editor || value === editorHtmlRef.current) return;
     editorHtmlRef.current = value;

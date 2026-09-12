@@ -41,7 +41,7 @@ Task completion:
 - [x] T01 Tokens and shared primitives
 - [x] T02 Shared navigation
 - [x] T03 Dashboard and library
-- [ ] T04 Persistence coordinator
+- [x] T04 Persistence coordinator (browser-history limitation recorded below)
 - [ ] T05 Writing surface
 - [ ] T06 Generation, feedback, revision
 - [ ] T07 Documents
@@ -157,7 +157,7 @@ Do not replace this history with a vague "all done" summary. Before final delive
 ### 12 September 2026 — foundation review, shared shell, dashboard and library
 
 - Approval reaffirmed: continue the plan and check refactoring opportunities. Both review refs remain unchanged.
-- Starting ref: frontend `22f4097`. Changes are currently in the working tree; checkpoint verification is underway.
+- Starting ref: frontend `22f4097`. Verified checkpoint: frontend `6eab0c4`; backend plan pointer `e0dd156`.
 - Reviewed the first landing/primitives slice. Restored the previously removed language interaction test. A dedicated localhost:3006 test server fixed the unreliable test environment; the full suite then exposed a real saved-language hydration race. A shared `useSyncExternalStore` translation hook now supplies the English server snapshot to each streaming boundary and observes the live locale after hydration. All application translation imports use it. HTML language and selected-language semantics update correctly.
 - Improved landing hierarchy, 1024px preview stacking, mobile touch targets, focus, skip-link destination, reduced motion, and accurate signed-in/out CTAs. Restored the capability summary/footer. No interactive capability was removed.
 - Refactored main/admin layouts into `WorkspaceShell`, with shared navigation, one native mobile drawer, keyboard/pointer resize and separate persisted admin width. Account controls retain subscription, language and logout. Native dialogs now trap focus, restore it after unmount, scroll within the viewport and preserve background scrolling state. Extracted shared dialog focus handling.
@@ -169,4 +169,15 @@ Do not replace this history with a vague "all done" summary. Before final delive
 - Independent incoming audit work remains outside this UX checkpoint: frontend audit page/API/hook/type exports and backend audit changes. Its navigation has moved from the old admin layout into `lib/navigation.ts`; preserve that entry with the incoming feature. Navigation tests assert it when the route exists. Do not commit the unrelated audit implementation as part of UX.
 - Refactoring priorities next: replace competing create/autosave/manual-save paths with one persistence coordinator (T04); remove duplicate Tiptap link/underline registrations during T05; unify safe content rendering and fix generation/ownership handling in T06. Avoid broad backend or audit refactors.
 - Known limits: browser tests use explicit API fixtures, not the live backend. 720px reflow checks approximate the CSS viewport of 200% desktop zoom; actual browser-UI zoom and assistive-technology checks remain in T13. Admin page bodies, auth and subscription still have later redesign work. Full workflow fixtures will be extended with each relevant task.
-- Next exact action: complete the current consolidated checks/checkpoint, then T04 (A01-A06) before broad writing-surface changes.
+- Next exact action at this checkpoint: T04 (A01-A06) before broad writing-surface changes.
+
+### 12 September 2026 — T04 persistence coordinator
+
+- Branch: `feature/calm-writing-studio-20260906`, following `6eab0c4`. Implementation approval remains in force.
+- Refactor: `CompositionSession` is the single writer for creation, autosave, manual save, generation preparation and grading preparation. `useCompositionSession` owns its lifecycle/preferences/cache integration. Removed the superseded `useAutosave`, `useCompositionDraft` and `useUnsavedWarning` hooks after checking all callers. Their capabilities remain in the coordinator and `DraftNavigationGuard`.
+- W01/A01-A06: joins in-flight writes, flushes newer input before review, preserves input when old acknowledgements arrive, prevents trailing PUT after grading, pauses on error, distinguishes confirmed rejection from uncertain POST outcomes, and does not update an unchanged assessed original. Direct editing of an assessed original requires an explicit warning because the existing server clears feedback on PUT. No new backend contract.
+- App links, logout and Write/Upload switches offer Stay / Save and leave / Discard. Save failure keeps the editor and dialog open. Reload/close uses the native browser warning. A Chromium history diagnostic confirmed that SPA Back bypasses the dialog and Forward remounts an empty unsaved draft. **Unsaved text can be lost through SPA Back/Forward**; A05 permits this limitation to be recorded. Do not claim universal navigation protection or add global history monkey-patches. This remains a T13 risk to address or present during final testing.
+- Manual Save now remains in the editor, with a visible View saved draft link. This preserves navigation while avoiding interruption of writing. Generation saves meaningful existing draft content first and navigates to the newly returned ID; a brand-new title-only generation request remains supported because it has no body to persist.
+- Checks: six coordinator tests and eight of nine browser persistence tests passed in the first combined run. The reload test raced Tiptap's transaction after synthetic fill; waiting for the enabled review action before triggering reload corrected the test, and the isolated reload test passed. No production workaround was added for that test issue. Full consolidated verification is recorded in the following writing-surface entry.
+- Retention: R06-R13 save/autosave/generate/review/edit controls retained; only obsolete competing hook implementations removed. The incoming audit files and `lib/navigation.ts` audit entry remain outside this slice.
+- Next exact task: T05 paper layout and formatting groups, then T06 generation polling, safe detail rendering and independent revision.

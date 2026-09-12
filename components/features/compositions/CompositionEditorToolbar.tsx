@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/Label";
 import { Select } from "@/components/ui/Select";
 import { Toggle } from "@/components/ui/Toggle";
-import type { AutosaveStatus } from "@/lib/hooks/useAutosave";
+import type { AutosaveStatus } from "@/lib/composition-session";
 import type { CompositionDraft, CompositionLanguage } from "@/types/composition";
+import { hasCompositionText } from "@/lib/composition-session";
 
 type CompositionEditorToolbarProps = {
   readonly draft: CompositionDraft;
@@ -28,7 +29,7 @@ type CompositionEditorToolbarProps = {
 
 export function CompositionEditorToolbar(props: CompositionEditorToolbarProps) {
   const canGenerate = props.draft.title.trim().length > 0 && !props.isGenerating;
-  const canSubmitForReview = props.draft.content.trim().length > 0;
+  const canSubmitForReview = props.draft.title.trim().length > 0 && hasCompositionText(props.draft.content);
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border bg-card px-4 py-3">
       <div className="flex items-center gap-2">

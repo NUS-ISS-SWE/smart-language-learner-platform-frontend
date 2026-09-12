@@ -143,6 +143,7 @@ export function Topbar({
               </div>
               <button
                 type="button"
+                data-leaves-editor
                 onClick={() => {
                   setMenuOpen(false);
                   signOut();

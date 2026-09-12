@@ -7,10 +7,11 @@ import type { CompositionDraft } from "@/types/composition";
 
 type CompositionEditorFieldsProps = {
   readonly draft: CompositionDraft;
+  readonly disabled?: boolean;
   readonly onChange: <Key extends keyof CompositionDraft>(key: Key, value: CompositionDraft[Key]) => void;
 };
 
-export function CompositionEditorFields({ draft, onChange }: CompositionEditorFieldsProps) {
+export function CompositionEditorFields({ draft, onChange, disabled }: CompositionEditorFieldsProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -19,7 +20,7 @@ export function CompositionEditorFields({ draft, onChange }: CompositionEditorFi
       </div>
       <div className="space-y-2">
         <Label>Content</Label>
-        <RichTextEditor value={draft.content} onChange={(html) => onChange("content", html)} />
+        <RichTextEditor value={draft.content} disabled={disabled} onChange={(html) => onChange("content", html)} />
       </div>
     </div>
   );

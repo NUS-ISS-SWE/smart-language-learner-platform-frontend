@@ -1,61 +1,169 @@
 "use client";
 
-import { useState } from "react";
-import { AUTOSAVE_STORAGE_KEY } from "@/lib/constants";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getApiErrorMessage } from "@/lib/api/client";
-import { useAutosave } from "@/lib/hooks/useAutosave";
-import { isNewDraftDirty, useCompositionDraft } from "@/lib/hooks/useCompositionDraft";
-import { useUnsavedWarning } from "@/lib/hooks/useUnsavedWarning";
-import { useGenerateComposition } from "@/lib/hooks/useCompositions";
+import { DraftValidationError } from "@/lib/composition-session";
+import { useCompositionSession } from "@/lib/hooks/useCompositionSession";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { Card, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { CompositionEditorFields } from "./CompositionEditorFields";
 import { CompositionEditorToolbar } from "./CompositionEditorToolbar";
-import type { Composition, CompositionDraft } from "@/types/composition";
+import { DraftNavigationGuard } from "./DraftNavigationGuard";
+import type { Composition } from "@/types/composition";
 
-type CompositionEditorProps = {
-  readonly compositionId?: string;
+export function CompositionEditor({
+  initialValue = null,
+}: {
   readonly initialValue?: Composition | null;
-  readonly isSaving: boolean;
-  readonly saveError?: unknown;
-  readonly onSave: (draft: CompositionDraft) => void;
-  readonly onDraftChange?: (draft: CompositionDraft) => void;
-  readonly onSubmitForReview?: (draft: CompositionDraft) => void;
-  readonly isSubmitting?: boolean;
-  readonly submitError?: unknown;
-};
+}) {
+  const { session, state, autosave, toggleAutosave } =
+    useCompositionSession(initialValue);
+  const router = useRouter();
+  const { t } = useTranslation("editor");
+  const [manualSaving, setManualSaving] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const active = useRef(true);
+  useEffect(() => {
+    active.current = true;
+    return () => {
+      active.current = false;
+    };
+  }, []);
 
-export function CompositionEditor({ compositionId, initialValue, isSaving, saveError, onSave, onDraftChange, onSubmitForReview, isSubmitting, submitError }: CompositionEditorProps) {
-  const { draft, updateDraft, setDraft } = useCompositionDraft(initialValue, onDraftChange);
-  const [autosaveEnabled, setAutosaveEnabled] = useState(() => typeof window === "undefined" || localStorage.getItem(AUTOSAVE_STORAGE_KEY) !== "false");
-  const { autosaveStatus, lastSavedAt } = useAutosave(compositionId, draft, autosaveEnabled);
-  const generateMutation = useGenerateComposition();
-  const isDirty = !compositionId && isNewDraftDirty(draft);
-  useUnsavedWarning(isDirty);
-
-  function setAutosave(enabled: boolean) {
-    setAutosaveEnabled(enabled);
-    localStorage.setItem(AUTOSAVE_STORAGE_KEY, String(enabled));
+  async function save() {
+    setManualSaving(true);
+    try {
+      await session.save();
+    } catch {
+      /* The session retains the error and input. */
+    } finally {
+      if (active.current) setManualSaving(false);
+    }
   }
-
-  function generate() {
-    generateMutation.mutate({ title: draft.title }, {
-      onSuccess: (composition) => setDraft((current) => ({ ...current, content: composition.content ?? current.content, compositionSource: "SYSTEM" })),
-    });
+  async function transition(action: "review" | "generate") {
+    try {
+      const record = await session.transition(action);
+      if (active.current) {
+        setLeaving(true);
+        router.push(`/compositions/${record.id}`);
+      }
+    } catch {
+      /* The session exposes operation-specific retry and uncertainty. */
+    }
   }
-
+  const errorMessage =
+    state.error instanceof DraftValidationError
+      ? t(state.error.key)
+      : getApiErrorMessage(state.error);
+  const uncertain = state.uncertainOperation;
   return (
-    <form className="flex flex-col gap-4" onSubmit={(event) => { event.preventDefault(); onSave(draft); }}>
-      <CompositionEditorToolbar
-        draft={draft} onChange={updateDraft} autosaveEnabled={autosaveEnabled} onAutosaveChange={setAutosave}
-        autosaveStatus={autosaveStatus} lastSavedAt={lastSavedAt} showAutosaveStatus={Boolean(compositionId)} isDirty={isDirty}
-        onGenerate={generate} isGenerating={generateMutation.isPending} onSubmitForReview={onSubmitForReview ? () => onSubmitForReview(draft) : undefined}
-        isSubmitting={isSubmitting} isSaving={isSaving}
-      />
-      {!!saveError && <ErrorState message={getApiErrorMessage(saveError)} />}
-      {!!submitError && <ErrorState message={getApiErrorMessage(submitError)} />}
-      {generateMutation.isError && <ErrorState message={getApiErrorMessage(generateMutation.error)} />}
-      <Card><CardContent className="pt-6"><CompositionEditorFields draft={draft} onChange={updateDraft} /></CardContent></Card>
-    </form>
+    <>
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void save();
+        }}
+      >
+        {!!state.error && (
+          <div className="space-y-3">
+            <ErrorState
+              message={
+                uncertain
+                  ? t(
+                      uncertain === "review"
+                        ? "uncertainReview"
+                        : uncertain === "generate"
+                          ? "uncertainGeneration"
+                          : "uncertainSave",
+                    )
+                  : errorMessage
+              }
+            />
+            {uncertain === "review" && state.record ? (
+              <Button variant="outline" asChild>
+                <Link href={`/compositions/${state.record.id}`}>
+                  {t("checkReview")}
+                </Link>
+              </Button>
+            ) : uncertain ? (
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" asChild>
+                  <a
+                    href="/compositions"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t("checkLibrary")}
+                  </a>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    session.acknowledgeUncertainCreation();
+                    if (uncertain === "generate") void transition("generate");
+                    else void save();
+                  }}
+                >
+                  {t("checkedLibrary")}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  state.errorOperation === "review" ||
+                  state.errorOperation === "generate"
+                    ? void transition(state.errorOperation)
+                    : void save()
+                }
+              >
+                {t("retry")}
+              </Button>
+            )}
+          </div>
+        )}
+        <fieldset disabled={state.locked} className="min-w-0 space-y-4">
+          <CompositionEditorToolbar
+            draft={state.draft}
+            onChange={(key, value) => session.update(key, value)}
+            autosaveEnabled={autosave}
+            onAutosaveChange={toggleAutosave}
+            autosaveStatus={state.phase}
+            lastSavedAt={state.lastSavedAt ?? undefined}
+            showAutosaveStatus
+            isDirty={state.dirty}
+            onGenerate={() => void transition("generate")}
+            isGenerating={state.action === "generate"}
+            onSubmitForReview={() => void transition("review")}
+            isSubmitting={state.action === "review"}
+            isSaving={manualSaving}
+          />
+          <Card>
+            <CardContent className="pt-6">
+              <CompositionEditorFields
+                draft={state.draft}
+                disabled={state.locked}
+                onChange={(key, value) => session.update(key, value)}
+              />
+            </CardContent>
+          </Card>
+        </fieldset>
+        {state.record && (
+          <Button variant="link" asChild className="self-start">
+            <Link href={`/compositions/${state.record.id}`}>
+              {t("viewDraft")}
+            </Link>
+          </Button>
+        )}
+      </form>
+      <DraftNavigationGuard dirty={state.dirty && !leaving} session={session} />
+    </>
   );
 }
