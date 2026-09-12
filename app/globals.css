@@ -28,6 +28,8 @@
   --color-border: #d7e0e3;
   --color-input: #71838e;
   --color-ring: #0f766e;
+  --color-action-hover: #115e59;
+  --color-soft-teal: #e7f3f0;
 
   --radius-lg: 0.75rem;
   --radius-md: 0.5rem;
@@ -45,10 +47,6 @@
     border-color: var(--color-border);
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -64,6 +62,32 @@
 
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  border-radius: 0.5rem;
+  background: var(--color-primary);
+  color: white;
+  padding: 0.75rem 1rem;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

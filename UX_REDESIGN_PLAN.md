@@ -2,7 +2,7 @@
 
 **Status: implementation approved and underway; testing/finalization remains with the user.**
 
-Updated 7 September 2026. This file is the entry point for a fresh session or a different model. Read the linked documents before editing application code. The user explicitly requested the review and checkpoint commits first, followed by a prompt before any redesign implementation. Preparing this documentation does not constitute that approval.
+Updated 12 September 2026. This file is the entry point for a fresh session or a different model. Read the linked documents before editing application code. Implementation was explicitly approved on 7 September and continuation reaffirmed on 12 September. Do not ask again for the same scope.
 
 ## Read in this order
 
@@ -61,7 +61,7 @@ Before continuing, run `git status --short --branch` and `git log -1 --oneline` 
 - Frontend review: ESLint on application directories, TypeScript checking, and a production Next.js build passed. See [working-tree review](WORKTREE_REVIEW.md).
 - Backend review: targeted Maven reactor build succeeded. Document tests: 15 executed; composition tests: 52 executed; admin tests: 20 executed and **2 integration tests skipped**. Do not describe that run as complete integration coverage. The local log, if still present, is `target/review/java-tests.log` in the backend repository and is ignored by Git.
 - Python review: orchestrator suite 33 passed, including 3 PostgreSQL integration tests; suggestions suite 6 passed. SQL migrations 001-013 were exercised in a disposable PostgreSQL database. That was a SQL execution smoke test, not verification of every Liquibase upgrade path.
-- The plan is based on source inspection. **No rendered redesign, approved visual reference, or browser acceptance evidence exists yet.** Build success is not visual or workflow acceptance.
+- The first implementation has now been refined and exercised in Chromium with fictional API fixtures. See [the execution record](docs/ux-redesign/EXECUTION.md) and [rendered evidence](docs/ux-redesign/evidence/README.md) for exact coverage. These are implemented references, not user-approved designs. Build success is not visual or workflow acceptance.
 - A follow-up source check found assessment-stage keys in `public/locales` while runtime resources come from `locales/index.ts`. Fix and verify the active translation path in the first implementation slice; the earlier review of JSON labels did not establish runtime translation coverage.
 - The English suggestions provider requires the canonical DEEP/MOE framework source before production readiness. The existing placeholder provider is for development. This redesign must not manufacture authoritative feedback, scores, or provider-readiness claims to fill that gap.
 

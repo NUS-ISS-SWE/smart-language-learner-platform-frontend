@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { useAuth } from "@/context/AuthContext";
 import { useAvailablePlans } from "@/lib/hooks/useSubscription";

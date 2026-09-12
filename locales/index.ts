@@ -206,6 +206,10 @@ export const en = {
     skipToContent: 'Skip to content',
     primaryNavigation: 'Primary navigation',
     writingExampleLabel: 'Composition example',
+    createAccount: 'Create an account',
+    openLibrary: 'Open library',
+    featuresTitleCurrent: 'Built for your writing practice',
+    footerPurpose: 'A little clearer, with every draft.',
     draftLabel: 'Illustrative draft',
     writingExampleTitle: 'The garden behind our library',
     writingExampleFirstParagraph:
@@ -465,6 +469,10 @@ export const zh = {
     skipToContent: '跳到主要内容',
     primaryNavigation: '主导航',
     writingExampleLabel: '作文示例',
+    createAccount: '创建账户',
+    openLibrary: '打开作品库',
+    featuresTitleCurrent: '为写作练习而设计',
+    footerPurpose: '每一次修改，让表达更清晰。',
     draftLabel: '示例草稿',
     writingExampleTitle: '图书馆后的花园',
     writingExampleFirstParagraph:

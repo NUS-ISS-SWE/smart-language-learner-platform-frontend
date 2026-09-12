@@ -37,10 +37,10 @@ Task ordering is a dependency guide, not permission to skip later phases. T11 ma
 
 Task completion:
 
-- [ ] T00 Baseline and fixtures
-- [ ] T01 Tokens and shared primitives
-- [ ] T02 Shared navigation
-- [ ] T03 Dashboard and library
+- [x] T00 Baseline and fixtures
+- [x] T01 Tokens and shared primitives
+- [x] T02 Shared navigation
+- [x] T03 Dashboard and library
 - [ ] T04 Persistence coordinator
 - [ ] T05 Writing surface
 - [ ] T06 Generation, feedback, revision
@@ -48,7 +48,7 @@ Task completion:
 - [ ] T08 Admin users
 - [ ] T09 Admin rubrics and pricing
 - [ ] T10 Admin metrics
-- [ ] T11 Landing page
+- [x] T11 Landing page
 - [ ] T12 Account/subscription
 - [ ] T13 Whole-product consistency
 
@@ -123,7 +123,7 @@ For CSS-only slices, focus on visual/keyboard checks plus lint/type checks; run 
 
 ## 6. Continuation record
 
-### Current checkpoint: 7 September 2026
+### Historical checkpoint: 7 September 2026
 
 - Approval: **granted 7 September 2026 for the documented redesign scope**.
 - Reviewed refs: frontend `3c859bf`, backend `e8efc85`, both on `review/assessment-metrics-20260906`.
@@ -153,3 +153,20 @@ Next exact task/action:
 ```
 
 Do not replace this history with a vague "all done" summary. Before final delivery, match every task, screen and retention ID to evidence, list unresolved limitations, and give the user the branches/commits and concrete testing instructions. The user will test and finalize the work separately.
+
+### 12 September 2026 — foundation review, shared shell, dashboard and library
+
+- Approval reaffirmed: continue the plan and check refactoring opportunities. Both review refs remain unchanged.
+- Starting ref: frontend `22f4097`. Changes are currently in the working tree; checkpoint verification is underway.
+- Reviewed the first landing/primitives slice. Restored the previously removed language interaction test. A dedicated localhost:3006 test server fixed the unreliable test environment; the full suite then exposed a real saved-language hydration race. A shared `useSyncExternalStore` translation hook now supplies the English server snapshot to each streaming boundary and observes the live locale after hydration. All application translation imports use it. HTML language and selected-language semantics update correctly.
+- Improved landing hierarchy, 1024px preview stacking, mobile touch targets, focus, skip-link destination, reduced motion, and accurate signed-in/out CTAs. Restored the capability summary/footer. No interactive capability was removed.
+- Refactored main/admin layouts into `WorkspaceShell`, with shared navigation, one native mobile drawer, keyboard/pointer resize and separate persisted admin width. Account controls retain subscription, language and logout. Native dialogs now trap focus, restore it after unmount, scroll within the viewport and preserve background scrolling state. Extracted shared dialog focus handling.
+- Dashboard leads with continuing the most recently updated draft **within the fetched recent set**, new writing and upload. Supporting counts explicitly describe that set; unavailable document totals are not fabricated as zero. Subscription and admin overview remain accessible.
+- Library uses infinite queries with separate cache keys. Composition arrays end on a short/empty page; document pages use their actual `hasMore`. IDs are deduplicated. Next-page failures preserve old rows and expose retry. Tabs remain URL-backed. Shared composition rows preserve title, status, language, dates and a safe plain-text preview. Document cards retain view/delete controls and translated metadata.
+- Relevant coverage: S01-S03, R01-R05, R25; A13/A20; shared modal behavior and runtime Chinese assessment-stage resources. Save/generation/editor behavior is still the existing implementation; do not infer A01-A12 coverage from these tests.
+- Checks: `npm run lint`, `npx tsc --noEmit`, `npm run build`, and consolidated `npx playwright test --workers=3` (24 passed) all passed. Earlier failures were retained and fixed, including language hydration and modal focus return. T00-T03/T11 meet their package exit criteria; the wider T13 verification limits below remain open.
+- Evidence and visual critique: [evidence index](evidence/README.md). 35 fictional-data images captured. Initial editor/admin body baselines include the new shell; they are not claimed as pre-shell baselines. The original first landing reference remains recoverable at `22f4097` in its tracked snapshots.
+- Independent incoming audit work remains outside this UX checkpoint: frontend audit page/API/hook/type exports and backend audit changes. Its navigation has moved from the old admin layout into `lib/navigation.ts`; preserve that entry with the incoming feature. Navigation tests assert it when the route exists. Do not commit the unrelated audit implementation as part of UX.
+- Refactoring priorities next: replace competing create/autosave/manual-save paths with one persistence coordinator (T04); remove duplicate Tiptap link/underline registrations during T05; unify safe content rendering and fix generation/ownership handling in T06. Avoid broad backend or audit refactors.
+- Known limits: browser tests use explicit API fixtures, not the live backend. 720px reflow checks approximate the CSS viewport of 200% desktop zoom; actual browser-UI zoom and assistive-technology checks remain in T13. Admin page bodies, auth and subscription still have later redesign work. Full workflow fixtures will be extended with each relevant task.
+- Next exact action: complete the current consolidated checks/checkpoint, then T04 (A01-A06) before broad writing-surface changes.

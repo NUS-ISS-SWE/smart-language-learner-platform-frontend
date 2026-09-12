@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { ArrowLeft, Download, Edit, FileText, Loader2, Trash2 } from "lucide-react";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { useAuth } from "@/context/AuthContext";

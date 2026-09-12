@@ -1,8 +1,22 @@
-import { FileText, LayoutDashboard } from "lucide-react";
+import {
+  FileText,
+  LayoutDashboard,
+  Users,
+  ListChecks,
+  WalletCards,
+  BarChart3,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type NavItem = {
-  readonly key: "dashboard" | "compositions";
+  readonly key:
+    | "dashboard"
+    | "compositions"
+    | "users"
+    | "rubrics"
+    | "pricing"
+    | "metrics"
+    | "audit";
   readonly href: string;
   readonly icon: LucideIcon;
   readonly isActive: (pathname: string) => boolean;
@@ -19,6 +33,34 @@ export const navigationConfig: NavItem[] = [
     key: "compositions",
     href: "/compositions",
     icon: FileText,
-    isActive: (p) => p.startsWith("/compositions") || p.startsWith("/documents"),
+    isActive: (p) =>
+      p.startsWith("/compositions") || p.startsWith("/documents"),
+  },
+];
+
+export const adminNavigationConfig: NavItem[] = [
+  {
+    key: "users",
+    href: "/admin/users",
+    icon: Users,
+    isActive: (p) => p.startsWith("/admin/users"),
+  },
+  {
+    key: "rubrics",
+    href: "/admin/rubrics",
+    icon: ListChecks,
+    isActive: (p) => p.startsWith("/admin/rubrics"),
+  },
+  {
+    key: "pricing",
+    href: "/admin/pricing-plans",
+    icon: WalletCards,
+    isActive: (p) => p.startsWith("/admin/pricing-plans"),
+  },
+  {
+    key: "metrics",
+    href: "/admin/metrics",
+    icon: BarChart3,
+    isActive: (p) => p.startsWith("/admin/metrics"),
   },
 ];

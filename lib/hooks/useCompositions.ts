@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createComposition,
   deleteComposition,
@@ -50,6 +50,15 @@ export function useComposition(id: string | number | null) {
     // and stores the orchestrator feedback after the initial HTTP request.
     refetchInterval: (query) =>
       query.state.data?.compositionStatus === "REVIEWING" ? 3000 : false,
+  });
+}
+
+export function useCompositionLibrary() {
+  return useInfiniteQuery({
+    queryKey: [...compositionKeys.lists(), "infinite"],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => getCompositions({ page: pageParam, size: 20 }),
+    getNextPageParam: (lastPage, _pages, lastPageParam) => lastPage.length === 20 ? lastPageParam + 1 : undefined,
   });
 }
 
