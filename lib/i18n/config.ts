@@ -3,10 +3,12 @@ import { initReactI18next } from 'react-i18next';
 import { en, zh } from '@/locales';
 import { studioEn, studioZh } from '@/locales/studio';
 import { editorEn, editorZh } from '@/locales/editor';
+import { feedbackEn, feedbackZh } from '@/locales/feedback';
 
 // Build namespace structure from in-memory locales
 const resources = {
   en: {
+    feedback: feedbackEn,
     editor: editorEn,
     studio: studioEn,
     auth: en.auth,
@@ -21,6 +23,7 @@ const resources = {
     documents: en.documents,
   },
   zh: {
+    feedback: feedbackZh,
     editor: editorZh,
     studio: studioZh,
     auth: zh.auth,
@@ -43,7 +46,7 @@ i18n
     resources,
     fallbackLng: 'en',
     defaultNS: 'common',
-    ns: ['editor', 'studio', 'auth', 'common', 'course', 'composition', 'evaluation', 'admin', 'vocabulary', 'home', 'dashboard', 'documents'],
+    ns: ['feedback', 'editor', 'studio', 'auth', 'common', 'course', 'composition', 'evaluation', 'admin', 'vocabulary', 'home', 'dashboard', 'documents'],
     interpolation: {
       escapeValue: false,
     },

@@ -2,6 +2,7 @@
 
 import { useEditor, useEditorState, EditorContent } from "@tiptap/react";
 import { compositionExtensions } from "@/lib/composition-extensions";
+import { compositionContent } from "@/lib/composition-content";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import {
   AlignCenter,
@@ -84,7 +85,7 @@ export function RichTextEditor({
   const editor = useEditor({
     editable: !disabled,
     extensions: compositionExtensions(),
-    content: value,
+    content: compositionContent(value),
     onUpdate: ({ editor: e }) => {
       const html = e.getHTML();
       editorHtmlRef.current = html;
@@ -126,7 +127,7 @@ export function RichTextEditor({
   useEffect(() => {
     if (!editor || value === editorHtmlRef.current) return;
     editorHtmlRef.current = value;
-    editor.commands.setContent(value, { emitUpdate: false });
+    editor.commands.setContent(compositionContent(value), { emitUpdate: false });
   }, [editor, value]);
 
   if (!editor) return null;

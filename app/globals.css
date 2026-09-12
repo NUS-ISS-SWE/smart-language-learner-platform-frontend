@@ -175,3 +175,9 @@
   border-radius: 0.5rem;
   background: var(--color-muted);
 }
+
+.composition-detail { container-type: inline-size; }
+@container (min-width: 960px) {
+  .detail-columns { grid-template-columns: minmax(0, 55fr) minmax(0, 45fr); }
+  .detail-jumps { display: none; }
+}

@@ -12,7 +12,7 @@ import {
   requestCompositionGrading,
   generateComposition,
 } from "@/lib/api/composition";
-import { compositionKeys } from "./useCompositions";
+import { refreshCompositionCache } from "./useCompositions";
 import { AUTOSAVE_STORAGE_KEY } from "@/lib/constants";
 import type { Composition } from "@/types/composition";
 
@@ -28,12 +28,7 @@ export function useCompositionSession(initial: Composition | null) {
           review: requestCompositionGrading,
           generate: generateComposition,
         },
-        (record) => {
-          queryClient.setQueryData(compositionKeys.detail(record.id), record);
-          void queryClient.invalidateQueries({
-            queryKey: compositionKeys.lists(),
-          });
-        },
+        (record) => refreshCompositionCache(queryClient, record),
       ),
   );
   const state = useSyncExternalStore(

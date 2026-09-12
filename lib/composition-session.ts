@@ -1,4 +1,5 @@
-import { isAxiosError } from "axios";
+import { isUncertainMutationError as uncertain } from "./api/mutation-outcome";
+import { isCompositionHtml } from "./composition-content";
 import type {
   Composition,
   CompositionDraft,
@@ -6,13 +7,10 @@ import type {
 } from "@/types/composition";
 
 export function hasCompositionText(content: string): boolean {
-  return (
-    content
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;|&#160;|&#xa0;/gi, " ")
-      .replace(/[\u200b-\u200d\ufeff]/g, "")
-      .trim().length > 0
-  );
+  const text = isCompositionHtml(content)
+    ? content.replace(/<[^>]*>/g, "").replace(/&nbsp;|&#160;|&#xa0;/gi, " ")
+    : content;
+  return text.replace(/[\u200b-\u200d\ufeff]/g, "").trim().length > 0;
 }
 
 const request = (draft: CompositionDraft): CompositionRequest => ({
@@ -21,11 +19,6 @@ const request = (draft: CompositionDraft): CompositionRequest => ({
 });
 const equal = (a: CompositionRequest, b: CompositionRequest) =>
   a.title === b.title && a.content === b.content;
-const uncertain = (error: unknown) =>
-  !isAxiosError(error) ||
-  !error.response ||
-  error.response.status >= 500 ||
-  error.response.status === 408;
 
 export class DraftValidationError extends Error {
   constructor(

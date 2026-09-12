@@ -15,17 +15,18 @@ export function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function formatDate(value?: string | null) {
+export function formatDate(value?: string | null, locale?: string) {
+  const unavailable = locale?.startsWith("zh") ? "暂不可用" : "Not available";
   if (!value) {
-    return "Not available";
+    return unavailable;
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Not available";
+    return unavailable;
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);

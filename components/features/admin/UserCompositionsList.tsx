@@ -25,7 +25,7 @@ export function UserCompositionsList({ query }: UserCompositionsListProps) {
       {compositions.map((c) => (
         <Link
           key={c.id}
-          href={`/compositions/${c.id}`}
+          href={`/compositions/${c.id}?context=admin`}
           className="flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors hover:bg-muted/40"
         >
           <div className="min-w-0">
