@@ -8,7 +8,6 @@ import { DraftValidationError } from "@/lib/composition-session";
 import { useCompositionSession } from "@/lib/hooks/useCompositionSession";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { ErrorState } from "@/components/shared/ErrorState";
-import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { CompositionEditorFields } from "./CompositionEditorFields";
 import { CompositionEditorToolbar } from "./CompositionEditorToolbar";
@@ -145,15 +144,11 @@ export function CompositionEditor({
             isSubmitting={state.action === "review"}
             isSaving={manualSaving}
           />
-          <Card>
-            <CardContent className="pt-6">
-              <CompositionEditorFields
-                draft={state.draft}
-                disabled={state.locked}
-                onChange={(key, value) => session.update(key, value)}
-              />
-            </CardContent>
-          </Card>
+          <CompositionEditorFields
+            draft={state.draft}
+            disabled={state.locked}
+            onChange={(key, value) => session.update(key, value)}
+          />
         </fieldset>
         {state.record && (
           <Button variant="link" asChild className="self-start">

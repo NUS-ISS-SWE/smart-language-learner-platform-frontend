@@ -44,7 +44,9 @@ test("browser reload warns and cancelling retains the local draft", async ({
   await page.goto("/compositions/new");
   await page.getByLabel("Title", { exact: true }).fill("Before reload");
   await page.locator(".tiptap").fill("Unsaved words.");
-  await expect(page.getByRole("button", { name: "Submit for review" })).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: "Submit for review" }),
+  ).toBeEnabled();
   const prompt = page.waitForEvent("dialog");
   const reload = page.reload({ timeout: 3000 }).catch(() => {});
   const dialog = await prompt;
@@ -82,6 +84,7 @@ test("generation saves meaningful draft content before creating a separate recor
   await page.goto("/compositions/new");
   await page.getByLabel("Title", { exact: true }).fill("A second garden");
   await page.locator(".tiptap").fill("Keep my original draft.");
+  await page.getByText("Writing options", { exact: true }).click();
   await page.getByRole("button", { name: "Generate", exact: true }).click();
   await expect(page).toHaveURL(/\/compositions\/99$/);
   expect(writes).toEqual(["SAVE", "GENERATE"]);

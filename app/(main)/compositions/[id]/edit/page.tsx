@@ -45,7 +45,7 @@ function LoadedEditor({ composition }: { composition: Composition }) {
       </section>
     );
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-[760px] space-y-6">
       <PageHeader title={t("editTitle")} />
       <CompositionEditor initialValue={initial} />
     </div>

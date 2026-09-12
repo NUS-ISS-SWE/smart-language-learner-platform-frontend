@@ -144,4 +144,4 @@ Remaining gaps: explicit, or none found in the inspected scope.
 
 For the first three representative screens, keep full-page and first-viewport screenshots where useful; record dimensions, fixture, language and commit. Future agents compare against those artifacts instead of relying on memory or inventing a fresh interpretation. Mark screenshots as implemented/verified unless the user actually approved them. User approval is not required for every iteration once implementation scope is authorized.
 
-The target is the same design direction and evidence standard across models, not an unsupported promise of pixel-identical output. No high-fidelity rendered reference exists yet. The blueprints reduce ambiguity now; the first inspected implementation references will reduce it further.
+The target is the same design direction and evidence standard across models, not an unsupported promise of pixel-identical output. The [evidence index](evidence/README.md) now contains inspected landing, workspace and writing references. Use those rendered references alongside the blueprints; admin bodies still await their scheduled redesign.

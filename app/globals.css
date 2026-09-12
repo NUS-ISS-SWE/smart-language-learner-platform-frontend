@@ -163,3 +163,15 @@
   color: var(--color-secondary);
   text-decoration: underline;
 }
+
+.tiptap-editor:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -3px;
+}
+.tiptap-editor pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: var(--color-muted);
+}

@@ -17,7 +17,7 @@ function NewCompositionContent() {
   const { t } = useTranslation("editor");
   const mode = searchParams.get("mode") === "upload" ? "upload" : "write";
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-[760px] space-y-6">
       <div>
         <Button variant="ghost" size="sm" asChild className="-ml-3 mb-3">
           <Link href="/compositions">

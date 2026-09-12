@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 type ToggleProps = {
+  readonly id?: string;
   readonly checked: boolean;
   readonly onCheckedChange: (checked: boolean) => void;
   readonly disabled?: boolean;
@@ -11,6 +12,7 @@ type ToggleProps = {
 };
 
 export function Toggle({
+  id,
   checked,
   onCheckedChange,
   disabled,
@@ -19,6 +21,7 @@ export function Toggle({
 }: ToggleProps) {
   return (
     <button
+      id={id}
       type="button"
       role="switch"
       aria-checked={checked}

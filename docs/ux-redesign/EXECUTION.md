@@ -42,7 +42,7 @@ Task completion:
 - [x] T02 Shared navigation
 - [x] T03 Dashboard and library
 - [x] T04 Persistence coordinator (browser-history limitation recorded below)
-- [ ] T05 Writing surface
+- [x] T05 Writing surface
 - [ ] T06 Generation, feedback, revision
 - [ ] T07 Documents
 - [ ] T08 Admin users
@@ -101,7 +101,7 @@ The acceptance rubric is pass/fail, not a subjective average:
 
 Check normal text contrast at least 4.5:1, large text at least 3:1, meaningful control/focus indicators at least 3:1 where applicable. Use the [WCAG 2.2 standard](https://www.w3.org/TR/WCAG22/) for full criteria rather than claiming these few numbers establish compliance. The project's 44px mobile target preference is additional to the AA baseline.
 
-Capture before/after screenshots of the same viewport and state. Initial reference set: landing hero (T11), editor (T05), admin users (T08). Put shareable fictional-data screenshots in `docs/ux-redesign/evidence/` when available, named like `T05-editor-desktop-en.png`. Large temporary browser traces may stay untracked, but record their location and relevant findings. No evidence assets exist yet. Do not create fake evidence files to satisfy the checklist.
+Capture before/after screenshots of the same viewport and state. Initial reference set: landing hero (T11), editor (T05), admin users (T08). Put shareable fictional-data screenshots in `docs/ux-redesign/evidence/`, named like `T05-editor-desktop-en.png`. Large temporary browser traces may stay untracked, but record their location and relevant findings. See the evidence index for implemented references and the limits of the original body baselines. Do not create fake evidence files to satisfy the checklist.
 
 If a reference receives explicit user approval, record that approval and use it to constrain later screens. Otherwise label it implemented/verified, not user-approved. A visual failure blocks completion even if automated tests pass. Each visual task must also include the short critique record from [VISUAL_CRAFT.md](VISUAL_CRAFT.md); merely saving a screenshot does not establish that it was inspected.
 
@@ -173,7 +173,7 @@ Do not replace this history with a vague "all done" summary. Before final delive
 
 ### 12 September 2026 — T04 persistence coordinator
 
-- Branch: `feature/calm-writing-studio-20260906`, following `6eab0c4`. Implementation approval remains in force.
+- Branch: `feature/calm-writing-studio-20260906`, checkpoint `85a76ea`, following `6eab0c4`. Implementation approval remains in force.
 - Refactor: `CompositionSession` is the single writer for creation, autosave, manual save, generation preparation and grading preparation. `useCompositionSession` owns its lifecycle/preferences/cache integration. Removed the superseded `useAutosave`, `useCompositionDraft` and `useUnsavedWarning` hooks after checking all callers. Their capabilities remain in the coordinator and `DraftNavigationGuard`.
 - W01/A01-A06: joins in-flight writes, flushes newer input before review, preserves input when old acknowledgements arrive, prevents trailing PUT after grading, pauses on error, distinguishes confirmed rejection from uncertain POST outcomes, and does not update an unchanged assessed original. Direct editing of an assessed original requires an explicit warning because the existing server clears feedback on PUT. No new backend contract.
 - App links, logout and Write/Upload switches offer Stay / Save and leave / Discard. Save failure keeps the editor and dialog open. Reload/close uses the native browser warning. A Chromium history diagnostic confirmed that SPA Back bypasses the dialog and Forward remounts an empty unsaved draft. **Unsaved text can be lost through SPA Back/Forward**; A05 permits this limitation to be recorded. Do not claim universal navigation protection or add global history monkey-patches. This remains a T13 risk to address or present during final testing.
@@ -181,3 +181,14 @@ Do not replace this history with a vague "all done" summary. Before final delive
 - Checks: six coordinator tests and eight of nine browser persistence tests passed in the first combined run. The reload test raced Tiptap's transaction after synthetic fill; waiting for the enabled review action before triggering reload corrected the test, and the isolated reload test passed. No production workaround was added for that test issue. Full consolidated verification is recorded in the following writing-surface entry.
 - Retention: R06-R13 save/autosave/generate/review/edit controls retained; only obsolete competing hook implementations removed. The incoming audit files and `lib/navigation.ts` audit entry remain outside this slice.
 - Next exact task: T05 paper layout and formatting groups, then T06 generation polling, safe detail rendering and independent revision.
+
+### 12 September 2026 — T05 writing surface
+
+- Branch: `feature/calm-writing-studio-20260906`, following `85a76ea`. No scope or approval change.
+- S04/V02: new/edit workspace centered at 760px; title, formatting and body share one white paper boundary. Writing uses 18px/30px typography and 32px desktop / 20px mobile insets. Long titles wrap in an automatically sizing field; line breaks entered into the title normalize to spaces without altering other input.
+- R06-R13 retention: Save draft and Submit for review remain visible beside save state; autosave remains visible as a preference. Writing options contains the existing composition-language selector with explicit automatic-detection guidance and Generate with separate-draft guidance. No language override is invented. Bold/Italic/Underline/Undo/Redo stay visible; More formatting contains all 14 other commands. All 19 commands retain labels and keyboard access. No useful capability removed.
+- Refactor: `compositionExtensions()` owns the shared Tiptap schema and disables StarterKit's duplicate link/underline registrations before configuring those marks once. `useEditorState` refreshes toolbar state for cursor-only transactions. The title/editor no longer use nested Cards. Toggle now accepts an ID so its visible label activates the switch.
+- Visual critique and filenames: [T05 evidence](evidence/README.md#writing-surface-t05). Inspected desktop, intermediate and narrow English/Chinese states, including both disclosures open. The first mobile pass exposed a clipped single-line title, now corrected with wrapping. Screenshot capture now resets scroll/focus before full-page capture, eliminating sticky-header artifacts from the evidence.
+- Verification: `npx playwright test --workers=3` (48 passed), `npm run lint`, `npx tsc --noEmit` and `npm run build` all passed. Earlier focused runs: all nine persistence browser scenarios passed; all nine writing-surface scenarios passed after correcting a formatting assertion to allow Tiptap's trailing empty paragraph. No extension-duplication warnings remain in the tested editor.
+- Limits carried forward: desktop Chromium at mobile CSS widths does not emulate a real on-screen keyboard. Browser-UI zoom, assistive technology and live-backend checks remain T13. SPA Back/Forward can lose unsaved content as documented in T04. No claim that T06 feedback/generation detail is complete.
+- Next exact task: T06. Use `compositionExtensions()` in a safe read-only renderer; preserve legacy literal text/line breaks. Extend polling to GENERATING, handle GENERATION_FAILED, render the exact nullable suggestion/evidence DTOs without dropping full feedback, add independent revision creation and retain the assessed-original warning. Separate admin inspection context from an admin's own learner records. Then continue T07-T10, T12 and the T13 audit.
