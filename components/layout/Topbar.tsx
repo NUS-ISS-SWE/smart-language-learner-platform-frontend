@@ -31,10 +31,12 @@ export function Topbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const mobileNavigation = navigationConfig.map((item) => ({
-    ...item,
-    label: t(item.key),
-  }));
+  const mobileNavigation = navigationConfig
+    .filter((item) => item.key !== "productGuide" || user?.role !== "ADMIN")
+    .map((item) => ({
+      ...item,
+      label: t(item.key),
+    }));
 
   useEffect(() => {
     if (!menuOpen) return;
