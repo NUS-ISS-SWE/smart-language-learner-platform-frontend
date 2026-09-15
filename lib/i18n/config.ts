@@ -15,6 +15,7 @@ const resources = {
     home: en.home,
     dashboard: en.dashboard,
     documents: en.documents,
+    productGuide: en.productGuide,
   },
   zh: {
     auth: zh.auth,
@@ -27,6 +28,7 @@ const resources = {
     home: zh.home,
     dashboard: zh.dashboard,
     documents: zh.documents,
+    productGuide: zh.productGuide,
   },
 };
 
@@ -37,7 +39,7 @@ i18n
     resources,
     fallbackLng: 'en',
     defaultNS: 'common',
-    ns: ['auth', 'common', 'course', 'composition', 'evaluation', 'admin', 'vocabulary', 'home', 'dashboard', 'documents'],
+    ns: ['auth', 'common', 'course', 'composition', 'evaluation', 'admin', 'vocabulary', 'home', 'dashboard', 'documents', 'productGuide'],
     interpolation: {
       escapeValue: false,
     },

@@ -17,6 +17,9 @@ export function Sidebar({ width }: SidebarProps) {
   const pathname = usePathname();
   const { t } = useTranslation("common");
   const { user } = useAuth();
+  const visibleNavigation = navigationConfig.filter(
+    (item) => item.key !== "productGuide" || user?.role !== "ADMIN",
+  );
 
   return (
     <aside
@@ -34,7 +37,7 @@ export function Sidebar({ width }: SidebarProps) {
       </Link>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigationConfig.map((item) => (
+        {visibleNavigation.map((item) => (
           <Link
             key={item.href}
             href={item.href}
