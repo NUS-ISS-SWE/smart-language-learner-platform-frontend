@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/Button";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { APP_NAME } from "@/lib/constants";
 import { useAuth } from "@/context/AuthContext";
+import { LandingStory } from "@/components/features/LandingStory";
 
 const workflowIcons = [PenLine, MessageSquareText, Sparkles] as const;
 
@@ -87,13 +88,13 @@ export default function LandingPage() {
       </header>
 
       <main id="main-content" tabIndex={-1} className="scroll-mt-20">
-        <section className="border-b border-border bg-[radial-gradient(circle_at_88%_12%,#d9f4ee_0,transparent_26rem),linear-gradient(180deg,#ffffff_0%,#f6f8f8_100%)]">
+        <section className="border-b border-border bg-[#f1eee6]">
           <div className="mx-auto grid max-w-[1280px] items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)] lg:gap-12 lg:px-8 lg:py-20">
             <div className="max-w-[35rem]">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary sm:text-sm">
                 {t("categoryLabel")}
               </p>
-              <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.2] tracking-[-0.035em] text-primary sm:text-5xl">
+              <h1 className="font-editorial mt-5 text-balance text-5xl leading-[1.05] tracking-[-0.045em] text-primary sm:text-6xl xl:text-7xl">
                 {t("platformTitle")}
               </h1>
               <p className="mt-6 max-w-[32rem] text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
@@ -115,7 +116,7 @@ export default function LandingPage() {
             </div>
 
             <article
-              className="overflow-hidden rounded-xl border border-border bg-card shadow-soft"
+              className="overflow-hidden rounded-2xl border border-[#d4d9d0] bg-card shadow-[0_24px_60px_-35px_#142b3d66] lg:rotate-1"
               aria-labelledby="writing-example-title"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-[#fbfdfd] px-5 py-3 sm:px-7">
@@ -131,7 +132,7 @@ export default function LandingPage() {
                 <section className="p-6 sm:p-7">
                   <h2
                     id="writing-example-title"
-                    className="text-xl font-semibold tracking-[-0.02em] text-primary"
+                    className="font-editorial text-2xl tracking-[-0.02em] text-primary"
                   >
                     {t("writingExampleTitle")}
                   </h2>
@@ -163,22 +164,24 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <LandingStory />
+
         <section
-          className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6 lg:px-8 lg:py-20"
+          className="mx-auto max-w-[1280px] rounded-2xl bg-primary px-6 py-12 text-white sm:px-10 lg:py-16"
           aria-labelledby="workflow-title"
         >
           <div className="max-w-[38rem]">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary sm:text-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent sm:text-sm">
               {t("platformWorkflowLabel")}
             </p>
             <h2
               id="workflow-title"
-              className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-primary sm:text-4xl"
+              className="font-editorial mt-3 text-3xl tracking-[-0.03em] text-white sm:text-4xl"
             >
               {t("builtForWriting")}
             </h2>
           </div>
-          <ol className="mt-10 grid gap-6 border-t border-border pt-8 md:grid-cols-3">
+          <ol className="mt-10 grid gap-8 border-t border-white/20 pt-8 md:grid-cols-3">
             {workflow.map((step, index) => {
               const Icon = workflowIcons[index];
               return (
@@ -187,13 +190,13 @@ export default function LandingPage() {
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <div>
-                    <p className="text-xs font-bold tracking-[0.12em] text-secondary">
+                    <p className="text-xs font-bold tracking-[0.12em] text-accent">
                       0{index + 1}
                     </p>
-                    <h3 className="mt-1 text-lg font-semibold text-primary">
+                    <h3 className="mt-1 text-lg font-semibold text-white">
                       {step.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
                       {step.description}
                     </p>
                   </div>
@@ -204,7 +207,7 @@ export default function LandingPage() {
         </section>
 
         <section
-          className="border-t border-border bg-card"
+          className="mt-12 border-t border-border bg-card"
           aria-label={t("featuresTitleCurrent")}
         >
           <div className="mx-auto grid max-w-[1280px] gap-8 px-4 py-10 sm:px-6 md:grid-cols-3 lg:px-8">
