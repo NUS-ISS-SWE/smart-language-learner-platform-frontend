@@ -1,17 +1,32 @@
+"use client";
 import type { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/Card";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { metricNumber } from "@/lib/metric-format";
 
-const numberFormatter = new Intl.NumberFormat("en-US");
-
-export function MetricCard({ label, value, description, icon: Icon }: {
-  readonly label: string;
-  readonly value: number;
-  readonly description: string;
-  readonly icon: LucideIcon;
+export function MetricCard({
+  label,
+  value,
+  description,
+  icon: Icon,
+}: {
+  label: string;
+  value: number | null | undefined;
+  description: string;
+  icon: LucideIcon;
 }) {
-  return <Card><CardContent className="flex items-start justify-between p-5"><div>
-    <p className="text-sm text-muted-foreground">{label}</p>
-    <p className="mt-1 text-2xl font-semibold tabular-nums">{numberFormatter.format(value)}</p>
-    <p className="mt-1 text-xs text-muted-foreground">{description}</p>
-  </div><div className="rounded-md bg-primary/10 p-2 text-primary"><Icon className="h-4 w-4" aria-hidden="true" /></div></CardContent></Card>;
+  const { t, i18n } = useTranslation("metrics");
+  return (
+    <article className="min-w-0 rounded-xl border bg-card p-5">
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <Icon className="h-5 w-5 shrink-0 text-secondary" aria-hidden="true" />
+      </div>
+      <p className="text-3xl font-semibold tracking-tight tabular-nums text-primary">
+        {metricNumber(value, i18n.language, t("unavailable"))}
+      </p>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">
+        {description}
+      </p>
+    </article>
+  );
 }
