@@ -5,6 +5,7 @@ import {
   ListChecks,
   WalletCards,
   BarChart3,
+  ScrollText,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -62,5 +63,11 @@ export const adminNavigationConfig: NavItem[] = [
     href: "/admin/metrics",
     icon: BarChart3,
     isActive: (p) => p.startsWith("/admin/metrics"),
+  },
+  {
+    key: "audit",
+    href: "/admin/audit-logs",
+    icon: ScrollText,
+    isActive: (p) => p.startsWith("/admin/audit-logs"),
   },
 ];

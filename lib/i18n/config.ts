@@ -11,10 +11,12 @@ import {
 import { visualEn, visualZh } from "@/locales/visual";
 import { metricsEn, metricsZh } from "@/locales/metrics";
 import { rubricsEn, rubricsZh } from "@/locales/rubrics";
+import { auditEn, auditZh } from "@/locales/audit";
 
 // Build namespace structure from in-memory locales
 const resources = {
   en: {
+    audit: auditEn,
     rubrics: rubricsEn,
     metrics: metricsEn,
     visual: visualEn,
@@ -34,6 +36,7 @@ const resources = {
     documents: en.documents,
   },
   zh: {
+    audit: auditZh,
     rubrics: rubricsZh,
     metrics: metricsZh,
     visual: visualZh,
@@ -60,6 +63,7 @@ i18n.use(initReactI18next).init({
   fallbackLng: "en",
   defaultNS: "common",
   ns: [
+    "audit",
     "rubrics",
     "metrics",
     "visual",

@@ -113,3 +113,39 @@ export type UserUsageMetrics = {
   };
   daily: DailyUsageMetric[];
 };
+
+export type AuditEventOutcome = "SUCCESS" | "FAILURE" | "DENIED";
+
+export type AuditEvent = {
+  id: string;
+  occurredAt: string;
+  service: string;
+  category: string;
+  action: string;
+  outcome: AuditEventOutcome;
+  actorType: string;
+  actorId: string | null;
+  actorName: string | null;
+  actorRole: string | null;
+  targetType: string | null;
+  targetId: string | null;
+  requestId: string | null;
+  correlationId: string | null;
+  sourceIp: string | null;
+  userAgent: string | null;
+  httpMethod: string | null;
+  httpPath: string | null;
+  httpStatus: number | null;
+  beforeData: unknown;
+  afterData: unknown;
+  metadata: unknown;
+  errorCode: string | null;
+};
+
+export type AuditEventsPage = {
+  content: AuditEvent[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+};
