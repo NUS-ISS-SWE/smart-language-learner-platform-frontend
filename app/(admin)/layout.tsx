@@ -20,5 +20,9 @@ export default function AdminLayout({
   }, [isLoading, user, router]);
   if (isLoading) return <LoadingState label={t("loading")} />;
   if (user?.role !== "ADMIN") return null;
-  return <WorkspaceShell admin>{children}</WorkspaceShell>;
+  return (
+    <WorkspaceShell admin>
+      <div className="admin-surface">{children}</div>
+    </WorkspaceShell>
+  );
 }

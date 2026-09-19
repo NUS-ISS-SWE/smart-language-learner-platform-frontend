@@ -1,4 +1,5 @@
 export const studioEn = {
+  noUserCompositions: "No compositions for this account yet.",
   closeDialog: "Close dialog",
   fileType: "Type",
   fileSize: "Size",
@@ -79,6 +80,7 @@ export const studioEn = {
   skip: "Skip to content",
 };
 export const studioZh: Record<keyof typeof studioEn, string> = {
+  noUserCompositions: "此账户暂无作文。",
   closeDialog: "关闭对话框",
   fileType: "类型",
   fileSize: "大小",

@@ -1,7 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteAdminUser, getAdminUser, listAdminUsers, updateUserRole, updateUserStatus } from "@/lib/api/admin-users";
+import {
+  deleteAdminUser,
+  getAdminUser,
+  listAdminUsers,
+  updateUserRole,
+  updateUserStatus,
+} from "@/lib/api/admin-users";
 import type { AdminUsersParams } from "@/lib/api/admin-users";
 import type { UpdateRoleRequest, UpdateStatusRequest } from "@/types/admin";
 import { adminKeys } from "./adminKeys";
@@ -24,16 +30,24 @@ export function useAdminUsers(params: AdminUsersParams = {}) {
 export function useUpdateUserStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body }: { id: number; body: UpdateStatusRequest }) => updateUserStatus(id, body),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: adminKeys.lists() }),
+    mutationFn: ({ id, body }: { id: number; body: UpdateStatusRequest }) =>
+      updateUserStatus(id, body),
+    onSuccess: (_, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.detail(id) });
+    },
   });
 }
 
 export function useUpdateUserRole() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body }: { id: number; body: UpdateRoleRequest }) => updateUserRole(id, body),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: adminKeys.lists() }),
+    mutationFn: ({ id, body }: { id: number; body: UpdateRoleRequest }) =>
+      updateUserRole(id, body),
+    onSuccess: (_, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.detail(id) });
+    },
   });
 }
 
@@ -41,6 +55,7 @@ export function useDeleteAdminUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteAdminUser(id),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: adminKeys.lists() }),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: adminKeys.lists() }),
   });
 }

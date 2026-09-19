@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, use, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { adminReturnTo } from "@/lib/admin-return";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { useAuth } from "@/context/AuthContext";
@@ -116,7 +117,10 @@ function CompositionDetail({ id }: { id: string }) {
           <Link
             href={
               inspection
-                ? `/admin/users/${composition.userId}`
+                ? adminReturnTo(
+                    params.get("returnTo"),
+                    `/admin/users/${composition.userId}`,
+                  )
                 : "/compositions"
             }
           >
