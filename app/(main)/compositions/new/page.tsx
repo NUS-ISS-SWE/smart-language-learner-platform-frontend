@@ -17,17 +17,17 @@ function NewCompositionContent() {
   const { t } = useTranslation("editor");
   const mode = searchParams.get("mode") === "upload" ? "upload" : "write";
   return (
-    <div className="mx-auto w-full max-w-[760px] space-y-6">
-      <div>
-        <Button variant="ghost" size="sm" asChild className="-ml-3 mb-3">
+    <div className="mx-auto w-full max-w-[860px] space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <PageHeader title={t("newTitle")} />
+        <Button variant="ghost" size="sm" asChild className="-ml-3 sm:ml-0">
           <Link href="/compositions">
             <ArrowLeft className="h-4 w-4" />
             {t("back")}
           </Link>
         </Button>
-        <PageHeader title={t("newTitle")} description={t("newDescription")} />
       </div>
-      <nav aria-label={t("newTitle")} className="flex gap-6 border-b">
+      <nav aria-label={t("newTitle")} className="flex gap-5 border-b">
         {(
           [
             { key: "write", href: "/compositions/new", icon: PenLine },
@@ -43,7 +43,7 @@ function NewCompositionContent() {
             href={item.href}
             aria-current={mode === item.key ? "page" : undefined}
             className={cn(
-              "flex min-h-11 items-center gap-2 border-b-2 pb-3 text-sm font-medium",
+              "flex min-h-11 items-center gap-2 border-b-2 text-sm font-medium",
               mode === item.key
                 ? "border-secondary text-secondary"
                 : "border-transparent text-muted-foreground",
@@ -57,9 +57,11 @@ function NewCompositionContent() {
       {mode === "write" ? (
         <CompositionEditor />
       ) : (
-        <div className="max-w-xl">
+        <div>
           <DocumentUpload
-            onSuccess={(doc) => router.push(`/documents/${doc.document.id}`)}
+            onSuccess={(doc) =>
+              router.push(`/documents/${doc.document.id}?evaluate=1`)
+            }
           />
         </div>
       )}
