@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #f6f8f8;
+  --color-background: #f7f6f2;
   --color-foreground: #243746;
 
   --color-card: hsl(0 0% 100%);
@@ -38,8 +38,10 @@
   --shadow-soft: 0 12px 35px -24px rgba(15, 23, 42, 0.45);
 
   --font-sans:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-editorial:
+    Georgia, "Times New Roman", "Songti SC", "STSong", "SimSun", serif;
 }
 
 @layer base {
@@ -176,8 +178,51 @@
   background: var(--color-muted);
 }
 
-.composition-detail { container-type: inline-size; }
+.composition-detail {
+  container-type: inline-size;
+}
+.eyebrow {
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.admin-surface {
+  container-type: inline-size;
+}
+.admin-surface table {
+  background: var(--color-card);
+}
+.admin-surface th {
+  white-space: nowrap;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+}
+.admin-surface td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.admin-surface tbody tr {
+  transition: background-color 150ms;
+}
+.admin-surface tbody tr:hover {
+  background: #f2f7f5;
+}
+.account-form > div {
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px -45px #142b3d80;
+}
+.account-form h1 {
+  font-size: 1.75rem;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
 @container (min-width: 960px) {
-  .detail-columns { grid-template-columns: minmax(0, 55fr) minmax(0, 45fr); }
-  .detail-jumps { display: none; }
+  .detail-columns {
+    grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+  }
+  .detail-jumps {
+    display: none;
+  }
 }

@@ -1,42 +1,112 @@
-'use client';
+﻿"use client";
 
-import { useEffect } from 'react';
+import Link from "next/link";
 
+// This boundary replaces the root layout; use self-contained styles and no providers.
 export default function GlobalError({
   error,
-  reset,
+  retry,
 }: {
-  readonly error: Error & { digest?: string };
-  readonly reset: () => void;
+  error: Error & { digest?: string };
+  retry: () => void;
 }) {
-  useEffect(() => {
-    // Error is handled by the global error boundary
-  }, [error]);
-
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gray-50">
-        <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12">
-          <div className="text-center">
-            <h1 className="mb-4 text-4xl font-bold text-gray-900">
-              Application Error
-            </h1>
-            <p className="mb-6 text-lg text-gray-600">
-              The application encountered a critical error.
-            </p>
-            {process.env.NODE_ENV === 'development' && (
-              <div className="mb-6 rounded-lg bg-red-50 p-4 text-left">
-                <p className="text-sm font-mono text-red-800">{error.message}</p>
-              </div>
-            )}
-            <button
-              onClick={reset}
-              className="rounded-lg bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700"
+      <body
+        style={{
+          margin: 0,
+          background: "#f7f6f2",
+          color: "#243746",
+          fontFamily:
+            'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif',
+        }}
+      >
+        <main
+          style={{
+            minHeight: "100vh",
+            display: "grid",
+            placeItems: "center",
+            padding: "24px",
+            boxSizing: "border-box",
+          }}
+        >
+          <section
+            style={{
+              maxWidth: "460px",
+              padding: "32px",
+              border: "1px solid #d7e0e3",
+              borderRadius: "16px",
+              background: "white",
+            }}
+          >
+            <p
+              style={{
+                color: "#0f766e",
+                fontSize: "12px",
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+              }}
             >
-              Reload Application
-            </button>
-          </div>
-        </div>
+              SMART LANGUAGE LEARNER
+            </p>
+            <h1
+              style={{
+                fontFamily:
+                  'Georgia, "Times New Roman", "Songti SC", "STSong", "SimSun", serif',
+                fontWeight: 400,
+                fontSize: "36px",
+                lineHeight: 1.15,
+              }}
+            >
+              Let’s try that again.
+            </h1>
+            <p style={{ color: "#536570", lineHeight: 1.7 }}>
+              We couldn’t load the application. Try again, or return to the
+              homepage.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "16px",
+                alignItems: "center",
+                marginTop: "24px",
+              }}
+            >
+              <button
+                onClick={retry}
+                style={{
+                  minHeight: "44px",
+                  padding: "12px 20px",
+                  background: "#0f766e",
+                  color: "white",
+                  border: 0,
+                  borderRadius: "8px",
+                  font: "inherit",
+                  cursor: "pointer",
+                }}
+              >
+                Try again
+              </button>
+              <Link
+                href="/"
+                style={{ color: "#0f766e", padding: "12px 0" }}
+              >
+                Go to homepage
+              </Link>
+            </div>
+            {process.env.NODE_ENV === "development" && (
+              <details style={{ marginTop: "24px" }}>
+                <summary>Developer details</summary>
+                <pre
+                  style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}
+                >
+                  {error.message}
+                </pre>
+              </details>
+            )}
+          </section>
+        </main>
       </body>
     </html>
   );

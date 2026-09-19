@@ -1,12 +1,11 @@
+﻿"use client";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 export default function Loading() {
+  const { t } = useTranslation("visual");
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="space-y-4 text-center">
-        <div className="flex justify-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600"></div>
-        </div>
-        <p className="text-gray-600">Loading...</p>
-      </div>
+    <div className="mx-auto w-full max-w-3xl px-4 py-12">
+      <LoadingState label={t("loading")} />
     </div>
   );
 }
