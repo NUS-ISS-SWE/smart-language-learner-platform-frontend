@@ -1,9 +1,6 @@
 "use client";
 
-import { useEditor, useEditorState, EditorContent } from "@tiptap/react";
-import { compositionExtensions } from "@/lib/composition-extensions";
-import { compositionContent } from "@/lib/composition-content";
-import { useTranslation } from "@/lib/i18n/useTranslation";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import {
   AlignCenter,
   AlignLeft,
@@ -25,7 +22,10 @@ import {
   Underline as UnderlineIcon,
   Undo2,
 } from "lucide-react";
-import { useRef, useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { compositionContent } from "@/lib/composition-content";
+import { compositionExtensions } from "@/lib/composition-extensions";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 
 type RichTextEditorProps = {
@@ -50,13 +50,14 @@ function ToolbarButton({
   children,
 }: ToolbarButtonProps) {
   const { t } = useTranslation("editor");
+  const label = t(`format.${ariaLabel}`);
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label={t(`format.${ariaLabel}`)}
-      title={t(`format.${ariaLabel}`)}
+      aria-label={label}
+      title={label}
       aria-pressed={isActive}
       className={cn(
         "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-muted lg:h-10 lg:w-10",
@@ -70,7 +71,7 @@ function ToolbarButton({
 }
 
 function ToolbarDivider() {
-  return <div className="mx-1 h-5 w-px bg-border" aria-hidden="true" />;
+  return <span className="mx-1 h-6 w-px bg-border" aria-hidden="true" />;
 }
 
 export function RichTextEditor({
@@ -79,15 +80,13 @@ export function RichTextEditor({
   disabled = false,
 }: RichTextEditorProps) {
   const { t } = useTranslation("editor");
-  // Track the last HTML emitted by the editor to distinguish user edits from external updates
   const editorHtmlRef = useRef(value);
-
   const editor = useEditor({
     editable: !disabled,
     extensions: compositionExtensions(),
     content: compositionContent(value),
-    onUpdate: ({ editor: e }) => {
-      const html = e.getHTML();
+    onUpdate: ({ editor: nextEditor }) => {
+      const html = nextEditor.getHTML();
       editorHtmlRef.current = html;
       onChange(html);
     },
@@ -102,41 +101,43 @@ export function RichTextEditor({
     },
     immediatelyRender: false,
   });
+
   // Cursor-only transactions must also refresh pressed states and undo/redo.
   useEditorState({
     editor,
     selector: ({ transactionNumber }) => transactionNumber,
   });
 
-  // Sync content when changed from outside (initial load, AI generation)
   useEffect(() => {
     editor?.setEditable(!disabled, false);
   }, [editor, disabled]);
   useEffect(() => {
-    if (editor)
-      editor.setOptions({
-        editorProps: {
-          ...editor.options.editorProps,
-          attributes: {
-            ...editor.options.editorProps.attributes,
-            "aria-label": t("content"),
-          },
+    if (!editor) return;
+    editor.setOptions({
+      editorProps: {
+        ...editor.options.editorProps,
+        attributes: {
+          ...editor.options.editorProps.attributes,
+          "aria-label": t("content"),
         },
-      });
+      },
+    });
   }, [editor, t]);
   useEffect(() => {
     if (!editor || value === editorHtmlRef.current) return;
     editorHtmlRef.current = value;
-    editor.commands.setContent(compositionContent(value), { emitUpdate: false });
+    editor.commands.setContent(compositionContent(value), {
+      emitUpdate: false,
+    });
   }, [editor, value]);
 
   if (!editor) return null;
 
   return (
-    <div>
+    <div className="writing-tools">
       <div
-        className="flex flex-wrap items-center gap-1 border-y bg-background/60 px-4 py-2 sm:px-7"
-        role="group"
+        className="flex flex-wrap items-center gap-1 border-y bg-[#f8faf9] px-4 py-1 sm:px-7"
+        role="toolbar"
         aria-label={t("formatting")}
       >
         <ToolbarButton
@@ -160,6 +161,9 @@ export function RichTextEditor({
         >
           <UnderlineIcon className="h-4 w-4" />
         </ToolbarButton>
+
+        <ToolbarDivider />
+
         <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
@@ -174,158 +178,155 @@ export function RichTextEditor({
         >
           <Redo2 className="h-4 w-4" />
         </ToolbarButton>
-      </div>
-      <details className="border-b bg-background/60">
-        <summary className="min-h-11 cursor-pointer px-5 py-3 text-sm font-medium text-muted-foreground sm:px-8">
-          {t("moreFormatting")}
-        </summary>
-        <div
-          className="flex flex-wrap items-center gap-1 px-4 pb-3 sm:px-7"
-          role="group"
-          aria-label={t("moreFormatting")}
+
+        <ToolbarDivider />
+
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          isActive={editor.isActive("strike")}
+          aria-label="Strikethrough"
         >
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-            isActive={editor.isActive("strike")}
-            aria-label="Strikethrough"
-          >
-            <Strikethrough className="h-4 w-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleHighlight().run()}
-            isActive={editor.isActive("highlight")}
-            aria-label="Highlight"
-          >
-            <Highlighter className="h-4 w-4" />
-          </ToolbarButton>
+          <Strikethrough className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHighlight().run()}
+          isActive={editor.isActive("highlight")}
+          aria-label="Highlight"
+        >
+          <Highlighter className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() =>
+            editor.chain().focus().clearNodes().unsetAllMarks().run()
+          }
+          aria-label="Clear formatting"
+        >
+          <RemoveFormatting className="h-4 w-4" />
+        </ToolbarButton>
 
-          <ToolbarDivider />
+        <ToolbarDivider />
 
-          <ToolbarButton
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 1 }).run()
+        <ToolbarButton
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
+          isActive={editor.isActive("heading", { level: 1 })}
+          aria-label="Heading 1"
+        >
+          <Heading1 className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
+          isActive={editor.isActive("heading", { level: 2 })}
+          aria-label="Heading 2"
+        >
+          <Heading2 className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
+          isActive={editor.isActive("heading", { level: 3 })}
+          aria-label="Heading 3"
+        >
+          <Heading3 className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          isActive={editor.isActive("bulletList")}
+          aria-label="Bullet list"
+        >
+          <List className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          isActive={editor.isActive("orderedList")}
+          aria-label="Ordered list"
+        >
+          <ListOrdered className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          isActive={editor.isActive("blockquote")}
+          aria-label="Blockquote"
+        >
+          <Quote className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          isActive={editor.isActive("code")}
+          aria-label="Inline code"
+        >
+          <Code className="h-4 w-4" />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        <ToolbarButton
+          onClick={() => {
+            const previousUrl = editor.getAttributes("link").href as
+              | string
+              | undefined;
+            const url = window.prompt(
+              t("linkPrompt"),
+              previousUrl ?? "https://",
+            );
+            if (url === null) return;
+            if (url === "") {
+              editor.chain().focus().extendMarkRange("link").unsetLink().run();
+            } else {
+              editor
+                .chain()
+                .focus()
+                .extendMarkRange("link")
+                .setLink({ href: url })
+                .run();
             }
-            isActive={editor.isActive("heading", { level: 1 })}
-            aria-label="Heading 1"
-          >
-            <Heading1 className="h-4 w-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            }
-            isActive={editor.isActive("heading", { level: 2 })}
-            aria-label="Heading 2"
-          >
-            <Heading2 className="h-4 w-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 3 }).run()
-            }
-            isActive={editor.isActive("heading", { level: 3 })}
-            aria-label="Heading 3"
-          >
-            <Heading3 className="h-4 w-4" />
-          </ToolbarButton>
+          }}
+          isActive={editor.isActive("link")}
+          aria-label="Insert link"
+        >
+          <Link2 className="h-4 w-4" />
+        </ToolbarButton>
 
-          <ToolbarDivider />
+        <ToolbarDivider />
 
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            isActive={editor.isActive("bulletList")}
-            aria-label="Bullet list"
-          >
-            <List className="h-4 w-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            isActive={editor.isActive("orderedList")}
-            aria-label="Ordered list"
-          >
-            <ListOrdered className="h-4 w-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            isActive={editor.isActive("blockquote")}
-            aria-label="Blockquote"
-          >
-            <Quote className="h-4 w-4" />
-          </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          isActive={editor.isActive({ textAlign: "left" })}
+          aria-label="Align left"
+        >
+          <AlignLeft className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          isActive={editor.isActive({ textAlign: "center" })}
+          aria-label="Align center"
+        >
+          <AlignCenter className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          isActive={editor.isActive({ textAlign: "right" })}
+          aria-label="Align right"
+        >
+          <AlignRight className="h-4 w-4" />
+        </ToolbarButton>
 
-          <ToolbarDivider />
-
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleCode().run()}
-            isActive={editor.isActive("code")}
-            aria-label="Inline code"
+      </div>
+      <div className="relative">
+        {editor.getText().trim().length === 0 && !disabled && (
+          <p
+            className="pointer-events-none absolute left-5 top-6 text-lg text-muted-foreground sm:left-8 sm:top-8"
+            aria-hidden="true"
           >
-            <Code className="h-4 w-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => {
-              const prev = editor.getAttributes("link").href as
-                | string
-                | undefined;
-              const url = window.prompt(t("linkPrompt"), prev ?? "https://");
-              if (url === null) return;
-              if (url === "") {
-                editor
-                  .chain()
-                  .focus()
-                  .extendMarkRange("link")
-                  .unsetLink()
-                  .run();
-              } else {
-                editor
-                  .chain()
-                  .focus()
-                  .extendMarkRange("link")
-                  .setLink({ href: url })
-                  .run();
-              }
-            }}
-            isActive={editor.isActive("link")}
-            aria-label="Insert link"
-          >
-            <Link2 className="h-4 w-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() =>
-              editor.chain().focus().clearNodes().unsetAllMarks().run()
-            }
-            aria-label="Clear formatting"
-          >
-            <RemoveFormatting className="h-4 w-4" />
-          </ToolbarButton>
-
-          <ToolbarDivider />
-
-          <ToolbarButton
-            onClick={() => editor.chain().focus().setTextAlign("left").run()}
-            isActive={editor.isActive({ textAlign: "left" })}
-            aria-label="Align left"
-          >
-            <AlignLeft className="h-4 w-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            isActive={editor.isActive({ textAlign: "center" })}
-            aria-label="Align center"
-          >
-            <AlignCenter className="h-4 w-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            isActive={editor.isActive({ textAlign: "right" })}
-            aria-label="Align right"
-          >
-            <AlignRight className="h-4 w-4" />
-          </ToolbarButton>
-        </div>
-      </details>
-
-      <EditorContent editor={editor} />
+            {t("contentPlaceholder")}
+          </p>
+        )}
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

@@ -47,23 +47,18 @@ for (const language of ["en", "zh"]) {
         path: `docs/ux-redesign/evidence/T05-editor-${width}-${language}.png`,
         fullPage: true,
       });
-      await page
-        .getByText(language === "zh" ? "更多格式" : "More formatting", {
-          exact: true,
-        })
-        .click();
-      const formatting = page.getByRole("group", {
-        name: language === "zh" ? "更多格式" : "More formatting",
+      const formatting = page.getByRole("toolbar", {
+        name: language === "zh" ? "文字格式" : "Text formatting",
         exact: true,
       });
-      await expect(formatting.getByRole("button")).toHaveCount(14);
+      await expect(formatting.getByRole("button")).toHaveCount(19);
       for (const button of await formatting.getByRole("button").all()) {
         const box = await button.boundingBox();
         expect(box!.x + box!.width).toBeLessThanOrEqual(width);
         expect(box!.height).toBeGreaterThanOrEqual(width < 1024 ? 44 : 40);
       }
       await page
-        .getByText(language === "zh" ? "写作选项" : "Writing options", {
+        .getByText(language === "zh" ? "草稿设置" : "Draft settings", {
           exact: true,
         })
         .click();
@@ -115,7 +110,6 @@ test("formatting, history, link editing and cursor state remain usable", async (
   await expect(body.locator("strong")).toHaveCount(0);
   await page.getByRole("button", { name: "Redo", exact: true }).click();
   await expect(body.locator("strong")).toHaveCount(1);
-  await page.getByText("More formatting", { exact: true }).click();
   await page.getByRole("button", { name: "Heading 2", exact: true }).click();
   await expect(body.locator("h2")).toContainText("A garden");
   page.once("dialog", (dialog) => dialog.accept("https://example.test/garden"));

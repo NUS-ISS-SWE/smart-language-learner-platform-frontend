@@ -40,7 +40,7 @@ export function CompositionFeedback({
         </p>
         <h2
           id="feedback-heading"
-          className="text-xl font-semibold text-primary"
+          className="text-3xl font-semibold tracking-tight text-primary"
         >
           {t("heading")}
         </h2>
@@ -51,9 +51,15 @@ export function CompositionFeedback({
             {items.map((item, index) => (
               <li
                 key={index}
-                className="space-y-3 border-l-2 border-secondary pl-4"
+                className="space-y-4 border-l-2 border-secondary pl-4 sm:pl-5"
               >
                 <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    aria-hidden="true"
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-soft-teal text-xs font-semibold text-secondary"
+                  >
+                    {index + 1}
+                  </span>
                   <h3 className="font-semibold text-primary">
                     {item.criterion || t("suggestion", { number: index + 1 })}
                   </h3>

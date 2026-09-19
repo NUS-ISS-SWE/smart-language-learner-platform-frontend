@@ -1,6 +1,7 @@
 "use client";
 
 import { Label } from "@/components/ui/Label";
+import { WrappingTitleInput } from "@/components/ui/WrappingTitleInput";
 import { RichTextEditor } from "./RichTextEditor";
 import type { CompositionDraft } from "@/types/composition";
 import { useTranslation } from "@/lib/i18n/useTranslation";
@@ -21,22 +22,18 @@ export function CompositionEditorFields({
 }: CompositionEditorFieldsProps) {
   const { t } = useTranslation("editor");
   return (
-    <div className="overflow-hidden rounded-xl border bg-card shadow-soft">
-      <div className="space-y-2 px-5 pb-5 pt-6 sm:px-8 sm:pt-8">
+    <div className="overflow-hidden rounded-xl border bg-card shadow-[0_16px_48px_-32px_#142b3d60]">
+      <div className="space-y-1 px-5 pb-3 pt-5 sm:px-8 sm:pt-6">
         <Label htmlFor="title" className="text-muted-foreground">
           {t("title")}
         </Label>
-        <textarea
+        <WrappingTitleInput
           id="title"
-          rows={1}
-          style={{ fieldSizing: "content" }}
           value={draft.title}
           disabled={disabled}
-          onChange={(event) =>
-            onChange("title", event.target.value.replace(/\r?\n/g, " "))
-          }
+          onValueChange={(title) => onChange("title", title)}
           placeholder={t("titlePlaceholder")}
-          className="block min-h-12 w-full resize-none rounded-none border-0 border-b border-transparent bg-transparent px-0 py-2 text-2xl font-semibold leading-8 text-primary placeholder:text-muted-foreground focus-visible:border-secondary focus-visible:outline-none"
+          className="min-h-12 rounded-none border-0 border-b border-transparent bg-transparent px-0 py-2 text-2xl font-semibold leading-8 tracking-tight text-primary focus-visible:border-secondary sm:text-3xl"
           required
         />
       </div>
