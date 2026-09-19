@@ -41,6 +41,7 @@ Captured with fictional test identities and intercepted API responses on 9–12 
 ## Feedback and revision T06
 
 - `T06-feedback-{1440,1024,390,320}-{en,zh}.png`: fictional reviewed composition, one complete structured suggestion, full assessment retained in its disclosure.
+- `T07-upload-{1440,1024,390,320}-{en,zh}.png` and `T07-document-{1440,1024,390,320}-{en,zh}.png`: upload and extraction/evaluation states, including long English and Chinese filenames.
 - Intent: assessed writing → specific next improvement → independent revision. At a content width of 960px or more, paper and feedback share the top edge in a 55/45 split. At smaller content widths, they stack and expose jump links. No fixed 420px feedback column squeezes the writing.
 - Structure/finish: inspected desktop English, intermediate Chinese, mobile English and 320px Chinese. The paper preserves readable paragraphs; annotations distinguish criterion, recommendation, example, learning tip and evidence without nesting every field in a card. The initial inspection exposed raw source enums and English-formatted dates in Chinese; localized those metadata fields and recaptured.
 - Resilience: all eight viewport/locale combinations are checked for overflow and actual content-width layout. Separate browser scenarios exercise missing suggestions, unavailable-language suggestions, legacy text, hostile HTML/URLs, unknown progress stages, generation pending/failure/GET retry, revision uncertainty, source links, deletion cancellation and admin read-only context. Full feedback remains accessible.

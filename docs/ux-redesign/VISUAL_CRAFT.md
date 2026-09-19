@@ -1,5 +1,7 @@
 # How to achieve the intended visual quality
 
+**Current direction (18-19 September):** follow [the implementation addendum](VISUAL_IMPLEMENTATION_20260919.md) for the warmer canvas, editorial typography, 860px writing wrapper and compact controls. Existing screenshot references describe the earlier pass; new browser verification remains pending in an isolated server environment.
+
 Read with the [design specification](DESIGN_SPEC.md), which owns exact tokens and screen requirements. This guide explains composition and craftsmanship: how to turn those specifications into a coherent interface. The [handoff approval boundary](../../UX_REDESIGN_PLAN.md) still applies. The diagrams below are planning blueprints, not rendered mockups or evidence of completed implementation.
 
 ## 1. The visual result to aim for
@@ -117,16 +119,16 @@ Repeat only the affected pass when fixes reveal new issues. A first pass can suc
 
 ## 6. Weak outcomes and concrete corrections
 
-| Weak outcome | Required correction |
-| --- | --- |
-| A grid of equally prominent dashboard cards | Establish a writing entry point and recent work first; move supporting subscription/summary information to lower-emphasis regions while retaining access. |
-| Attractive colors, but cramped composition text | Restore paper width, body size, line height and interior padding before adjusting decoration. |
-| Huge hero title and an empty skeleton drawing | Use the specified headline scale and the readable composition/annotation example; balance column widths and whitespace. |
-| Every feedback field in a separate bordered box | Group recommendation, example and evidence by typography and spacing inside the suggestion structure. Keep the complete information. |
-| Mobile is a miniature desktop screen | Reflow columns and actions, preserve readable type and touch targets, retain controls in accessible groups. |
-| Admin pages look like a different product | Reuse shell, fields, badges, dialogs and spacing; vary density deliberately, not colors or component language. |
-| Screenshot looks clean because actions were removed | Restore the capability; find a labelled secondary location and verify discoverability. |
-| Animation or imagery distracts from writing | Remove the distraction and improve content composition; no decorative effect is required for completion. |
+| Weak outcome                                        | Required correction                                                                                                                                       |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A grid of equally prominent dashboard cards         | Establish a writing entry point and recent work first; move supporting subscription/summary information to lower-emphasis regions while retaining access. |
+| Attractive colors, but cramped composition text     | Restore paper width, body size, line height and interior padding before adjusting decoration.                                                             |
+| Huge hero title and an empty skeleton drawing       | Use the specified headline scale and the readable composition/annotation example; balance column widths and whitespace.                                   |
+| Every feedback field in a separate bordered box     | Group recommendation, example and evidence by typography and spacing inside the suggestion structure. Keep the complete information.                      |
+| Mobile is a miniature desktop screen                | Reflow columns and actions, preserve readable type and touch targets, retain controls in accessible groups.                                               |
+| Admin pages look like a different product           | Reuse shell, fields, badges, dialogs and spacing; vary density deliberately, not colors or component language.                                            |
+| Screenshot looks clean because actions were removed | Restore the capability; find a labelled secondary location and verify discoverability.                                                                    |
+| Animation or imagery distracts from writing         | Remove the distraction and improve content composition; no decorative effect is required for completion.                                                  |
 
 ## 7. Evidence that transfers judgment to the next agent
 

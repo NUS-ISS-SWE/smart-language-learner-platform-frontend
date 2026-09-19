@@ -1,5 +1,7 @@
 # Visual and screen specification
 
+**18–19 September update:** the user approved a more visible editorial direction after finding the first implementation too similar. [Current implementation and revised defaults](VISUAL_IMPLEMENTATION_20260919.md) supersede the original canvas, editorial typography, 760px writing wrapper and control placement below. Workflow and capability-preservation rules still apply. Focused commits, lint and the production build are complete; browser verification remains pending in an isolated server environment.
+
 Authority and approval status: [handoff](../../UX_REDESIGN_PLAN.md). Composition and refinement method: [visual craft guide](VISUAL_CRAFT.md). Behavior and preservation rules: [workflow contract](WORKFLOW_CONTRACT.md). Required evidence: [execution checklist](EXECUTION.md).
 
 ## 1. Design defaults
@@ -8,23 +10,23 @@ These are concrete implementation defaults for the selected calm writing studio 
 
 ### Palette and surfaces
 
-| Semantic role | Default | Use |
-| --- | --- | --- |
-| Canvas | `#F6F8F8` | Main application background |
-| Surface | `#FFFFFF` | Editor paper, dialogs, cards and tables |
-| Heading/nav navy | `#142B3D` | Headings, desktop sidebar, strong text |
-| Body ink | `#243746` | Paragraphs and field values |
-| Muted text | `#536570` | Secondary metadata; never use opacity to make required text faint |
-| Primary action teal | `#0F766E` | Main buttons and active controls, white foreground |
-| Primary hover | `#115E59` | Hover/pressed primary actions |
-| Soft teal | `#E7F3F0` | Selected backgrounds with dark teal text |
-| Bright accent | `#2DD4BF` | Small decorative accents with navy foreground; not white small text |
-| Surface divider | `#D7E0E3` | Noninteractive card/table separators |
-| Input boundary | `#71838E` | Visible control outline where needed for contrast |
-| Focus | `#0F766E` on light; bright accent on navy | 2px ring with 2px separation; visible on every surface |
-| Success | `#166534` / `#F0FDF4` | Text/background plus label or icon |
-| Caution | `#92400E` / `#FFFBEB` | Text/background plus label or icon |
-| Error | `#B91C1C` / `#FEF2F2` | Error/destructive text and light background; solid destructive actions use white on dark red |
+| Semantic role       | Default                                   | Use                                                                                          |
+| ------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Canvas              | `#F6F8F8`                                 | Main application background                                                                  |
+| Surface             | `#FFFFFF`                                 | Editor paper, dialogs, cards and tables                                                      |
+| Heading/nav navy    | `#142B3D`                                 | Headings, desktop sidebar, strong text                                                       |
+| Body ink            | `#243746`                                 | Paragraphs and field values                                                                  |
+| Muted text          | `#536570`                                 | Secondary metadata; never use opacity to make required text faint                            |
+| Primary action teal | `#0F766E`                                 | Main buttons and active controls, white foreground                                           |
+| Primary hover       | `#115E59`                                 | Hover/pressed primary actions                                                                |
+| Soft teal           | `#E7F3F0`                                 | Selected backgrounds with dark teal text                                                     |
+| Bright accent       | `#2DD4BF`                                 | Small decorative accents with navy foreground; not white small text                          |
+| Surface divider     | `#D7E0E3`                                 | Noninteractive card/table separators                                                         |
+| Input boundary      | `#71838E`                                 | Visible control outline where needed for contrast                                            |
+| Focus               | `#0F766E` on light; bright accent on navy | 2px ring with 2px separation; visible on every surface                                       |
+| Success             | `#166534` / `#F0FDF4`                     | Text/background plus label or icon                                                           |
+| Caution             | `#92400E` / `#FFFBEB`                     | Text/background plus label or icon                                                           |
+| Error               | `#B91C1C` / `#FEF2F2`                     | Error/destructive text and light background; solid destructive actions use white on dark red |
 
 Validate actual rendered contrast; tokens alone do not establish compliance. Keep brand navy separate from the primary action role. Inspect existing `Button` variants and their consumers when mapping tokens: changing a global variable must not accidentally turn all secondary actions into competing primary buttons. Use Tailwind v4's existing `@theme` system, not a parallel theme mechanism. CSS variables already contain complete colors: use `var(--color-muted)`, not `hsl(var(--color-muted))`.
 
@@ -41,11 +43,11 @@ Validate actual rendered contrast; tokens alone do not establish compliance. Kee
 
 ### Layout and breakpoints
 
-| Width | Shell | Content |
-| --- | --- | --- |
-| At least 1024px | One desktop sidebar and one topbar | Content padding 32px; allow flexible panels without horizontal page overflow |
-| 640-1023px | One topbar and navigation drawer | Content padding 24px; stack feedback if available width is insufficient |
-| Below 640px | One compact topbar and navigation drawer | Content padding 16px; stack rows/cards/actions; support 320px |
+| Width           | Shell                                    | Content                                                                      |
+| --------------- | ---------------------------------------- | ---------------------------------------------------------------------------- |
+| At least 1024px | One desktop sidebar and one topbar       | Content padding 32px; allow flexible panels without horizontal page overflow |
+| 640-1023px      | One topbar and navigation drawer         | Content padding 24px; stack feedback if available width is insufficient      |
+| Below 640px     | One compact topbar and navigation drawer | Content padding 16px; stack rows/cards/actions; support 320px                |
 
 Desktop sidebar default stays 280px, clamped to the existing 224-420px range; preserve `sllp.sidebarWidth` and keyboard resizing. A collapse control may be added with an accessible label, but must not replace resizing. Admin and learner shells should share responsive behavior. Optional admin width persistence should reuse the common implementation without overwriting the learner's saved preference unexpectedly.
 
@@ -57,16 +59,16 @@ Use normal document scrolling for long pages. Sticky editor controls must not co
 
 Extend existing primitives before creating substitutes. Extract shared components when there are real repeated consumers, not to build an unused design system.
 
-| Primitive | Required behavior |
-| --- | --- |
-| Page header | One h1, optional short description/breadcrumb, one dominant action; secondary actions wrap without overlap |
-| Buttons/links | Pending label, disabled semantics, accessible icon name, stable size; use links for navigation |
-| Field | Persistent label, helper/error association, required indicator where relevant, visible focus; preserve value on errors |
-| Tabs | Correct selected state and keyboard behavior; link tabs if navigation changes URL |
-| Status badge | Text plus optional icon, consistent semantic color, understandable without color |
-| Async state | Layout-appropriate skeleton, explicit empty message/action, error with retry; retain existing data on refetch failure |
-| Dialog/menu | One accessible name, unique IDs, keyboard operation, Escape, focus management and focus return; use native modal `showModal()` if retaining native dialogs |
-| Notification | Inline actionable failures; announce save/progress updates politely without reading every keystroke |
+| Primitive     | Required behavior                                                                                                                                          |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page header   | One h1, optional short description/breadcrumb, one dominant action; secondary actions wrap without overlap                                                 |
+| Buttons/links | Pending label, disabled semantics, accessible icon name, stable size; use links for navigation                                                             |
+| Field         | Persistent label, helper/error association, required indicator where relevant, visible focus; preserve value on errors                                     |
+| Tabs          | Correct selected state and keyboard behavior; link tabs if navigation changes URL                                                                          |
+| Status badge  | Text plus optional icon, consistent semantic color, understandable without color                                                                           |
+| Async state   | Layout-appropriate skeleton, explicit empty message/action, error with retry; retain existing data on refetch failure                                      |
+| Dialog/menu   | One accessible name, unique IDs, keyboard operation, Escape, focus management and focus return; use native modal `showModal()` if retaining native dialogs |
+| Notification  | Inline actionable failures; announce save/progress updates politely without reading every keystroke                                                        |
 
 Keep a skip-to-content link, landmarks, `aria-current` on active navigation, visible keyboard focus and meaningful heading order. Do not use raw backend enum strings as final user-facing labels. Target WCAG 2.2 AA, with 44px mobile targets as an additional project preference.
 
@@ -75,7 +77,7 @@ Keep a skip-to-content link, landmarks, `aria-current` on active navigation, vis
 - Learner sidebar: Dashboard and Compositions. Documents remain the Documents tab in the composition library and remain reachable from upload and document detail links.
 - Topbar/account area: interface-language switcher, current account/subscription context, Subscription destination, logout. Keep the public site's language switcher too.
 - Administrators: explicit workspace switch between learner and admin areas; admin destinations Users, Rubrics, Pricing plans, Metrics. Preserve existing route paths and role restrictions.
-- Remove duplicate *renderings* of mobile navigation by sharing the shell. This consolidates presentation; it must not remove any destination.
+- Remove duplicate _renderings_ of mobile navigation by sharing the shell. This consolidates presentation; it must not remove any destination.
 - Detail pages have contextual back navigation. Preserve library tab or admin list filters/page when returning. Do not send an admin viewing a user's document to the learner library by default.
 
 ## 3. Screen specifications
