@@ -1,5 +1,6 @@
 "use client";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Bot,
@@ -20,6 +21,7 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { useSystemUsageMetrics } from "@/lib/hooks/useAdmin";
+import { adminKeys } from "@/lib/hooks/adminKeys";
 import {
   normalizeMetricsDateRange,
   utcIsoDate,
@@ -55,6 +57,7 @@ function MetricBreakdown({
 function UsageMetricsContent() {
   const { t, i18n } = useTranslation("metrics");
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const { from, to, earliestAllowedFrom } = normalizeMetricsDateRange(
     searchParams.get("from"),
@@ -86,15 +89,22 @@ function UsageMetricsContent() {
     },
     [router],
   );
-  // Placeholder data ends when the next request fails. Retain the last real
-  // result for this mounted page, including its original reporting period.
-  const [lastResult, setLastResult] = useState<SystemUsageMetrics | null>(null);
-  useEffect(() => {
-    if (query.data && !query.isPlaceholderData) {
-      setLastResult(query.data);
-    }
-  }, [query.data, query.isPlaceholderData]);
-  const data = query.data ?? lastResult;
+  // Placeholder data ends when the next request fails. The query cache keeps
+  // every successful period, so derive the latest real result without another
+  // state synchronization cycle.
+  const lastResult = queryClient
+    .getQueryCache()
+    .findAll({ queryKey: [...adminKeys.all, "metrics"] })
+    .reduce<{ data: SystemUsageMetrics; updatedAt: number } | null>(
+      (latest, cached) => {
+        const data = cached.state.data as SystemUsageMetrics | undefined;
+        if (!data || cached.state.dataUpdatedAt <= (latest?.updatedAt ?? 0))
+          return latest;
+        return { data, updatedAt: cached.state.dataUpdatedAt };
+      },
+      null,
+    );
+  const data = query.data ?? lastResult?.data;
   const s = data?.summary;
   const w = data?.workflowReliability;
   const n = (value: number | null | undefined) =>

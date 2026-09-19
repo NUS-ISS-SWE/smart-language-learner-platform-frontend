@@ -23,20 +23,10 @@ function UserSearch({
   onCommit: (key: string, value: string) => void;
 }) {
   const [text, setText] = useState(value);
-  const [urlValue, setUrlValue] = useState(value);
-  const [submitted, setSubmitted] = useState(value);
   const { t } = useTranslation("visual");
-  // URL navigation updates the draft; our own debounced acknowledgement must
-  // neither remount the input nor overwrite newer keystrokes.
-  useEffect(() => {
-    if (urlValue === value) return;
-    setUrlValue(value);
-    if (value !== submitted) setText(value);
-  }, [submitted, urlValue, value]);
   useEffect(() => {
     if (text === value) return;
     const timer = setTimeout(() => {
-      setSubmitted(text);
       onCommit("search", text);
     }, 300);
     return () => clearTimeout(timer);
@@ -101,7 +91,7 @@ function AdminUsersContent() {
         <div className="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div className="space-y-2">
             <Label htmlFor="user-search">{t("search")}</Label>
-            <UserSearch value={search} onCommit={updateParam} />
+            <UserSearch key={search} value={search} onCommit={updateParam} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="user-status">{t("status")}</Label>
