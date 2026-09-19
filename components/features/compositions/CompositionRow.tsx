@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { compositionPreview } from "@/lib/composition-content";
 import { ArrowUpRight, FileText } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { StatusBadge } from "@/components/shared/StatusBadge";
@@ -9,19 +9,7 @@ import type { Composition } from "@/types/composition";
 
 export function CompositionRow({ composition }: { composition: Composition }) {
   const { t, i18n } = useTranslation("studio");
-  const preview = useMemo(() => {
-    if (!composition.content) return "";
-    // An inert template extracts text without showing HTML tags or executing it.
-    const template = document.createElement("template");
-    template.innerHTML = composition.content;
-    template.content
-      .querySelectorAll("script, style")
-      .forEach((node) => node.remove());
-    return (template.content.textContent ?? "")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 180);
-  }, [composition.content]);
+  const preview = compositionPreview(composition.content ?? "", 180);
   const date = (value: string) =>
     new Date(value).toLocaleDateString(
       i18n.language.startsWith("zh") ? "zh-CN" : "en-GB",

@@ -15,6 +15,8 @@ import { useAdminUsers } from "@/lib/hooks/useAdmin";
 import { RecentCompositions } from "@/components/features/dashboard/RecentCompositions";
 import { ScoreSummary } from "@/components/features/dashboard/ScoreSummary";
 import { useAuth } from "@/context/AuthContext";
+import { WritingNextStep } from "@/components/features/dashboard/WritingNextStep";
+import { compositionPreview } from "@/lib/composition-content";
 
 function AdminOverview() {
   const { data, isError } = useAdminUsers({ size: 1 });
@@ -47,6 +49,7 @@ function AdminOverview() {
 }
 
 export default function DashboardPage() {
+  const { t: visual } = useTranslation("visual");
   const { user } = useAuth();
   const compositions = useCompositionList();
   const documents = useDocumentList();
@@ -63,53 +66,72 @@ export default function DashboardPage() {
         title={t("welcome", { name: user?.username ?? t("learner") })}
         description={t("dashboardIntro")}
       />
-      <section
-        className="rounded-xl border border-border bg-card p-5 sm:p-8"
-        aria-labelledby="writing-next"
-      >
-        <div className="flex flex-col justify-between gap-6 xl:flex-row xl:items-center">
-          <div className="min-w-0">
-            <p className="mb-3 text-sm font-medium text-secondary">
-              {t("workspace")}
-            </p>
-            <h2
-              id="writing-next"
-              className="break-words text-2xl font-semibold tracking-tight text-primary"
-            >
-              {latestDraft?.title || t("startTitle")}
-            </h2>
-            <p className="mt-2 text-base leading-6 text-muted-foreground">
-              {t(latestDraft ? "continueHint" : "startHint")}
-            </p>
-          </div>
-          <div className="flex shrink-0 flex-col gap-2 sm:flex-row xl:flex-col">
-            <Button asChild>
-              <Link
-                href={
-                  latestDraft
-                    ? `/compositions/${latestDraft.id}/edit`
-                    : "/compositions/new"
-                }
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <section
+          className="relative overflow-hidden rounded-2xl bg-primary p-6 text-white sm:p-8"
+          aria-labelledby="writing-next"
+        >
+          <div className="flex h-full flex-col justify-between gap-8">
+            <div className="min-w-0">
+              <p className="eyebrow mb-6 text-accent">
+                {visual(latestDraft ? "draftLabel" : "nextStep")}
+              </p>
+              <h2
+                id="writing-next"
+                className="break-words text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl"
               >
-                <PenLine className="h-4 w-4" />
-                {t(latestDraft ? "continue" : "write")}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            {latestDraft && (
-              <Button variant="outline" asChild>
-                <Link href="/compositions/new">{t("write")}</Link>
+                {latestDraft?.title || t("startTitle")}
+              </h2>
+              <p className="mt-4 text-sm leading-6 text-slate-300">
+                {t(latestDraft ? "continueHint" : "startHint")}
+              </p>
+              {latestDraft?.content && (
+                <p className="mt-5 line-clamp-3 border-l-2 border-accent/60 pl-4 text-base leading-7 text-slate-200">
+                  {compositionPreview(latestDraft.content)}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2 border-t border-white/20 pt-5">
+              <Button
+                asChild
+                className="bg-white text-primary hover:bg-soft-teal"
+              >
+                <Link
+                  href={
+                    latestDraft
+                      ? `/compositions/${latestDraft.id}/edit`
+                      : "/compositions/new"
+                  }
+                >
+                  <PenLine className="h-4 w-4" />
+                  {t(latestDraft ? "continue" : "write")}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </Button>
-            )}
-            <Button variant="ghost" asChild>
-              <Link href="/compositions/new?mode=upload">
-                <Upload className="h-4 w-4" />
-                {t("upload")}
-              </Link>
-            </Button>
+              {latestDraft && (
+                <Button
+                  variant="ghost"
+                  asChild
+                  className="text-white hover:bg-white/10 hover:text-white"
+                >
+                  <Link href="/compositions/new">{t("write")}</Link>
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                asChild
+                className="text-white hover:bg-white/10 hover:text-white"
+              >
+                <Link href="/compositions/new?mode=upload">
+                  <Upload className="h-4 w-4" />
+                  {t("upload")}
+                </Link>
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+        <WritingNextStep compositions={data} />
+      </div>
 
       {compositions.isLoading && <LoadingState label={t("recent")} />}
       {compositions.isError && (
@@ -122,6 +144,9 @@ export default function DashboardPage() {
       )}
       {compositions.data && <RecentCompositions compositions={data} />}
       <section className="space-y-3">
+        <h2 className="text-xl font-semibold text-primary">
+          {visual("activity")}
+        </h2>
         {compositions.data && (
           <p className="text-sm text-muted-foreground">
             {t("recentScope", { count: data.length })}
