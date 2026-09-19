@@ -141,6 +141,26 @@ test("source document keeps its metadata, view and download links", async ({
   ).toBeVisible();
 });
 
+test("generation ignores stale browser document associations", async ({ page }) => {
+  await signIn(page);
+  await page.addInitScript(() =>
+    localStorage.setItem("sllp.comp.1.docId", "1"),
+  );
+  await page.route("**/api/v1/composition/1", (route) =>
+    route.fulfill({ json: composition(1, { compositionSource: "SYSTEM" }) }),
+  );
+  let documentRequests = 0;
+  await page.route("**/api/documents/1", (route) => {
+    documentRequests += 1;
+    return route.fulfill({ status: 404, json: { code: "DOCUMENT_NOT_FOUND" } });
+  });
+
+  await page.goto("/compositions/1");
+  await expect(page.getByRole("region", { name: "Source document" })).toHaveCount(0);
+  await page.waitForTimeout(300);
+  expect(documentRequests).toBe(0);
+});
+
 test("generation polls its returned record and stops when ready", async ({
   page,
 }) => {

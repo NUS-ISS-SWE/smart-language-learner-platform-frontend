@@ -220,7 +220,11 @@ function CompositionDetail({ id }: { id: string }) {
           </Button>
         </div>
       )}
-      <CompositionSourceDocument id={composition.id} inspection={inspection} />
+      <CompositionSourceDocument
+        id={composition.id}
+        inspection={inspection}
+        compositionSource={composition.compositionSource}
+      />
       {status === "GENERATING" && (
         <section
           role="status"

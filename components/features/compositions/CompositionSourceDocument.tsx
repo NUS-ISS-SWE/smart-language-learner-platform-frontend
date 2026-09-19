@@ -8,6 +8,7 @@ import { useAdminDocumentDetail } from "@/lib/hooks/useAdminContent";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { Button } from "@/components/ui/Button";
 import { formatBytes, formatDate } from "@/lib/utils";
+import type { CompositionSource } from "@/types/composition";
 
 const subscribe = (notify: () => void) => {
   window.addEventListener("storage", notify);
@@ -17,9 +18,11 @@ const subscribe = (notify: () => void) => {
 export function CompositionSourceDocument({
   id,
   inspection,
+  compositionSource,
 }: {
   id: number;
   inspection: boolean;
+  compositionSource: CompositionSource;
 }) {
   const { t, language } = useTranslation("feedback");
   const documentId = useSyncExternalStore(
@@ -33,10 +36,13 @@ export function CompositionSourceDocument({
     },
     () => null,
   );
-  const own = useDocument(inspection ? null : documentId);
-  const admin = useAdminDocumentDetail(inspection ? documentId : null);
+  // AI-generated compositions have no uploaded source document. Local
+  // associations are browser hints and can be stale after a local DB reset.
+  const linkedDocumentId = compositionSource === "SYSTEM" ? null : documentId;
+  const own = useDocument(inspection ? null : linkedDocumentId);
+  const admin = useAdminDocumentDetail(inspection ? linkedDocumentId : null);
   const query = inspection ? admin : own;
-  if (!documentId) return null;
+  if (!linkedDocumentId) return null;
   if (query.isError)
     return (
       <div className="space-y-2 text-sm">
@@ -71,7 +77,7 @@ export function CompositionSourceDocument({
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" asChild>
           <Link
-            href={`/documents/${encodeURIComponent(documentId)}${inspection ? "?context=admin" : ""}`}
+            href={`/documents/${encodeURIComponent(linkedDocumentId)}${inspection ? "?context=admin" : ""}`}
           >
             {t("viewDocument")}
           </Link>
