@@ -1,13 +1,24 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import { en, zh } from '@/locales';
-import { studioEn, studioZh } from '@/locales/studio';
-import { editorEn, editorZh } from '@/locales/editor';
-import { feedbackEn, feedbackZh } from '@/locales/feedback';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import { en, zh } from "@/locales";
+import { studioEn, studioZh } from "@/locales/studio";
+import { editorEn, editorZh } from "@/locales/editor";
+import { feedbackEn, feedbackZh } from "@/locales/feedback";
+import {
+  documentWorkflowEn,
+  documentWorkflowZh,
+} from "@/locales/document-workflow";
+import { visualEn, visualZh } from "@/locales/visual";
+import { metricsEn, metricsZh } from "@/locales/metrics";
+import { rubricsEn, rubricsZh } from "@/locales/rubrics";
 
 // Build namespace structure from in-memory locales
 const resources = {
   en: {
+    rubrics: rubricsEn,
+    metrics: metricsEn,
+    visual: visualEn,
+    documentWorkflow: documentWorkflowEn,
     feedback: feedbackEn,
     editor: editorEn,
     studio: studioEn,
@@ -23,6 +34,10 @@ const resources = {
     documents: en.documents,
   },
   zh: {
+    rubrics: rubricsZh,
+    metrics: metricsZh,
+    visual: visualZh,
+    documentWorkflow: documentWorkflowZh,
     feedback: feedbackZh,
     editor: editorZh,
     studio: studioZh,
@@ -40,22 +55,38 @@ const resources = {
 };
 
 // Initialize i18next with default settings
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    fallbackLng: 'en',
-    defaultNS: 'common',
-    ns: ['feedback', 'editor', 'studio', 'auth', 'common', 'course', 'composition', 'evaluation', 'admin', 'vocabulary', 'home', 'dashboard', 'documents'],
-    interpolation: {
-      escapeValue: false,
-    },
-    react: {
-      useSuspense: false,
-    },
-    cleanCode: true,
-    nonExplicitSupportedLngs: true,
-    load: 'currentOnly',
-  });
+i18n.use(initReactI18next).init({
+  resources,
+  fallbackLng: "en",
+  defaultNS: "common",
+  ns: [
+    "rubrics",
+    "metrics",
+    "visual",
+    "documentWorkflow",
+    "feedback",
+    "editor",
+    "studio",
+    "auth",
+    "common",
+    "course",
+    "composition",
+    "evaluation",
+    "admin",
+    "vocabulary",
+    "home",
+    "dashboard",
+    "documents",
+  ],
+  interpolation: {
+    escapeValue: false,
+  },
+  react: {
+    useSuspense: false,
+  },
+  cleanCode: true,
+  nonExplicitSupportedLngs: true,
+  load: "currentOnly",
+});
 
 export default i18n;

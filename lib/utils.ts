@@ -42,11 +42,20 @@ export function formatUsdMicros(micros: number): string {
 }
 
 /** Formats a currency amount stored in its smallest unit, such as cents. */
-export function formatCurrencyMinor(amountMinor: number, currency: string): string {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-  }).format(amountMinor / 100);
+export function formatCurrencyMinor(
+  amountMinor: number,
+  currency: string,
+): string {
+  try {
+    const formatter = new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+    });
+    const digits = formatter.resolvedOptions().maximumFractionDigits ?? 2;
+    return formatter.format(amountMinor / 10 ** digits);
+  } catch {
+    return `${amountMinor} ${currency} (minor units)`;
+  }
 }
 
 /**
