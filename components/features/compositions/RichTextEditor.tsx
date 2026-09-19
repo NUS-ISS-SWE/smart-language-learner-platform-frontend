@@ -1,11 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import TextAlign from "@tiptap/extension-text-align";
-import Link from "@tiptap/extension-link";
-import Highlight from "@tiptap/extension-highlight";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import {
   AlignCenter,
   AlignLeft,
@@ -27,11 +22,15 @@ import {
   Underline as UnderlineIcon,
   Undo2,
 } from "lucide-react";
-import { useRef, useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { compositionContent } from "@/lib/composition-content";
+import { compositionExtensions } from "@/lib/composition-extensions";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 
 type RichTextEditorProps = {
   readonly value: string;
+  readonly disabled?: boolean;
   readonly onChange: (html: string) => void;
 };
 
@@ -43,17 +42,26 @@ type ToolbarButtonProps = {
   readonly children: ReactNode;
 };
 
-function ToolbarButton({ onClick, isActive, disabled, "aria-label": ariaLabel, children }: ToolbarButtonProps) {
+function ToolbarButton({
+  onClick,
+  isActive,
+  disabled,
+  "aria-label": ariaLabel,
+  children,
+}: ToolbarButtonProps) {
+  const { t } = useTranslation("editor");
+  const label = t(`format.${ariaLabel}`);
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label={ariaLabel}
+      aria-label={label}
+      title={label}
       aria-pressed={isActive}
       className={cn(
-        "rounded p-1.5 transition-colors hover:bg-muted",
-        isActive ? "bg-muted text-foreground" : "text-muted-foreground",
+        "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-muted lg:h-10 lg:w-10",
+        isActive ? "bg-soft-teal text-secondary" : "text-muted-foreground",
         disabled && "cursor-not-allowed opacity-40",
       )}
     >
@@ -63,50 +71,74 @@ function ToolbarButton({ onClick, isActive, disabled, "aria-label": ariaLabel, c
 }
 
 function ToolbarDivider() {
-  return <div className="mx-1 h-5 w-px bg-border" aria-hidden="true" />;
+  return <span className="mx-1 h-6 w-px bg-border" aria-hidden="true" />;
 }
 
-export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
-  // Track the last HTML emitted by the editor to distinguish user edits from external updates
+export function RichTextEditor({
+  value,
+  onChange,
+  disabled = false,
+}: RichTextEditorProps) {
+  const { t } = useTranslation("editor");
   const editorHtmlRef = useRef(value);
-
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      Link.configure({ openOnClick: false }),
-      Highlight,
-    ],
-    content: value,
-    onUpdate: ({ editor: e }) => {
-      const html = e.getHTML();
+    editable: !disabled,
+    extensions: compositionExtensions(),
+    content: compositionContent(value),
+    onUpdate: ({ editor: nextEditor }) => {
+      const html = nextEditor.getHTML();
       editorHtmlRef.current = html;
       onChange(html);
     },
     editorProps: {
       attributes: {
-        class: "tiptap-editor min-h-[460px] w-full rounded-b-md border-x border-b px-4 py-3 text-base leading-7 focus:outline-none",
+        class:
+          "tiptap-editor min-h-[400px] w-full break-words px-5 py-6 text-lg leading-[30px] focus:outline-none sm:min-h-[460px] sm:px-8 sm:py-8",
+        role: "textbox",
+        "aria-multiline": "true",
+        "aria-label": t("content"),
       },
     },
     immediatelyRender: false,
   });
 
-  // Sync content when changed from outside (initial load, AI generation)
+  // Cursor-only transactions must also refresh pressed states and undo/redo.
+  useEditorState({
+    editor,
+    selector: ({ transactionNumber }) => transactionNumber,
+  });
+
+  useEffect(() => {
+    editor?.setEditable(!disabled, false);
+  }, [editor, disabled]);
+  useEffect(() => {
+    if (!editor) return;
+    editor.setOptions({
+      editorProps: {
+        ...editor.options.editorProps,
+        attributes: {
+          ...editor.options.editorProps.attributes,
+          "aria-label": t("content"),
+        },
+      },
+    });
+  }, [editor, t]);
   useEffect(() => {
     if (!editor || value === editorHtmlRef.current) return;
     editorHtmlRef.current = value;
-    editor.commands.setContent(value, { emitUpdate: false });
+    editor.commands.setContent(compositionContent(value), {
+      emitUpdate: false,
+    });
   }, [editor, value]);
 
   if (!editor) return null;
 
   return (
-    <div>
+    <div className="writing-tools">
       <div
-        className="flex flex-wrap items-center gap-0.5 rounded-t-md border-x border-t bg-card px-2 py-1.5"
+        className="flex flex-wrap items-center gap-1 border-y bg-[#f8faf9] px-4 py-1 sm:px-7"
         role="toolbar"
-        aria-label="Text formatting"
+        aria-label={t("formatting")}
       >
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -129,6 +161,26 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         >
           <UnderlineIcon className="h-4 w-4" />
         </ToolbarButton>
+
+        <ToolbarDivider />
+
+        <ToolbarButton
+          onClick={() => editor.chain().focus().undo().run()}
+          disabled={!editor.can().undo()}
+          aria-label="Undo"
+        >
+          <Undo2 className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().redo().run()}
+          disabled={!editor.can().redo()}
+          aria-label="Redo"
+        >
+          <Redo2 className="h-4 w-4" />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
           isActive={editor.isActive("strike")}
@@ -143,33 +195,44 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         >
           <Highlighter className="h-4 w-4" />
         </ToolbarButton>
+        <ToolbarButton
+          onClick={() =>
+            editor.chain().focus().clearNodes().unsetAllMarks().run()
+          }
+          aria-label="Clear formatting"
+        >
+          <RemoveFormatting className="h-4 w-4" />
+        </ToolbarButton>
 
         <ToolbarDivider />
 
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
           isActive={editor.isActive("heading", { level: 1 })}
           aria-label="Heading 1"
         >
           <Heading1 className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           isActive={editor.isActive("heading", { level: 2 })}
           aria-label="Heading 2"
         >
           <Heading2 className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
           isActive={editor.isActive("heading", { level: 3 })}
           aria-label="Heading 3"
         >
           <Heading3 className="h-4 w-4" />
         </ToolbarButton>
-
-        <ToolbarDivider />
-
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           isActive={editor.isActive("bulletList")}
@@ -191,9 +254,6 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         >
           <Quote className="h-4 w-4" />
         </ToolbarButton>
-
-        <ToolbarDivider />
-
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleCode().run()}
           isActive={editor.isActive("code")}
@@ -201,27 +261,34 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         >
           <Code className="h-4 w-4" />
         </ToolbarButton>
+
+        <ToolbarDivider />
+
         <ToolbarButton
           onClick={() => {
-            const prev = editor.getAttributes("link").href as string | undefined;
-            const url = window.prompt("URL:", prev ?? "https://");
+            const previousUrl = editor.getAttributes("link").href as
+              | string
+              | undefined;
+            const url = window.prompt(
+              t("linkPrompt"),
+              previousUrl ?? "https://",
+            );
             if (url === null) return;
             if (url === "") {
               editor.chain().focus().extendMarkRange("link").unsetLink().run();
             } else {
-              editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+              editor
+                .chain()
+                .focus()
+                .extendMarkRange("link")
+                .setLink({ href: url })
+                .run();
             }
           }}
           isActive={editor.isActive("link")}
           aria-label="Insert link"
         >
           <Link2 className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
-          aria-label="Clear formatting"
-        >
-          <RemoveFormatting className="h-4 w-4" />
         </ToolbarButton>
 
         <ToolbarDivider />
@@ -248,25 +315,18 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
           <AlignRight className="h-4 w-4" />
         </ToolbarButton>
 
-        <ToolbarDivider />
-
-        <ToolbarButton
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
-          aria-label="Undo"
-        >
-          <Undo2 className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
-          aria-label="Redo"
-        >
-          <Redo2 className="h-4 w-4" />
-        </ToolbarButton>
       </div>
-
-      <EditorContent editor={editor} />
+      <div className="relative">
+        {editor.getText().trim().length === 0 && !disabled && (
+          <p
+            className="pointer-events-none absolute left-5 top-6 text-lg text-muted-foreground sm:left-8 sm:top-8"
+            aria-hidden="true"
+          >
+            {t("contentPlaceholder")}
+          </p>
+        )}
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

@@ -50,27 +50,52 @@ export type SystemUsageMetrics = {
     reviewRequests: number;
     successfulReviews: number;
     failedReviews: number;
-    averageReviewLatencyMillis: number | null;
+    reviewSuccessPercent?: number | null;
+    reviewFailurePercent?: number | null;
+    averageReviewLatencyMillis?: number | null;
     documentsUploaded: number;
     documentsProcessed: number;
     documentsReady: number;
     documentsFailed: number;
+    documentSuccessPercent?: number | null;
+    documentFailurePercent?: number | null;
     totalAiTokensUsed: number;
     aiTokensUsed: number;
     estimatedAiCostMicros: number;
   };
   daily: DailyUsageMetric[];
   retentionCohorts: RetentionCohortMetric[];
+  workflowReliability: WorkflowReliabilityMetric;
+  agentMetrics: AgentMetrics[];
 };
 
 export type RetentionCohortMetric = {
   cohortStart: string;
   cohortSize: number;
-  week0Retained: number;
-  week1Retained: number;
-  week2Retained: number;
-  week3Retained: number;
-  week4Retained: number;
+  week0Retained?: number | null;
+  week1Retained?: number | null;
+  week2Retained?: number | null;
+  week3Retained?: number | null;
+  week4Retained?: number | null;
+};
+
+export type WorkflowReliabilityMetric = {
+  received: number;
+  completed: number;
+  failed: number;
+  pending: number;
+  completionPercent?: number | null;
+  failurePercent?: number | null;
+  averageCompletionLatencyMillis?: number | null;
+};
+
+export type AgentMetrics = {
+  agent: string;
+  attempts: number;
+  failedAttempts: number;
+  failurePercent?: number | null;
+  aiTokensUsed: number;
+  estimatedAiCostMicros: number;
 };
 
 export type UserUsageMetrics = {
@@ -83,12 +108,53 @@ export type UserUsageMetrics = {
     reviewRequests: number;
     successfulReviews: number;
     failedReviews: number;
+    reviewSuccessPercent?: number | null;
+    reviewFailurePercent?: number | null;
     documentsUploaded: number;
+    documentsProcessed: number;
     documentsReady: number;
     documentsFailed: number;
+    documentSuccessPercent?: number | null;
+    documentFailurePercent?: number | null;
     aiTokensUsed: number;
     estimatedAiCostMicros: number;
     lastActivityAt: string | null;
   };
   daily: DailyUsageMetric[];
+};
+
+export type AuditEventOutcome = "SUCCESS" | "FAILURE" | "DENIED";
+
+export type AuditEvent = {
+  id: string;
+  occurredAt: string;
+  service: string;
+  category: string;
+  action: string;
+  outcome: AuditEventOutcome;
+  actorType: string;
+  actorId: string | null;
+  actorName: string | null;
+  actorRole: string | null;
+  targetType: string | null;
+  targetId: string | null;
+  requestId: string | null;
+  correlationId: string | null;
+  sourceIp: string | null;
+  userAgent: string | null;
+  httpMethod: string | null;
+  httpPath: string | null;
+  httpStatus: number | null;
+  beforeData: unknown;
+  afterData: unknown;
+  metadata: unknown;
+  errorCode: string | null;
+};
+
+export type AuditEventsPage = {
+  content: AuditEvent[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
 };

@@ -21,5 +21,17 @@
   "viewHistory": "View History",
   "deleteComposition": "Delete Composition",
   "confirmDelete": "Are you sure you want to delete this composition?",
-  "noCompositions": "You haven't created any compositions yet"
+  "noCompositions": "You haven't created any compositions yet",
+  "requestGrading": "Request grading",
+  "assessmentInProgress": "Your assessment is in progress",
+  "preparingAssessment": "Preparing your assessment…",
+  "assessmentComplete": "Complete",
+  "assessmentCurrent": "In progress",
+  "assessmentStages": {
+    "preparing": "Preparing your assessment",
+    "grading": "Assessing your composition",
+    "reviewing": "Checking the assessment for accuracy",
+    "refining": "Refining the assessment",
+    "suggesting": "Creating improvement suggestions"
+  }
 }

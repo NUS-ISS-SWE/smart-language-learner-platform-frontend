@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { CreditCard, PenLine, ShieldCheck, Upload, Users } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { ArrowRight, PenLine, ShieldCheck, Upload } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
-import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent } from "@/components/ui/Card";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { useCompositionList } from "@/lib/hooks/useCompositions";
 import { useDocumentList } from "@/lib/hooks/useDocuments";
@@ -15,135 +15,170 @@ import { useAdminUsers } from "@/lib/hooks/useAdmin";
 import { RecentCompositions } from "@/components/features/dashboard/RecentCompositions";
 import { ScoreSummary } from "@/components/features/dashboard/ScoreSummary";
 import { useAuth } from "@/context/AuthContext";
-import { planBadgeLabel, subscriptionStatusVariant } from "@/lib/subscription-utils";
+import { WritingNextStep } from "@/components/features/dashboard/WritingNextStep";
+import { compositionPreview } from "@/lib/composition-content";
 
-/** Renders only for ADMIN users — safe to call admin hooks unconditionally here */
 function AdminOverview() {
-  const { data: usersPage } = useAdminUsers({ size: 1 });
-
+  const { data, isError } = useAdminUsers({ size: 1 });
+  const { t } = useTranslation("studio");
   return (
-    <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 space-y-4">
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div>
-          <p className="text-sm font-semibold text-amber-800">Platform Overview</p>
-          <p className="text-xs text-muted-foreground">You are logged in as an administrator.</p>
-        </div>
-        <Link
-          href="/admin/users"
-          className="flex items-center gap-2 rounded-lg bg-amber-100 px-4 py-2 text-sm font-medium text-amber-900 transition-colors hover:bg-amber-200 self-start sm:self-auto"
-        >
-          <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-          Admin Panel
+    <section
+      className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-card p-5"
+      aria-label={t("adminOverview")}
+    >
+      <div>
+        <h2 className="text-base font-semibold text-primary">
+          {t("adminOverview")}
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("adminHint")}</p>
+        <p className="mt-2 text-sm">
+          {t("registeredUsers")}:{" "}
+          <strong>
+            {data?.totalElements ?? (isError ? t("unavailable") : "…")}
+          </strong>
+        </p>
+      </div>
+      <Button variant="outline" asChild>
+        <Link href="/admin/users">
+          <ShieldCheck className="h-4 w-4" />
+          {t("admin")}
         </Link>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-lg bg-amber-100 p-3 text-amber-700">
-              <Users className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <p className="text-2xl font-semibold">{usersPage?.totalElements ?? "—"}</p>
-              <p className="text-sm text-muted-foreground">Registered users</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-lg bg-primary/10 p-3 text-primary">
-              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <p className="text-sm font-medium">Manage all user accounts, roles,</p>
-              <p className="text-xs text-muted-foreground">compositions and documents from the admin panel.</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+      </Button>
+    </section>
   );
 }
 
 export default function DashboardPage() {
+  const { t: visual } = useTranslation("visual");
   const { user } = useAuth();
-  const { data = [], isLoading, isError, error } = useCompositionList();
-  const { data: documentsData } = useDocumentList();
+  const compositions = useCompositionList();
+  const documents = useDocumentList();
   const { data: subscription } = useCurrentSubscription();
-  const { t } = useTranslation("dashboard");
+  const { t } = useTranslation("studio");
+  const data = compositions.data ?? [];
+  const latestDraft = data
+    .filter((item) => item.compositionStatus === "DRAFT")
+    .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium text-primary">{t("title")}</p>
-            {subscription && (
-              <Badge variant={subscriptionStatusVariant(subscription.status)} className="text-xs">
-                {planBadgeLabel(subscription.plan.code)}
-              </Badge>
-            )}
+    <div className="space-y-8">
+      <PageHeader
+        title={t("welcome", { name: user?.username ?? t("learner") })}
+        description={t("dashboardIntro")}
+      />
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <section
+          className="relative overflow-hidden rounded-2xl bg-primary p-6 text-white sm:p-8"
+          aria-labelledby="writing-next"
+        >
+          <div className="flex h-full flex-col justify-between gap-8">
+            <div className="min-w-0">
+              <p className="eyebrow mb-6 text-accent">
+                {visual(latestDraft ? "draftLabel" : "nextStep")}
+              </p>
+              <h2
+                id="writing-next"
+                className="break-words text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl"
+              >
+                {latestDraft?.title || t("startTitle")}
+              </h2>
+              <p className="mt-4 text-sm leading-6 text-slate-300">
+                {t(latestDraft ? "continueHint" : "startHint")}
+              </p>
+              {latestDraft?.content && (
+                <p className="mt-5 line-clamp-3 border-l-2 border-accent/60 pl-4 text-base leading-7 text-slate-200">
+                  {compositionPreview(latestDraft.content)}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2 border-t border-white/20 pt-5">
+              <Button
+                asChild
+                className="bg-white text-primary hover:bg-soft-teal"
+              >
+                <Link
+                  href={
+                    latestDraft
+                      ? `/compositions/${latestDraft.id}/edit`
+                      : "/compositions/new"
+                  }
+                >
+                  <PenLine className="h-4 w-4" />
+                  {t(latestDraft ? "continue" : "write")}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              {latestDraft && (
+                <Button
+                  variant="ghost"
+                  asChild
+                  className="text-white hover:bg-white/10 hover:text-white"
+                >
+                  <Link href="/compositions/new">{t("write")}</Link>
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                asChild
+                className="text-white hover:bg-white/10 hover:text-white"
+              >
+                <Link href="/compositions/new?mode=upload">
+                  <Upload className="h-4 w-4" />
+                  {t("upload")}
+                </Link>
+              </Button>
+            </div>
           </div>
-          <h1 className="mt-2 text-3xl font-semibold tracking-normal">
-            {t("welcome")}, {user?.username ?? "learner"}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            {t("subtitle")}
-          </p>
-        </div>
+        </section>
+        <WritingNextStep compositions={data} />
       </div>
 
-      {isLoading ? <LoadingState label={t("title")} /> : null}
-      {isError ? <ErrorState message={getApiErrorMessage(error)} /> : null}
-
-      {!isLoading && !isError ? (
-        <>
-          {user?.role === "ADMIN" ? <AdminOverview /> : null}
-          <ScoreSummary compositions={data} documentsCount={documentsData?.total ?? 0} />
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Link
-              href="/compositions/new"
-              className="group flex items-center gap-4 rounded-xl border p-5 transition-colors hover:border-primary/50 hover:bg-primary/5"
+      {compositions.isLoading && <LoadingState label={t("recent")} />}
+      {compositions.isError && (
+        <div className="space-y-3">
+          <ErrorState message={getApiErrorMessage(compositions.error)} />
+          <Button variant="outline" onClick={() => compositions.refetch()}>
+            {t("retry")}
+          </Button>
+        </div>
+      )}
+      {compositions.data && <RecentCompositions compositions={data} />}
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold text-primary">
+          {visual("activity")}
+        </h2>
+        {compositions.data && (
+          <p className="text-sm text-muted-foreground">
+            {t("recentScope", { count: data.length })}
+          </p>
+        )}
+        <ScoreSummary
+          compositions={compositions.data}
+          documentsCount={documents.data?.total}
+        />
+        {documents.isError && (
+          <div className="flex flex-wrap items-center gap-2 text-sm text-destructive">
+            <span>
+              {t("documents")}: {t("unavailable")}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => documents.refetch()}
             >
-              <div className="rounded-lg bg-primary/10 p-3 text-primary transition-colors group-hover:bg-primary/20">
-                <PenLine className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="font-medium">Write composition</p>
-                <p className="text-xs text-muted-foreground">Start a new draft</p>
-              </div>
-            </Link>
-            <Link
-              href="/compositions/new?mode=upload"
-              className="group flex items-center gap-4 rounded-xl border p-5 transition-colors hover:border-violet-400/50 hover:bg-violet-50"
-            >
-              <div className="rounded-lg bg-violet-100 p-3 text-violet-700 transition-colors group-hover:bg-violet-200">
-                <Upload className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="font-medium">Upload document</p>
-                <p className="text-xs text-muted-foreground">Convert to composition</p>
-              </div>
-            </Link>
-            <Link
-              href="/subscription"
-              className="group flex items-center gap-4 rounded-xl border p-5 transition-colors hover:border-amber-400/50 hover:bg-amber-50"
-            >
-              <div className="rounded-lg bg-amber-100 p-3 text-amber-700 transition-colors group-hover:bg-amber-200">
-                <CreditCard className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="font-medium">Subscription</p>
-                <p className="text-xs text-muted-foreground">
-                  {subscription ? subscription.plan.displayName : "Manage plan"}
-                </p>
-              </div>
-            </Link>
+              {t("retry")}
+            </Button>
           </div>
-
-          <RecentCompositions compositions={data} />
-        </>
-      ) : null}
+        )}
+        <Link
+          href="/subscription"
+          className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-secondary underline-offset-4 hover:underline"
+        >
+          {subscription?.plan.displayName ?? "—"} · {t("common:subscription")}
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </section>
+      {user?.role === "ADMIN" && <AdminOverview />}
     </div>
   );
 }

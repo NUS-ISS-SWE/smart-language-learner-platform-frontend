@@ -1,63 +1,52 @@
 "use client";
-
-import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { cn, formatCurrencyMinor } from "@/lib/utils";
-import type { SubscriptionPlanCode, SubscriptionPlanInfo } from "@/types/subscription";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { PlanDetails } from "./PlanDetails";
+import type {
+  SubscriptionPlanCode,
+  SubscriptionPlanInfo,
+} from "@/types/subscription";
 
-type PlanCardProps = {
-  readonly plan: SubscriptionPlanInfo;
-  readonly isCurrentPlan: boolean;
-  readonly onSelect: (plan: SubscriptionPlanCode) => void;
-  readonly isLoading: boolean;
-};
-
-export function PlanCard({ plan, isCurrentPlan, onSelect, isLoading }: PlanCardProps) {
-  const buttonVariant = !isCurrentPlan && plan.priceMinor > 0 ? "default" : "outline";
-  const price = formatCurrencyMinor(plan.priceMinor, plan.currency);
-
+export function PlanCard({
+  plan,
+  isCurrentPlan,
+  onSelect,
+  isLoading,
+}: {
+  plan: SubscriptionPlanInfo;
+  isCurrentPlan: boolean;
+  onSelect: (plan: SubscriptionPlanCode) => void;
+  isLoading: boolean;
+}) {
+  const { t } = useTranslation("visual");
   return (
-    <Card
+    <article
       className={cn(
-        "relative flex flex-col p-6",
-        plan.priceMinor > 0 && !isCurrentPlan && "border-primary ring-1 ring-primary",
-        isCurrentPlan && "border-emerald-500 ring-1 ring-emerald-500",
+        "flex min-w-0 flex-col gap-6 rounded-2xl border bg-card p-6",
+        isCurrentPlan &&
+          "border-secondary bg-soft-teal/20 ring-1 ring-secondary",
       )}
     >
       {isCurrentPlan && (
-        <Badge variant="success" className="absolute -top-3 left-4">
-          Current Plan
+        <Badge variant="secondary" className="self-start">
+          {t("currentPlan")}
         </Badge>
       )}
-
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">{plan.displayName}</h3>
-        <p className="mt-1 text-2xl font-bold">{price}</p>
-        <p className="text-xs text-muted-foreground">
-          {plan.durationDays != null ? `per ${plan.durationDays} days` : "no expiry"}
-        </p>
-      </div>
-
-      <ul className="mb-6 flex-1 space-y-2" aria-label={`${plan.displayName} features`}>
-        {plan.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" aria-hidden="true" />
-            {feature}
-          </li>
-        ))}
-      </ul>
-
+      <PlanDetails plan={plan} />
       <Button
-        variant={buttonVariant}
-        className="w-full"
+        variant={isCurrentPlan ? "outline" : "default"}
+        className="mt-auto w-full whitespace-normal"
         disabled={isCurrentPlan || isLoading}
         onClick={() => onSelect(plan.code)}
-        aria-label={isCurrentPlan ? `${plan.displayName} — current plan` : `Select ${plan.displayName}`}
       >
-        {isCurrentPlan ? "Current Plan" : "Select"}
+        {isCurrentPlan
+          ? t("currentPlan")
+          : isLoading
+            ? t("saving")
+            : t("selectPlan", { name: plan.displayName })}
       </Button>
-    </Card>
+    </article>
   );
 }

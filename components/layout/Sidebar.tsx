@@ -2,70 +2,121 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTranslation } from "react-i18next";
-import { BookOpenCheck, ShieldCheck } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import {
+  ArrowLeft,
+  BookOpenCheck,
+  ExternalLink,
+  ShieldCheck,
+} from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { navigationConfig } from "@/lib/navigation";
+import { adminNavigationConfig, navigationConfig } from "@/lib/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-type SidebarProps = {
-  readonly width: number;
-};
-
-export function Sidebar({ width }: SidebarProps) {
+export function WorkspaceNavigation({
+  admin = false,
+  onNavigate,
+}: {
+  admin?: boolean;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
-  const { t } = useTranslation("common");
+  const { t } = useTranslation("studio");
   const { user } = useAuth();
-  const visibleNavigation = navigationConfig.filter(
+  const items = (admin ? adminNavigationConfig : navigationConfig).filter(
     (item) => item.key !== "productGuide" || user?.role !== "ADMIN",
   );
-
+  const linkClass =
+    "flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-accent";
   return (
-    <aside
-      className="hidden shrink-0 bg-primary text-primary-foreground lg:flex lg:flex-col"
-      style={{ width, flexBasis: width }}
-    >
-      <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-white/10 px-6">
-        <div className="rounded-lg bg-white/10 p-2 text-white">
-          <BookOpenCheck className="h-5 w-5" aria-hidden="true" />
-        </div>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-white">{APP_NAME}</p>
-          <p className="text-xs text-white/60">{t("workspace")}</p>
-        </div>
-      </Link>
-
-      <nav className="flex-1 space-y-1 px-3 py-4">
-        {visibleNavigation.map((item) => (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <nav aria-label={t("navigation")} className="space-y-1 px-3 py-5">
+        {items.map((item) => (
           <Link
             key={item.href}
             href={item.href}
+            onClick={onNavigate}
+            aria-current={item.isActive(pathname) ? "page" : undefined}
             className={cn(
-              "relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white",
+              linkClass,
               item.isActive(pathname) &&
-                "bg-white/10 pl-4 text-white before:absolute before:left-0 before:top-1.5 before:h-5 before:w-1 before:rounded-full before:bg-accent",
+                "bg-white/10 text-white shadow-[inset_3px_0_0_var(--color-accent)]",
             )}
           >
-            <item.icon className="h-4 w-4" aria-hidden="true" />
+            <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
             {t(item.key)}
           </Link>
         ))}
-
-        {user?.role === "ADMIN" && (
-          <Link
-            href="/admin/users"
-            className={cn(
-              "relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white",
-              pathname.startsWith("/admin") &&
-                "bg-white/10 pl-4 text-white before:absolute before:left-0 before:top-1.5 before:h-5 before:w-1 before:rounded-full before:bg-accent",
-            )}
-          >
-            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-            Admin Panel
-          </Link>
-        )}
       </nav>
+      <div className="mx-3 mt-auto space-y-1 border-t border-white/15 py-4">
+        {admin ? (
+          <Link href="/dashboard" onClick={onNavigate} className={linkClass}>
+            <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
+            {t("backToWorkspace")}
+          </Link>
+        ) : (
+          user?.role === "ADMIN" && (
+            <Link
+              href="/admin/users"
+              onClick={onNavigate}
+              className={linkClass}
+            >
+              <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {t("admin")}
+            </Link>
+          )
+        )}
+        <Link href="/" onClick={onNavigate} className={linkClass}>
+          <ExternalLink className="h-4 w-4 shrink-0" aria-hidden="true" />
+          {t("publicHome")}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export function WorkspaceBrand({ admin = false }: { admin?: boolean }) {
+  const { t } = useTranslation("studio");
+  return (
+    <Link
+      href={admin ? "/admin/users" : "/dashboard"}
+      className="flex min-h-16 items-center gap-3 border-b border-white/15 px-5 py-3 text-white"
+    >
+      <BookOpenCheck
+        className="h-6 w-6 shrink-0 text-accent"
+        aria-hidden="true"
+      />
+      <span className="min-w-0">
+        <span
+          title={APP_NAME}
+          className="block truncate text-sm font-semibold leading-5"
+        >
+          {APP_NAME}
+        </span>
+        <span className="mt-1 block text-xs text-white/75">
+          {t(admin ? "admin" : "workspace")}
+        </span>
+      </span>
+    </Link>
+  );
+}
+
+export function Sidebar({
+  width,
+  admin = false,
+}: {
+  width: number;
+  admin?: boolean;
+}) {
+  return (
+    <aside
+      id="workspace-sidebar"
+      className="sticky top-0 hidden h-dvh shrink-0 flex-col overflow-y-auto bg-primary text-primary-foreground lg:flex"
+      style={{ width, flexBasis: width }}
+    >
+      <WorkspaceBrand admin={admin} />
+      <WorkspaceNavigation admin={admin} />
     </aside>
   );
 }

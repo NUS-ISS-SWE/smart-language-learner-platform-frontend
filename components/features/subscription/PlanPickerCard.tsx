@@ -1,60 +1,48 @@
 "use client";
-
 import { Check } from "lucide-react";
-import { cn, formatCurrencyMinor } from "@/lib/utils";
-import type { SubscriptionPlanCode, SubscriptionPlanInfo } from "@/types/subscription";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { PlanDetails } from "./PlanDetails";
+import type {
+  SubscriptionPlanCode,
+  SubscriptionPlanInfo,
+} from "@/types/subscription";
 
-type PlanPickerCardProps = {
-  readonly plan: SubscriptionPlanInfo;
-  readonly isSelected: boolean;
-  readonly onSelect: (plan: SubscriptionPlanCode) => void;
-};
-
-export function PlanPickerCard({ plan, isSelected, onSelect }: PlanPickerCardProps) {
-  const price = formatCurrencyMinor(plan.priceMinor, plan.currency);
-
+export function PlanPickerCard({
+  plan,
+  isSelected,
+  onSelect,
+}: {
+  plan: SubscriptionPlanInfo;
+  isSelected: boolean;
+  onSelect: (plan: SubscriptionPlanCode) => void;
+}) {
+  const { t } = useTranslation("visual");
   return (
     <button
       type="button"
       onClick={() => onSelect(plan.code)}
       aria-pressed={isSelected}
-      aria-label={`Select ${plan.displayName} plan`}
+      aria-label={t("selectPlan", { name: plan.displayName })}
       className={cn(
-        "relative flex w-full items-start gap-4 rounded-lg border bg-card p-4 text-left transition-colors hover:bg-muted/30",
-        isSelected && "border-primary ring-2 ring-primary",
-        !isSelected && plan.priceMinor > 0 && "border-primary/30",
+        "flex w-full items-start gap-4 rounded-xl border bg-card p-5 text-left transition-colors hover:bg-soft-teal/40",
+        isSelected
+          ? "border-secondary bg-soft-teal/30 ring-1 ring-secondary"
+          : "border-border",
       )}
     >
-
-      <div className="flex-1 space-y-1">
-        <div className="flex items-baseline justify-between">
-          <p className="font-semibold">{plan.displayName}</p>
-          <p className="ml-4 font-bold">{price}</p>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {plan.durationDays != null ? `${plan.durationDays}-day billing cycle` : "No expiry"}
-        </p>
-        <ul className="mt-1.5 space-y-0.5">
-          {plan.features.slice(0, 2).map((feature) => (
-            <li key={feature} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Check className="h-3 w-3 shrink-0 text-emerald-500" aria-hidden="true" />
-              {feature}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div
-        className={cn(
-          "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-          isSelected
-            ? "border-primary bg-primary text-primary-foreground"
-            : "border-muted-foreground/30",
-        )}
+      <PlanDetails plan={plan} compact />
+      <span
         aria-hidden="true"
+        className={cn(
+          "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+          isSelected
+            ? "border-secondary bg-secondary text-white"
+            : "border-input",
+        )}
       >
         {isSelected && <Check className="h-3 w-3" />}
-      </div>
+      </span>
     </button>
   );
 }

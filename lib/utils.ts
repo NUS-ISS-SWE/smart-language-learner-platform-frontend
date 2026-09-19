@@ -15,17 +15,18 @@ export function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function formatDate(value?: string | null) {
+export function formatDate(value?: string | null, locale?: string) {
+  const unavailable = locale?.startsWith("zh") ? "暂不可用" : "Not available";
   if (!value) {
-    return "Not available";
+    return unavailable;
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Not available";
+    return unavailable;
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
@@ -41,11 +42,20 @@ export function formatUsdMicros(micros: number): string {
 }
 
 /** Formats a currency amount stored in its smallest unit, such as cents. */
-export function formatCurrencyMinor(amountMinor: number, currency: string): string {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-  }).format(amountMinor / 100);
+export function formatCurrencyMinor(
+  amountMinor: number,
+  currency: string,
+): string {
+  try {
+    const formatter = new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+    });
+    const digits = formatter.resolvedOptions().maximumFractionDigits ?? 2;
+    return formatter.format(amountMinor / 10 ** digits);
+  } catch {
+    return `${amountMinor} ${currency} (minor units)`;
+  }
 }
 
 /**

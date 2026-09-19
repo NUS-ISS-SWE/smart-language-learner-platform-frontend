@@ -1,120 +1,175 @@
 "use client";
-
-import { Suspense, useCallback } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Search, Users } from "lucide-react";
 import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
 import { Select } from "@/components/ui/Select";
 import { UserTable } from "@/components/features/admin/UserTable";
 import { useAdminUsers } from "@/lib/hooks/useAdmin";
 import { Button } from "@/components/ui/Button";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { ADMIN_USER_STATUSES, ADMIN_USER_ROLES } from "@/lib/constants";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
-const PAGE_SIZE = 20;
-
+function UserSearch({
+  value,
+  onCommit,
+}: {
+  value: string;
+  onCommit: (key: string, value: string) => void;
+}) {
+  const [text, setText] = useState(value);
+  const { t } = useTranslation("visual");
+  useEffect(() => {
+    if (text === value) return;
+    const timer = setTimeout(() => {
+      onCommit("search", text);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [text, value, onCommit]);
+  return (
+    <div className="relative">
+      <Search
+        className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground"
+        aria-hidden="true"
+      />
+      <Input
+        id="user-search"
+        className="pl-10"
+        placeholder={t("searchHint")}
+        value={text}
+        onChange={(event) => setText(event.target.value)}
+      />
+    </div>
+  );
+}
 function AdminUsersContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-
+  const { t } = useTranslation("visual");
   const search = searchParams.get("search") ?? "";
   const status = searchParams.get("status") ?? "";
   const userRole = searchParams.get("userRole") ?? "";
-  const page = Number(searchParams.get("page") ?? "0");
-
-  const { data, isLoading, isError, error } = useAdminUsers({ search, status, userRole, page, size: PAGE_SIZE });
-
+  const rawPage = Number(searchParams.get("page") ?? "0");
+  const page = Number.isSafeInteger(rawPage) && rawPage >= 0 ? rawPage : 0;
+  const query = useAdminUsers({ search, status, userRole, page, size: 20 });
   const updateParam = useCallback(
     (key: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (value) {
-        params.set(key, value);
-      } else {
-        params.delete(key);
-      }
-      params.delete("page");
-      router.push(`?${params.toString()}`);
+      if (value) params.set(key, value);
+      else params.delete(key);
+      if (key !== "page") params.delete("page");
+      const href = `/admin/users?${params.toString()}`;
+      if (key === "search") router.replace(href, { scroll: false });
+      else router.push(href, { scroll: false });
     },
     [searchParams, router],
   );
-
-  function handlePageChange(newPage: number) {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", String(newPage));
-    router.push(`?${params.toString()}`);
-  }
-
+  const returnTo = `/admin/users${searchParams.size ? `?${searchParams.toString()}` : ""}`;
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-normal">User Management</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {data ? `${data.totalElements} users` : ""}
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        <Input
-          className="max-w-xs"
-          placeholder="Search username or email…"
-          value={search}
-          onChange={(e) => updateParam("search", e.target.value)}
-          aria-label="Search users"
-        />
-        <Select
-          value={status}
-          onChange={(e) => updateParam("status", e.target.value)}
-          aria-label="Filter by status"
-          className="w-48"
-        >
-          <option value="">All statuses</option>
-          {ADMIN_USER_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </Select>
-        <Select
-          value={userRole}
-          onChange={(e) => updateParam("userRole", e.target.value)}
-          aria-label="Filter by role"
-          className="w-48"
-        >
-          <option value="">All roles</option>
-          {ADMIN_USER_ROLES.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      {isLoading && <LoadingState label="Loading users…" />}
-      {isError && <ErrorState message={getApiErrorMessage(error)} />}
-
-      {data && (
+      <PageHeader
+        title={t("users")}
+        description={t("usersHint")}
+        actions={
+          <div className="flex items-center gap-3 rounded-full border bg-card px-4 py-2 text-sm">
+            <Users className="h-4 w-4 text-secondary" />
+            {query.data
+              ? t("userCount", { count: query.data.totalElements })
+              : t("loading")}
+          </div>
+        }
+      />
+      <section
+        className="rounded-2xl border bg-card p-5"
+        aria-label={t("search")}
+      >
+        <div className="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="space-y-2">
+            <Label htmlFor="user-search">{t("search")}</Label>
+            <UserSearch key={search} value={search} onCommit={updateParam} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="user-status">{t("status")}</Label>
+            <Select
+              id="user-status"
+              value={status}
+              onChange={(e) => updateParam("status", e.target.value)}
+            >
+              <option value="">{t("allStatuses")}</option>
+              {ADMIN_USER_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {t(`status_${s}`, {
+                    defaultValue: s.replaceAll("_", " ").toLowerCase(),
+                  })}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="user-role">{t("role")}</Label>
+            <Select
+              id="user-role"
+              value={userRole}
+              onChange={(e) => updateParam("userRole", e.target.value)}
+            >
+              <option value="">{t("allRoles")}</option>
+              {ADMIN_USER_ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {t(`role_${r}`, { defaultValue: r.toLowerCase() })}
+                </option>
+              ))}
+            </Select>
+          </div>
+        </div>
+        {(search || status || userRole) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mt-3"
+            onClick={() => router.push("/admin/users", { scroll: false })}
+          >
+            {t("clear")}
+          </Button>
+        )}
+      </section>
+      {query.isLoading && <LoadingState label={t("loading")} />}
+      {query.isError && (
+        <div className="space-y-3">
+          <ErrorState message={getApiErrorMessage(query.error)} />
+          <Button variant="outline" onClick={() => void query.refetch()}>
+            {t("retry")}
+          </Button>
+        </div>
+      )}
+      {query.data && (
         <>
-          <UserTable users={data.content} />
-
-          <div className="flex items-center justify-between">
+          <UserTable users={query.data.content} returnTo={returnTo} />
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
-              Page {page + 1} of {data.totalPages}
+              {t("page", {
+                page: page + 1,
+                total: Math.max(1, query.data.totalPages),
+              })}
             </p>
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                disabled={page === 0}
-                onClick={() => handlePageChange(page - 1)}
+                disabled={page === 0 || query.isFetching}
+                onClick={() => updateParam("page", String(page - 1))}
               >
-                Previous
+                {t("previous")}
               </Button>
               <Button
                 variant="outline"
-                disabled={page + 1 >= data.totalPages}
-                onClick={() => handlePageChange(page + 1)}
+                disabled={page + 1 >= query.data.totalPages || query.isFetching}
+                onClick={() => updateParam("page", String(page + 1))}
               >
-                Next
+                {t("next")}
               </Button>
             </div>
           </div>
@@ -123,10 +178,9 @@ function AdminUsersContent() {
     </div>
   );
 }
-
 export default function AdminUsersPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<LoadingState />}>
       <AdminUsersContent />
     </Suspense>
   );

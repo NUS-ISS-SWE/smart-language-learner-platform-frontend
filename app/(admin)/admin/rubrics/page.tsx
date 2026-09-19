@@ -14,12 +14,13 @@ import { LoadingState } from "@/components/shared/LoadingState";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { useRubricCriteria } from "@/lib/hooks/useRubrics";
 import {
-  formatRubricLabel,
   formatWeight,
   getRubricGroupTotal,
   sortRubricCriteria,
 } from "@/lib/rubric-utils";
 import { cn } from "@/lib/utils";
+import { useRubricCopy } from "@/lib/hooks/useRubricCopy";
+import { PageHeader } from "@/components/shared/PageHeader";
 import {
   RUBRIC_DIFFICULTY_LEVELS,
   RUBRIC_LANGUAGES,
@@ -33,12 +34,16 @@ type DifficultyFilter = RubricDifficultyLevel | "";
 const EMPTY_CRITERIA: RubricCriterion[] = [];
 
 export default function AdminRubricsPage() {
+  const { t, label } = useRubricCopy();
   const rubricQuery = useRubricCriteria();
   const [languageFilter, setLanguageFilter] = useState<LanguageFilter>("");
-  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("");
+  const [difficultyFilter, setDifficultyFilter] =
+    useState<DifficultyFilter>("");
   const [editorOpen, setEditorOpen] = useState(false);
-  const [editingCriterion, setEditingCriterion] = useState<RubricCriterion | null>(null);
-  const [deletingCriterion, setDeletingCriterion] = useState<RubricCriterion | null>(null);
+  const [editingCriterion, setEditingCriterion] =
+    useState<RubricCriterion | null>(null);
+  const [deletingCriterion, setDeletingCriterion] =
+    useState<RubricCriterion | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const allCriteria = rubricQuery.data ?? EMPTY_CRITERIA;
@@ -48,7 +53,8 @@ export default function AdminRubricsPage() {
         allCriteria.filter(
           (criterion) =>
             (!languageFilter || criterion.language === languageFilter) &&
-            (!difficultyFilter || criterion.difficultyLevel === difficultyFilter),
+            (!difficultyFilter ||
+              criterion.difficultyLevel === difficultyFilter),
         ),
       ),
     [allCriteria, languageFilter, difficultyFilter],
@@ -66,25 +72,26 @@ export default function AdminRubricsPage() {
     setEditorOpen(true);
   }
 
-  function selectGroup(language: RubricLanguage, difficultyLevel: RubricDifficultyLevel) {
+  function selectGroup(
+    language: RubricLanguage,
+    difficultyLevel: RubricDifficultyLevel,
+  ) {
     setLanguageFilter(language);
     setDifficultyFilter(difficultyLevel);
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-normal">Rubric Management</h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Configure the weighted criteria used to evaluate compositions for each language and difficulty level.
-          </p>
-        </div>
-        <Button type="button" onClick={openCreateDialog}>
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          Add criterion
-        </Button>
-      </div>
+      <PageHeader
+        title={t("title")}
+        description={t("intro")}
+        actions={
+          <Button type="button" onClick={openCreateDialog}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            {t("add")}
+          </Button>
+        }
+      />
 
       {successMessage ? (
         <div
@@ -96,22 +103,34 @@ export default function AdminRubricsPage() {
         </div>
       ) : null}
 
-      {rubricQuery.isLoading ? <LoadingState label="Loading rubric criteria…" /> : null}
-      {rubricQuery.isError ? <ErrorState message={getApiErrorMessage(rubricQuery.error)} /> : null}
+      {rubricQuery.isLoading ? <LoadingState label={t("loading")} /> : null}
+      {rubricQuery.isError ? (
+        <div className="space-y-3">
+          <ErrorState message={getApiErrorMessage(rubricQuery.error)} />
+          <Button variant="outline" onClick={() => void rubricQuery.refetch()}>
+            {t("retry")}
+          </Button>
+        </div>
+      ) : null}
 
       {rubricQuery.data ? (
         <>
           <section aria-labelledby="rubric-coverage-heading">
             <div className="mb-3 flex items-center justify-between gap-4">
               <div>
-                <h2 id="rubric-coverage-heading" className="text-lg font-semibold">
-                  Rubric coverage
+                <h2
+                  id="rubric-coverage-heading"
+                  className="text-lg font-semibold"
+                >
+                  {t("coverage")}
                 </h2>
-                <p className="text-sm text-muted-foreground">Select a group to inspect its criteria.</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("coverageHint")}
+                </p>
               </div>
               <div className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
                 <Scale className="h-4 w-4" aria-hidden="true" />
-                Target: 100.00% per group
+                {t("target")}
               </div>
             </div>
 
@@ -120,48 +139,80 @@ export default function AdminRubricsPage() {
                 RUBRIC_DIFFICULTY_LEVELS.map((difficultyLevel) => {
                   const groupCriteria = allCriteria.filter(
                     (criterion) =>
-                      criterion.language === language && criterion.difficultyLevel === difficultyLevel,
+                      criterion.language === language &&
+                      criterion.difficultyLevel === difficultyLevel,
                   );
-                  const total = getRubricGroupTotal(allCriteria, language, difficultyLevel);
+                  const total = getRubricGroupTotal(
+                    allCriteria,
+                    language,
+                    difficultyLevel,
+                  );
                   const isComplete = Math.abs(total - 100) < 0.001;
                   const isSelected =
-                    languageFilter === language && difficultyFilter === difficultyLevel;
+                    languageFilter === language &&
+                    difficultyFilter === difficultyLevel;
 
                   return (
                     <button
                       type="button"
                       key={`${language}-${difficultyLevel}`}
                       onClick={() => selectGroup(language, difficultyLevel)}
+                      aria-pressed={isSelected}
                       className={cn(
-                        "rounded-lg border bg-card p-4 text-left transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                        isSelected && "border-accent ring-1 ring-accent",
+                        "rounded-xl border bg-card p-5 text-left transition-colors hover:border-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        isSelected &&
+                          "border-secondary bg-soft-teal/40 ring-1 ring-secondary",
                       )}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold">
-                            {formatRubricLabel(language)} · {formatRubricLabel(difficultyLevel)}
+                            {label(language)} · {label(difficultyLevel)}
                           </p>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {groupCriteria.length} {groupCriteria.length === 1 ? "criterion" : "criteria"}
+                            {t("criteriaCount", {
+                              count: groupCriteria.length,
+                            })}
                           </p>
                         </div>
                         {isComplete ? (
-                          <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" aria-label="Complete" />
+                          <CheckCircle2
+                            className="h-5 w-5 shrink-0 text-emerald-600"
+                            aria-label={t("complete")}
+                          />
                         ) : (
-                          <TriangleAlert className="h-5 w-5 shrink-0 text-amber-600" aria-label="Needs attention" />
+                          <TriangleAlert
+                            className="h-5 w-5 shrink-0 text-amber-600"
+                            aria-label={t("needsAttention")}
+                          />
                         )}
                       </div>
                       <div className="mt-4 flex items-end justify-between gap-3">
-                        <span className="text-xs text-muted-foreground">Total weight</span>
+                        <span className="text-xs text-muted-foreground">
+                          {t("weightTotal")}
+                        </span>
                         <span
                           className={cn(
-                            "text-lg font-semibold tabular-nums",
+                            "text-2xl font-semibold tracking-tight tabular-nums",
                             isComplete ? "text-emerald-700" : "text-amber-700",
                           )}
                         >
                           {formatWeight(total)}
                         </span>
+                      </div>
+                      <div
+                        aria-hidden="true"
+                        className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted"
+                      >
+                        <div
+                          className={cn(
+                            "h-full rounded-full",
+                            isComplete ? "bg-secondary" : "bg-amber-600",
+                          )}
+                          style={{
+                            width: `${Math.max(0, Math.min(total, 100))}%`,
+                          }}
+                        />
                       </div>
                     </button>
                   );
@@ -170,43 +221,52 @@ export default function AdminRubricsPage() {
             </div>
           </section>
 
-          <Card>
+          <Card className="rounded-2xl">
             <CardHeader className="pb-4">
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <div>
-                  <CardTitle>Criteria</CardTitle>
+                  <CardTitle>{t("criteria")}</CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Showing {visibleCriteria.length} of {allCriteria.length}
+                    {t("showing", {
+                      visible: visibleCriteria.length,
+                      total: allCriteria.length,
+                    })}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Select
-                    aria-label="Filter rubrics by language"
+                    aria-label={t("filterLanguage")}
                     value={languageFilter}
-                    onChange={(event) => setLanguageFilter(event.target.value as LanguageFilter)}
+                    onChange={(event) =>
+                      setLanguageFilter(event.target.value as LanguageFilter)
+                    }
                     className="sm:w-44"
                   >
-                    <option value="">All languages</option>
+                    <option value="">{t("allLanguages")}</option>
                     {RUBRIC_LANGUAGES.map((language) => (
                       <option key={language} value={language}>
-                        {formatRubricLabel(language)}
+                        {label(language)}
                       </option>
                     ))}
                   </Select>
                   <Select
-                    aria-label="Filter rubrics by difficulty"
+                    aria-label={t("filterDifficulty")}
                     value={difficultyFilter}
-                    onChange={(event) => setDifficultyFilter(event.target.value as DifficultyFilter)}
+                    onChange={(event) =>
+                      setDifficultyFilter(
+                        event.target.value as DifficultyFilter,
+                      )
+                    }
                     className="sm:w-48"
                   >
-                    <option value="">All difficulties</option>
+                    <option value="">{t("allDifficulties")}</option>
                     {RUBRIC_DIFFICULTY_LEVELS.map((difficultyLevel) => (
                       <option key={difficultyLevel} value={difficultyLevel}>
-                        {formatRubricLabel(difficultyLevel)}
+                        {label(difficultyLevel)}
                       </option>
                     ))}
                   </Select>
-                  {(languageFilter || difficultyFilter) ? (
+                  {languageFilter || difficultyFilter ? (
                     <Button
                       type="button"
                       variant="ghost"
@@ -215,7 +275,7 @@ export default function AdminRubricsPage() {
                         setDifficultyFilter("");
                       }}
                     >
-                      Clear
+                      {t("clear")}
                     </Button>
                   ) : null}
                 </div>
@@ -233,9 +293,11 @@ export default function AdminRubricsPage() {
                 />
               ) : (
                 <EmptyState
-                  title="No rubric criteria found"
-                  description="There are no criteria matching these filters. Clear the filters or add a criterion to this rubric group."
-                  action={<Button onClick={openCreateDialog}>Add criterion</Button>}
+                  title={t("noCriteria")}
+                  description={t("noCriteriaHint")}
+                  action={
+                    <Button onClick={openCreateDialog}>{t("add")}</Button>
+                  }
                   className="min-h-[240px]"
                 />
               )}
@@ -263,7 +325,7 @@ export default function AdminRubricsPage() {
         onClose={() => setDeletingCriterion(null)}
         onDeleted={() => {
           setDeletingCriterion(null);
-          setSuccessMessage("Rubric criterion deleted.");
+          setSuccessMessage(t("removed"));
         }}
       />
     </div>

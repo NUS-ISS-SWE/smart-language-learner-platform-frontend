@@ -2,56 +2,50 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { StatusBadge } from "@/components/shared/StatusBadge";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatDate } from "@/lib/utils";
+import { CompositionRow } from "@/components/features/compositions/CompositionRow";
 import type { Composition } from "@/types/composition";
 
-type RecentCompositionsProps = {
+export function RecentCompositions({
+  compositions,
+}: {
   compositions: Composition[];
-};
-
-export function RecentCompositions({ compositions }: RecentCompositionsProps) {
-  const recent = compositions.slice(0, 5);
-
+}) {
+  const { t } = useTranslation("studio");
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
+    <section aria-labelledby="recent-writing">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <CardTitle>Recent compositions</CardTitle>
-          <CardDescription>Your latest drafts and reviewed work.</CardDescription>
+          <h2
+            id="recent-writing"
+            className="text-xl font-semibold tracking-tight text-primary"
+          >
+            {t("recent")}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("recentHint")}
+          </p>
         </div>
-        <Button variant="outline" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild>
           <Link href="/compositions">
-            View all
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            {t("viewLibrary")}
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
-      </CardHeader>
-      <CardContent>
-        {recent.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-            No compositions yet.
-          </p>
-        ) : (
-          <div className="divide-y rounded-lg border">
-            {recent.map((composition) => (
-              <Link
-                key={composition.id}
-                href={`/compositions/${composition.id}`}
-                className="flex items-center justify-between gap-4 p-4 transition-colors hover:bg-secondary/60"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{composition.title || "Untitled"}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{formatDate(composition.updatedAt)}</p>
-                </div>
-                <StatusBadge status={composition.compositionStatus} />
-              </Link>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+      {compositions.length ? (
+        <div className="divide-y rounded-xl border border-border bg-card">
+          {compositions.slice(0, 5).map((item) => (
+            <CompositionRow key={item.id} composition={item} />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-xl border border-dashed border-input bg-card p-6">
+          <h3 className="font-semibold text-primary">{t("emptyTitle")}</h3>
+          <p className="mt-2 text-sm text-muted-foreground">{t("emptyHint")}</p>
+        </div>
+      )}
+    </section>
   );
 }

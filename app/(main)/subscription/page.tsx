@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import {
   useCurrentSubscription,
@@ -10,93 +9,86 @@ import { CurrentSubscriptionBanner } from "@/components/features/subscription/Cu
 import { PlanSelector } from "@/components/features/subscription/PlanSelector";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { getApiErrorMessage } from "@/lib/api/client";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { SubscriptionPlanCode } from "@/types/subscription";
 
 export default function SubscriptionPage() {
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const {
-    data: currentSubscription,
-    isLoading: isCurrentLoading,
-    isError: isCurrentError,
-  } = useCurrentSubscription((query) =>
-    query.state.data?.status === "PENDING" ? 3000 : false,
+  const { t } = useTranslation("visual");
+  const [saved, setSaved] = useState(false);
+  const current = useCurrentSubscription(
+    (query) => query.state.data?.status === "PENDING" ? 3000 : false,
   );
-  const { data: plans, isLoading: isPlansLoading } = useAvailablePlans();
-  const selectPlanMutation = useSelectPlan();
-
-  const isMutating = selectPlanMutation.isPending;
-
-  function clearMessages() {
-    setSuccessMessage(null);
-    setErrorMessage(null);
-  }
-
+  const plans = useAvailablePlans();
+  const select = useSelectPlan();
   function handleSelectPlan(planCode: SubscriptionPlanCode) {
-    clearMessages();
-    selectPlanMutation.mutate(
-      { planCode },
-      {
-        onSuccess: () => setSuccessMessage(
-          "Plan updated successfully."
-        ),
-        onError: (err) => setErrorMessage(getApiErrorMessage(err)),
-      },
-    );
+    if (select.isPending) return;
+    setSaved(false);
+    select.mutate({ planCode }, { onSuccess: () => setSaved(true) });
   }
-
-  if (isCurrentLoading || isPlansLoading) {
-    return <LoadingState />;
-  }
-
-  if (isCurrentError) {
-    return <ErrorState message="Failed to load subscription details." />;
-  }
-
   return (
-    <div className="mx-auto max-w-4xl space-y-8 px-4 py-8">
-      <div>
-        <h1 className="text-2xl font-bold">Subscription</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage your plan and billing.
+    <div className="mx-auto max-w-5xl space-y-8">
+      <PageHeader
+        title={t("subscription")}
+        description={t("subscriptionHint")}
+      />
+      {saved && (
+        <p
+          role="status"
+          className="rounded-xl border border-secondary/30 bg-soft-teal p-4 text-sm text-secondary"
+        >
+          {t("updated")}
         </p>
-      </div>
-
-      {successMessage && (
-        <output className="block rounded-md bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          {successMessage}
-        </output>
       )}
-
-      {errorMessage && (
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {errorMessage}
+      {select.isError && (
+        <ErrorState message={getApiErrorMessage(select.error)} />
+      )}
+      {current.isLoading && <LoadingState />}
+      {current.isError && (
+        <div className="space-y-3">
+          <ErrorState message={getApiErrorMessage(current.error)} />
+          <Button variant="outline" onClick={() => void current.refetch()}>
+            {t("retry")}
+          </Button>
         </div>
       )}
-
-      {currentSubscription?.status === "PENDING" && (
+      {current.data?.status === "PENDING" && (
         <output className="block rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Waiting for Stripe to confirm your payment — this updates automatically.
+          Waiting for Stripe to confirm your payment. This updates automatically.
         </output>
       )}
-
-      {currentSubscription && (
-        <CurrentSubscriptionBanner subscription={currentSubscription} />
+      {current.data && (
+        <CurrentSubscriptionBanner subscription={current.data} />
       )}
-
-      <div>
-        <h2 className="mb-4 text-lg font-semibold">Choose a Plan</h2>
-        {plans && (
+      <section className="space-y-5">
+        <h2 className="text-xl font-semibold text-primary">
+          {t("availablePlans")}
+        </h2>
+        {plans.isLoading && <LoadingState />}
+        {plans.isError && (
+          <div className="space-y-3">
+            <ErrorState message={getApiErrorMessage(plans.error)} />
+            <Button variant="outline" onClick={() => void plans.refetch()}>
+              {t("retry")}
+            </Button>
+          </div>
+        )}
+        {plans.data?.length === 0 && (
+          <p className="rounded-xl border border-dashed bg-card p-8 text-muted-foreground">
+            {t("noPlans")}
+          </p>
+        )}
+        {plans.data && (
           <PlanSelector
-            plans={plans}
-            currentSubscription={currentSubscription}
+            plans={plans.data}
+            currentSubscription={current.data}
             onSelect={handleSelectPlan}
-            isLoading={isMutating}
+            isLoading={select.isPending || current.isLoading || current.isError}
           />
         )}
-      </div>
+      </section>
     </div>
   );
 }

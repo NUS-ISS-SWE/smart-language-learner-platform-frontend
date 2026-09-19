@@ -1,16 +1,19 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 
 export function LanguageSwitcher() {
-  const { i18n } = useTranslation();
-  const currentLang = i18n.language;
+  const { i18n, language: currentLang } = useTranslation();
 
   function switchTo(lang: string) {
     if (currentLang === lang) return;
-    localStorage.setItem("i18nextLng", lang);
     void i18n.changeLanguage(lang);
+    try {
+      localStorage.setItem("i18nextLng", lang);
+    } catch {
+      /* Language switching works without persistence. */
+    }
   }
 
   return (
@@ -21,9 +24,10 @@ export function LanguageSwitcher() {
           type="button"
           onClick={() => switchTo(lang)}
           aria-label={lang === "en" ? "Switch to English" : "切换到中文"}
+          aria-pressed={currentLang.startsWith(lang)}
           className={cn(
-            "rounded px-2.5 py-1 text-xs font-medium transition-colors",
-            currentLang === lang
+            "min-h-11 min-w-11 rounded px-2.5 py-1 text-xs font-medium transition-colors sm:min-h-9",
+            currentLang.startsWith(lang)
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground",
           )}
@@ -34,4 +38,3 @@ export function LanguageSwitcher() {
     </div>
   );
 }
-

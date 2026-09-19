@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteDocument,
   getDocument,
@@ -22,6 +22,15 @@ export function useDocumentList(page = 0, size = 20) {
   return useQuery({
     queryKey: documentKeys.list(page, size),
     queryFn: () => listDocuments(page, size),
+  });
+}
+
+export function useDocumentLibrary() {
+  return useInfiniteQuery({
+    queryKey: [...documentKeys.lists(), "infinite"],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => listDocuments(pageParam, 20),
+    getNextPageParam: page => page.hasMore ? page.page + 1 : undefined,
   });
 }
 
