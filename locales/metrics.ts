@@ -20,6 +20,7 @@ export const metricsEn = {
   reviews: "Reviews",
   successful: "Successful",
   failed: "Failed",
+  successRate: "Success rate",
   requests: "Requests",
   average: "Average completion",
   documents: "Document processing",
@@ -64,6 +65,7 @@ export const metricsEn = {
   noCohorts: "No registrations in this period.",
 };
 export const metricsZh: Record<keyof typeof metricsEn, string> = {
+  successRate: "成功率",
   previousResults: "当前显示之前加载的 {{from}} 至 {{to}} 的数据。请刷新以重试。",
   successfulReviews: "成功评估",
   title: "平台活动",

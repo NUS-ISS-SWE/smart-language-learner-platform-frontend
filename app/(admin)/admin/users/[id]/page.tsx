@@ -209,7 +209,8 @@ function AdminUserDetailContent({ params }: Props) {
               <div>
                 <dt className="text-muted-foreground">{t("reviews")}</dt>
                 <dd>
-                  {t("reviewOutcome", {
+                  {t("reviewSummary", {
+                    requests: n(usageQuery.data.summary.reviewRequests),
                     success: n(usageQuery.data.summary.successfulReviews),
                     failed: n(usageQuery.data.summary.failedReviews),
                   })}
@@ -218,7 +219,8 @@ function AdminUserDetailContent({ params }: Props) {
               <div>
                 <dt className="text-muted-foreground">{t("documents")}</dt>
                 <dd>
-                  {t("documentOutcome", {
+                  {t("documentSummary", {
+                    uploaded: n(usageQuery.data.summary.documentsUploaded),
                     ready: n(usageQuery.data.summary.documentsReady),
                     failed: n(usageQuery.data.summary.documentsFailed),
                   })}

@@ -26,6 +26,8 @@ export const visualEn = {
   noActivity: "No activity",
   reviewOutcome: "{{success}} successful, {{failed}} failed",
   documentOutcome: "{{ready}} ready, {{failed}} failed",
+  reviewSummary: "{{requests}} requests · {{success}} successful, {{failed}} failed",
+  documentSummary: "{{uploaded}} uploaded · {{ready}} ready, {{failed}} failed",
   tokensCost: "{{tokens}} tokens · {{cost}}",
   deleteUserWarning:
     "{{name}} will no longer be able to log in or appear in user lists. This action cannot be undone from this interface.",
@@ -168,6 +170,8 @@ export const visualEn = {
   status_PENDING: "Pending",
 };
 export const visualZh: Record<keyof typeof visualEn, string> = {
+  reviewSummary: "{{requests}} 次请求 · 成功 {{success}} 次，失败 {{failed}} 次",
+  documentSummary: "上传 {{uploaded}} 个 · 已就绪 {{ready}} 个，失败 {{failed}} 个",
   notFound: "找不到此页面",
   notFoundHint: "链接可能已更改。请返回首页继续浏览。",
   accountAccess: "账户与访问权限",

@@ -229,6 +229,14 @@ function UsageMetricsContent() {
                 rows={[
                   [t("successful"), n(s?.successfulReviews)],
                   [t("failed"), n(s?.failedReviews)],
+                  [
+                    t("successRate"),
+                    metricPercent(s?.reviewSuccessPercent, t("unavailable")),
+                  ],
+                  [
+                    t("failureRate"),
+                    metricPercent(s?.reviewFailurePercent, t("unavailable")),
+                  ],
                   [t("requests"), n(s?.reviewRequests)],
                   [t("average"), latency(s?.averageReviewLatencyMillis)],
                 ]}
@@ -239,6 +247,14 @@ function UsageMetricsContent() {
                   [t("ready"), n(s?.documentsReady)],
                   [t("failed"), n(s?.documentsFailed)],
                   [t("processed"), n(s?.documentsProcessed)],
+                  [
+                    t("successRate"),
+                    metricPercent(s?.documentSuccessPercent, t("unavailable")),
+                  ],
+                  [
+                    t("failureRate"),
+                    metricPercent(s?.documentFailurePercent, t("unavailable")),
+                  ],
                 ]}
               />
               <MetricBreakdown
