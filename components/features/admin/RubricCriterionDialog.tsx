@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRubricCopy } from "@/lib/hooks/useRubricCopy";
 import { Loader2 } from "lucide-react";
 import { Dialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
@@ -10,8 +11,11 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { getApiErrorMessage } from "@/lib/api/client";
-import { useCreateRubricCriterion, useUpdateRubricCriterion } from "@/lib/hooks/useRubrics";
-import { formatRubricLabel, formatWeight, getRubricGroupTotal } from "@/lib/rubric-utils";
+import {
+  useCreateRubricCriterion,
+  useUpdateRubricCriterion,
+} from "@/lib/hooks/useRubrics";
+import { formatWeight, getRubricGroupTotal } from "@/lib/rubric-utils";
 import {
   RUBRIC_DIFFICULTY_LEVELS,
   RUBRIC_LANGUAGES,
@@ -31,7 +35,9 @@ type RubricCriterionDialogProps = {
   readonly onSaved: (message: string) => void;
 };
 
-type FormErrors = Partial<Record<"criterionName" | "criterionDescription" | "weightPercentage", string>>;
+type FormErrors = Partial<
+  Record<"criterionName" | "criterionDescription" | "weightPercentage", string>
+>;
 
 export function RubricCriterionDialog(props: RubricCriterionDialogProps) {
   if (!props.open) return null;
@@ -46,6 +52,7 @@ function RubricCriterionDialogContent({
   defaultDifficultyLevel,
   onSaved,
 }: RubricCriterionDialogProps) {
+  const { t, label } = useRubricCopy();
   const createMutation = useCreateRubricCriterion();
   const updateMutation = useUpdateRubricCriterion();
   const [language, setLanguage] = useState<RubricLanguage>(
@@ -54,7 +61,9 @@ function RubricCriterionDialogContent({
   const [difficultyLevel, setDifficultyLevel] = useState<RubricDifficultyLevel>(
     criterion?.difficultyLevel ?? defaultDifficultyLevel ?? "BEGINNER",
   );
-  const [criterionName, setCriterionName] = useState(criterion?.criterionName ?? "");
+  const [criterionName, setCriterionName] = useState(
+    criterion?.criterionName ?? "",
+  );
   const [criterionDescription, setCriterionDescription] = useState(
     criterion?.criterionDescription ?? "",
   );
@@ -67,35 +76,59 @@ function RubricCriterionDialogContent({
   const isPending = createMutation.isPending || updateMutation.isPending;
   const mutationError = createMutation.error ?? updateMutation.error;
   const parsedWeight = Number(weightPercentage);
-  const existingGroupTotal = getRubricGroupTotal(allCriteria, language, difficultyLevel);
+  const existingGroupTotal = getRubricGroupTotal(
+    allCriteria,
+    language,
+    difficultyLevel,
+  );
   const currentWeightInTargetGroup =
-    criterion?.language === language && criterion.difficultyLevel === difficultyLevel
+    criterion?.language === language &&
+    criterion.difficultyLevel === difficultyLevel
       ? Number(criterion.weightPercentage)
       : 0;
   const projectedTotal =
-    existingGroupTotal - currentWeightInTargetGroup + (Number.isFinite(parsedWeight) ? parsedWeight : 0);
+    existingGroupTotal -
+    currentWeightInTargetGroup +
+    (Number.isFinite(parsedWeight) ? parsedWeight : 0);
 
   function validate() {
     const errors: FormErrors = {};
     const trimmedName = criterionName.trim();
     const trimmedDescription = criterionDescription.trim();
 
-    if (!trimmedName) errors.criterionName = "Criterion name is required.";
-    else if (trimmedName.length > 200) errors.criterionName = "Criterion name must be 200 characters or fewer.";
-    if (!trimmedDescription) errors.criterionDescription = "Description is required.";
-    if (!weightPercentage || !Number.isFinite(parsedWeight) || parsedWeight < 0.01 || parsedWeight > 100) {
-      errors.weightPercentage = "Weight must be between 0.01 and 100.00.";
+    if (!trimmedName) errors.criterionName = t("nameRequired");
+    else if (trimmedName.length > 200) errors.criterionName = t("nameLong");
+    if (!trimmedDescription)
+      errors.criterionDescription = t("descriptionRequired");
+    if (
+      !weightPercentage ||
+      !Number.isFinite(parsedWeight) ||
+      parsedWeight < 0.01 ||
+      parsedWeight > 100
+    ) {
+      errors.weightPercentage = t("weightRange");
     } else if (!/^\d{1,3}(\.\d{1,2})?$/.test(weightPercentage)) {
-      errors.weightPercentage = "Use no more than two decimal places.";
+      errors.weightPercentage = t("weightPrecision");
     }
 
     setFormErrors(errors);
+    const first = Object.keys(errors)[0];
+    if (first)
+      document
+        .getElementById(
+          {
+            criterionName: "rubric-name",
+            criterionDescription: "rubric-description",
+            weightPercentage: "rubric-weight",
+          }[first as keyof FormErrors],
+        )
+        ?.focus();
     return Object.keys(errors).length === 0;
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!validate()) return;
+    if (isPending || !validate()) return;
 
     const body: RubricCriterionRequest = {
       language,
@@ -108,10 +141,10 @@ function RubricCriterionDialogContent({
     if (criterion) {
       updateMutation.mutate(
         { id: criterion.id, body },
-        { onSuccess: () => onSaved("Rubric criterion updated.") },
+        { onSuccess: () => onSaved(t("updated")) },
       );
     } else {
-      createMutation.mutate(body, { onSuccess: () => onSaved("Rubric criterion created.") });
+      createMutation.mutate(body, { onSuccess: () => onSaved(t("created")) });
     }
   }
 
@@ -128,40 +161,49 @@ function RubricCriterionDialogContent({
       onClose={() => {
         if (!isPending) onClose();
       }}
-      title={isEditing ? "Edit rubric criterion" : "Add rubric criterion"}
+      title={t(isEditing ? "edit" : "add")}
       className="max-h-[90vh] max-w-2xl overflow-y-auto"
     >
       <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        {mutationError ? <ErrorState message={getApiErrorMessage(mutationError)} /> : null}
+        {Object.keys(formErrors).length > 0 && (
+          <ErrorState message={t("fixFields")} />
+        )}
+        {mutationError ? (
+          <ErrorState message={getApiErrorMessage(mutationError)} />
+        ) : null}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="rubric-language">Language</Label>
+            <Label htmlFor="rubric-language">{t("language")}</Label>
             <Select
               id="rubric-language"
               value={language}
-              onChange={(event) => setLanguage(event.target.value as RubricLanguage)}
+              onChange={(event) =>
+                setLanguage(event.target.value as RubricLanguage)
+              }
               disabled={isPending}
             >
               {RUBRIC_LANGUAGES.map((value) => (
                 <option key={value} value={value}>
-                  {formatRubricLabel(value)}
+                  {label(value)}
                 </option>
               ))}
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="rubric-difficulty">Difficulty level</Label>
+            <Label htmlFor="rubric-difficulty">{t("difficulty")}</Label>
             <Select
               id="rubric-difficulty"
               value={difficultyLevel}
-              onChange={(event) => setDifficultyLevel(event.target.value as RubricDifficultyLevel)}
+              onChange={(event) =>
+                setDifficultyLevel(event.target.value as RubricDifficultyLevel)
+              }
               disabled={isPending}
             >
               {RUBRIC_DIFFICULTY_LEVELS.map((value) => (
                 <option key={value} value={value}>
-                  {formatRubricLabel(value)}
+                  {label(value)}
                 </option>
               ))}
             </Select>
@@ -170,18 +212,22 @@ function RubricCriterionDialogContent({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-4">
-            <Label htmlFor="rubric-name">Criterion name</Label>
-            <span className="text-xs text-muted-foreground">{criterionName.trim().length}/200</span>
+            <Label htmlFor="rubric-name">{t("name")}</Label>
+            <span className="text-xs text-muted-foreground">
+              {criterionName.trim().length}/200
+            </span>
           </div>
           <Input
             id="rubric-name"
             value={criterionName}
             onChange={(event) => setCriterionName(event.target.value)}
-            placeholder="e.g. CONTENT_RELEVANCE"
+            placeholder={t("namePlaceholder")}
             maxLength={200}
             autoFocus
             aria-invalid={!!formErrors.criterionName}
-            aria-describedby={formErrors.criterionName ? "rubric-name-error" : undefined}
+            aria-describedby={
+              formErrors.criterionName ? "rubric-name-error" : undefined
+            }
             disabled={isPending}
           />
           {formErrors.criterionName ? (
@@ -192,25 +238,32 @@ function RubricCriterionDialogContent({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="rubric-description">Description</Label>
+          <Label htmlFor="rubric-description">{t("description")}</Label>
           <Textarea
             id="rubric-description"
             value={criterionDescription}
             onChange={(event) => setCriterionDescription(event.target.value)}
-            placeholder="Describe what this criterion evaluates and what good performance looks like."
+            placeholder={t("descriptionPlaceholder")}
             aria-invalid={!!formErrors.criterionDescription}
-            aria-describedby={formErrors.criterionDescription ? "rubric-description-error" : undefined}
+            aria-describedby={
+              formErrors.criterionDescription
+                ? "rubric-description-error"
+                : undefined
+            }
             disabled={isPending}
           />
           {formErrors.criterionDescription ? (
-            <p id="rubric-description-error" className="text-xs text-destructive">
+            <p
+              id="rubric-description-error"
+              className="text-xs text-destructive"
+            >
               {formErrors.criterionDescription}
             </p>
           ) : null}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="rubric-weight">Weight percentage</Label>
+          <Label htmlFor="rubric-weight">{t("weightPercent")}</Label>
           <div className="relative max-w-xs">
             <Input
               id="rubric-weight"
@@ -223,7 +276,11 @@ function RubricCriterionDialogContent({
               className="pr-9"
               placeholder="25.00"
               aria-invalid={!!formErrors.weightPercentage}
-              aria-describedby="rubric-weight-help"
+              aria-describedby={
+                formErrors.weightPercentage
+                  ? "rubric-weight-help rubric-weight-error"
+                  : "rubric-weight-help"
+              }
               disabled={isPending}
             />
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -231,22 +288,33 @@ function RubricCriterionDialogContent({
             </span>
           </div>
           {formErrors.weightPercentage ? (
-            <p className="text-xs text-destructive">{formErrors.weightPercentage}</p>
+            <p id="rubric-weight-error" className="text-xs text-destructive">
+              {formErrors.weightPercentage}
+            </p>
           ) : null}
           <p id="rubric-weight-help" className="text-xs text-muted-foreground">
-            Projected total for {formatRubricLabel(language)} · {formatRubricLabel(difficultyLevel)}:{" "}
-            <strong className={projectedTotalClass}>{formatWeight(projectedTotal)}</strong>. A complete rubric
-            normally totals 100.00%.
+            {t("projected")}: {label(language)} · {label(difficultyLevel)}:{" "}
+            <strong className={projectedTotalClass}>
+              {formatWeight(projectedTotal)}
+            </strong>
+            . {t("totalHelp")}
           </p>
         </div>
 
         <div className="flex justify-end gap-2 border-t pt-4">
-          <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
-            Cancel
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isPending}
+          >
+            {t("cancel")}
           </Button>
           <Button type="submit" disabled={isPending}>
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            {isEditing ? "Save changes" : "Add criterion"}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : null}
+            {t(isEditing ? "save" : "add")}
           </Button>
         </div>
       </form>
