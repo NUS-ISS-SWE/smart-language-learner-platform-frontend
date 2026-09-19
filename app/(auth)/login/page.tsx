@@ -2,28 +2,35 @@
 
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { AxiosError } from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Label } from "@/components/ui/Label";
 
 export default function LoginPage() {
   const { signIn } = useAuth();
+  const { t: visual } = useTranslation("visual");
   const { t } = useTranslation("auth");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isPending) return;
     setError(null);
     setIsPending(true);
     try {
@@ -37,7 +44,7 @@ export default function LoginPage() {
 
   function errorMessage(): string {
     if (error instanceof AxiosError && error.response?.status === 401) {
-      return "Incorrect username or password. Please try again.";
+      return visual("loginError");
     }
     return getApiErrorMessage(error);
   }
@@ -45,7 +52,9 @@ export default function LoginPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("welcomeBack")}</CardTitle>
+        <h1 className="text-3xl font-semibold leading-tight tracking-tight text-primary">
+          {t("welcomeBack")}
+        </h1>
         <CardDescription>{t("loginSubtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -66,30 +75,20 @@ export default function LoginPage() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">{t("password")}</Label>
-              <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+              <Link
+                href="/forgot-password"
+                className="text-sm font-medium text-primary hover:underline"
+              >
                 {t("forgotPassword")}
               </Link>
             </div>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0"
-                onClick={() => setShowPassword((current) => !current)}
-                aria-label={showPassword ? t("hidePassword") : t("showPassword")}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            </div>
+            <PasswordInput
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
           </div>
 
           <Button className="w-full" type="submit" disabled={isPending}>
@@ -100,7 +99,10 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {t("newToPlatform")}{" "}
-          <Link href="/register" className="font-medium text-primary hover:underline">
+          <Link
+            href="/register"
+            className="font-medium text-primary hover:underline"
+          >
             {t("createAccount")}
           </Link>
         </p>

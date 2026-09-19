@@ -3,14 +3,18 @@
 import { Badge } from "@/components/ui/Badge";
 import { subscriptionStatusVariant } from "@/lib/subscription-utils";
 import type { UserSubscription } from "@/types/subscription";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type CurrentSubscriptionBannerProps = {
   readonly subscription: UserSubscription;
 };
 
-export function CurrentSubscriptionBanner({ subscription }: CurrentSubscriptionBannerProps) {
+export function CurrentSubscriptionBanner({
+  subscription,
+}: CurrentSubscriptionBannerProps) {
+  const { t, i18n } = useTranslation("visual");
   const formattedEndDate = subscription.endDate
-    ? new Date(subscription.endDate).toLocaleDateString(undefined, {
+    ? new Date(subscription.endDate).toLocaleDateString(i18n.language, {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -18,24 +22,32 @@ export function CurrentSubscriptionBanner({ subscription }: CurrentSubscriptionB
     : null;
 
   return (
-    <div className="rounded-lg border bg-card p-4">
+    <div className="rounded-2xl bg-primary p-6 text-white sm:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm text-muted-foreground">Current Plan</p>
-          <p className="mt-0.5 text-lg font-semibold">{subscription.plan.displayName}</p>
+          <p className="eyebrow text-accent">{t("currentPlan")}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight">
+            {subscription.plan.displayName}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <Badge variant={subscriptionStatusVariant(subscription.status)}>{subscription.status}</Badge>
+          <Badge variant={subscriptionStatusVariant(subscription.status)}>
+            {t(`status_${subscription.status}`)}
+          </Badge>
 
           {formattedEndDate && subscription.status === "ACTIVE" && (
-            <p className="text-sm text-muted-foreground">Renews {formattedEndDate}</p>
+            <p className="text-sm text-slate-300">
+              {t("accessEnds", { date: formattedEndDate })}
+            </p>
           )}
           {formattedEndDate && subscription.status === "EXPIRED" && (
-            <p className="text-sm text-muted-foreground">Expired {formattedEndDate}</p>
+            <p className="text-sm text-slate-300">
+              {t("expiredOn", { date: formattedEndDate })}
+            </p>
           )}
           {!formattedEndDate && subscription.status === "ACTIVE" && (
-            <p className="text-sm text-muted-foreground">No expiry</p>
+            <p className="text-sm text-slate-300">{t("noExpiry")}</p>
           )}
         </div>
       </div>

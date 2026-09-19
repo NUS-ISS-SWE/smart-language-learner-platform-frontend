@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { LoadingState } from "@/components/shared/LoadingState";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { confirmPasswordReset } from "@/lib/api/auth";
@@ -10,13 +12,20 @@ import { setStoredAccessToken } from "@/lib/auth-storage";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@/components/ui/Card";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Label } from "@/components/ui/Label";
 
 function decodeJwtSubject(jwt: string): string {
   try {
-    const payload = JSON.parse(atob(jwt.split(".")[1].replaceAll("-", "+").replaceAll("_", "/")));
+    const payload = JSON.parse(
+      atob(jwt.split(".")[1].replaceAll("-", "+").replaceAll("_", "/")),
+    );
     return (payload.sub as string) ?? "";
   } catch {
     return "";
@@ -24,22 +33,29 @@ function decodeJwtSubject(jwt: string): string {
 }
 
 function InvalidLinkCard() {
+  const { t } = useTranslation("visual");
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Invalid link</CardTitle>
-        <CardDescription>This password reset link is missing or invalid.</CardDescription>
+        <h1 className="text-3xl font-semibold leading-tight tracking-tight text-primary">
+          {t("invalidLink")}
+        </h1>
+        <CardDescription>{t("invalidLinkHint")}</CardDescription>
       </CardHeader>
       <CardContent>
-        <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
-          Request a new reset link
+        <Link
+          href="/forgot-password"
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          {t("requestLink")}
         </Link>
       </CardContent>
     </Card>
   );
 }
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
+  const { t } = useTranslation("visual");
   const token = useSearchParams().get("token") ?? "";
 
   const [newPassword, setNewPassword] = useState("");
@@ -51,7 +67,10 @@ export default function ResetPasswordPage() {
     onSuccess: (data) => {
       const username = decodeJwtSubject(data.accessToken);
       setStoredAccessToken(data.accessToken);
-      window.localStorage.setItem("sllp.user", JSON.stringify({ username, role: data.role }));
+      window.localStorage.setItem(
+        "sllp.user",
+        JSON.stringify({ username, role: data.role }),
+      );
       window.location.href = "/dashboard";
     },
   });
@@ -60,9 +79,10 @@ export default function ResetPasswordPage() {
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (mutation.isPending) return;
     setValidationError(null);
     if (newPassword !== confirmPassword) {
-      setValidationError("Passwords do not match.");
+      setValidationError(t("mismatch"));
       return;
     }
     mutation.mutate({ token, newPassword });
@@ -71,20 +91,23 @@ export default function ResetPasswordPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Reset password</CardTitle>
-        <CardDescription>Choose a new password for your account.</CardDescription>
+        <h1 className="text-3xl font-semibold leading-tight tracking-tight text-primary">
+          {t("resetTitle")}
+        </h1>
+        <CardDescription>{t("choosePassword")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-5" onSubmit={handleSubmit}>
           {(mutation.isError || validationError) && (
-            <ErrorState message={validationError ?? getApiErrorMessage(mutation.error)} />
+            <ErrorState
+              message={validationError ?? getApiErrorMessage(mutation.error)}
+            />
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="newPassword">New password</Label>
-            <Input
+            <Label htmlFor="newPassword">{t("newPassword")}</Label>
+            <PasswordInput
               id="newPassword"
-              type="password"
               autoComplete="new-password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
@@ -94,10 +117,9 @@ export default function ResetPasswordPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm new password</Label>
-            <Input
+            <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
+            <PasswordInput
               id="confirmPassword"
-              type="password"
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -106,18 +128,33 @@ export default function ResetPasswordPage() {
             />
           </div>
 
-          <Button className="w-full" type="submit" disabled={mutation.isPending}>
+          <Button
+            className="w-full"
+            type="submit"
+            disabled={mutation.isPending}
+          >
             {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            Set new password
+            {t("setPassword")}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          <Link href="/login" className="font-medium text-primary hover:underline">
-            Back to login
+          <Link
+            href="/login"
+            className="font-medium text-primary hover:underline"
+          >
+            {t("backLogin")}
           </Link>
         </p>
       </CardContent>
     </Card>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

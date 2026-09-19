@@ -1,7 +1,11 @@
 "use client";
 
 import { PlanCard } from "./PlanCard";
-import type { SubscriptionPlanCode, SubscriptionPlanInfo, UserSubscription } from "@/types/subscription";
+import type {
+  SubscriptionPlanCode,
+  SubscriptionPlanInfo,
+  UserSubscription,
+} from "@/types/subscription";
 
 type PlanSelectorProps = {
   readonly plans: SubscriptionPlanInfo[];
@@ -10,9 +14,14 @@ type PlanSelectorProps = {
   readonly isLoading: boolean;
 };
 
-export function PlanSelector({ plans, currentSubscription, onSelect, isLoading }: PlanSelectorProps) {
+export function PlanSelector({
+  plans,
+  currentSubscription,
+  onSelect,
+  isLoading,
+}: PlanSelectorProps) {
   return (
-    <div className="grid gap-6 sm:grid-cols-3">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-5">
       {plans.map((plan) => (
         <PlanCard
           key={plan.code}
