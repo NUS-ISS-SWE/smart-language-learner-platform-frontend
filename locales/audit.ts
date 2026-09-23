@@ -22,9 +22,15 @@ export const auditEn = {
   page: "Page {{page}} of {{total}}",
   recordCount: "{{count}} records",
   retry: "Try again",
+  showDetails: "Show details for {{action}}",
+  hideDetails: "Hide details for {{action}}",
+  eventData: "Event data",
 };
 
 export const auditZh: Record<keyof typeof auditEn, string> = {
+  showDetails: "显示 {{action}} 的详细信息",
+  hideDetails: "隐藏 {{action}} 的详细信息",
+  eventData: "事件数据",
   title: "审计日志",
   intro: "安全事件、数据变更和特权访问记录。",
   refresh: "刷新",

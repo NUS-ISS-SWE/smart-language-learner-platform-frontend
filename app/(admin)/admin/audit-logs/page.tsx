@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { Fragment, useState, type FormEvent } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { Badge, type BadgeProps } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -53,6 +53,10 @@ function formatTimestamp(value: string, language: string): string {
     : timestamp.toLocaleString(language);
 }
 
+function formatEventData(event: AuditEvent): string {
+  return JSON.stringify(event, null, 2);
+}
+
 export default function AuditLogsPage() {
   const { t, language } = useTranslation("audit");
   const [filters, setFilters] = useState<AuditEventsParams>({
@@ -60,6 +64,7 @@ export default function AuditLogsPage() {
     size: PAGE_SIZE,
   });
   const [draft, setDraft] = useState<AuditFilterDraft>(emptyDraft);
+  const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
   const query = useAuditEvents(filters);
   const hasFilters = Boolean(
     filters.actorId || filters.action || filters.targetId,
@@ -77,6 +82,10 @@ export default function AuditLogsPage() {
 
   function setPage(page: number) {
     setFilters((current) => ({ ...current, page }));
+  }
+
+  function toggleDetails(id: string) {
+    setExpandedEventId((current) => (current === id ? null : id));
   }
 
   return (
@@ -198,13 +207,36 @@ export default function AuditLogsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {query.data.content.map((event) => (
-                  <tr key={event.id}>
+                {query.data.content.map((event) => {
+                  const expanded = expandedEventId === event.id;
+                  return (
+                  <Fragment key={event.id}>
+                  <tr
+                    className="cursor-pointer transition-colors hover:bg-muted/40"
+                    onClick={() => toggleDetails(event.id)}
+                  >
                     <td className="whitespace-nowrap px-5 py-4 text-muted-foreground">
                       {formatTimestamp(event.occurredAt, language)}
                     </td>
                     <th scope="row" className="px-5 py-4 font-medium text-primary">
-                      {event.action}
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 text-left"
+                        aria-expanded={expanded}
+                        aria-label={t(expanded ? "hideDetails" : "showDetails", {
+                          action: event.action,
+                        })}
+                        onClick={(click) => {
+                          click.stopPropagation();
+                          toggleDetails(event.id);
+                        }}
+                      >
+                        {event.action}
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+                          aria-hidden="true"
+                        />
+                      </button>
                     </th>
                     <td className="px-5 py-4">
                       <Badge variant={outcomeVariant(event.outcome)}>
@@ -220,7 +252,21 @@ export default function AuditLogsPage() {
                     </td>
                     <td className="px-5 py-4">{event.service}</td>
                   </tr>
-                ))}
+                  {expanded && (
+                    <tr className="bg-muted/20">
+                      <td colSpan={6} className="px-5 py-4">
+                        <p className="mb-2 text-sm font-medium text-primary">
+                          {t("eventData")}
+                        </p>
+                        <pre className="max-h-96 overflow-auto rounded-lg bg-background p-4 text-xs leading-5 text-foreground">
+                          {formatEventData(event)}
+                        </pre>
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
+                  );
+                })}
               </tbody>
             </table>
             {query.data.content.length === 0 && (
