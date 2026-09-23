@@ -38,7 +38,7 @@ export function useDocument(id: string | null) {
   return useQuery({
     queryKey: id ? documentKeys.detail(id) : documentKeys.details(),
     queryFn: () => getDocument(id as string),
-    enabled: id !== null,
+    enabled: Boolean(id),
   });
 }
 
@@ -46,7 +46,7 @@ export function useDocumentContent(id: string | null) {
   return useQuery({
     queryKey: id ? documentKeys.content(id) : documentKeys.all,
     queryFn: () => getDocumentContent(id as string),
-    enabled: id !== null,
+    enabled: Boolean(id),
     // Poll while the backend is still extracting text
     refetchInterval: (query) => {
       const status = query.state.data?.status;
