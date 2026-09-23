@@ -1,7 +1,11 @@
 type Association = { compositionId: string | null; pending: boolean };
 const inMemory = new Map<string, Association>();
 
-/** Hints within this browser, never a durable server relationship or idempotency guarantee. */
+/**
+ * Short-lived browser recovery hints for an interrupted document workflow. The
+ * durable document-to-composition relationship is sourceDocumentId on the
+ * composition itself and is verified before this hint is used.
+ */
 export function readDocumentAssociation(id: string): Association {
   if (typeof window === "undefined")
     return { compositionId: null, pending: false };
@@ -26,7 +30,6 @@ export function saveDocumentAssociation(id: string, association: Association) {
         `sllp.doc.${id}.compositionId`,
         association.compositionId,
       );
-      localStorage.setItem(`sllp.comp.${association.compositionId}.docId`, id);
     } else localStorage.removeItem(`sllp.doc.${id}.compositionId`);
     if (association.pending)
       localStorage.setItem(`sllp.doc.${id}.creationPending`, "true");

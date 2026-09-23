@@ -14,6 +14,7 @@ export const composition = (
   compositionSource: "RAW_TEXT",
   language: "ENGLISH",
   compositionStatus: "DRAFT",
+  sourceDocumentId: null,
   createdAt: "2026-09-01T08:00:00Z",
   updatedAt: "2026-09-08T09:00:00Z",
   ...overrides,

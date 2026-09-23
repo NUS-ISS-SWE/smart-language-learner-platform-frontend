@@ -43,6 +43,8 @@ export type Composition = {
   gradingProgressMessage?: string | null;
   gradingProgressStage?: string | null;
   storagePath?: string | null;
+  /** Present only when this composition was created from an uploaded document. */
+  sourceDocumentId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -55,7 +57,9 @@ export type CompositionDraft = {
 };
 
 /** Payload accepted when creating or updating a learner-authored composition. */
-export type CompositionRequest = Pick<CompositionDraft, "title" | "content">;
+export type CompositionRequest = Pick<CompositionDraft, "title" | "content"> & {
+  sourceDocumentId?: string | null;
+};
 
 /** Payload accepted by the AI generation endpoint. */
 export type GenerateCompositionRequest = Pick<CompositionDraft, "title">;

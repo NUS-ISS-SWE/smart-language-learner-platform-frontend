@@ -46,7 +46,8 @@ export function useDocumentEvaluation(
   const missing =
     !!association.compositionId &&
     (!Number.isFinite(linkedId) ||
-      (isAxiosError(linked.error) && linked.error.response?.status === 404));
+      (isAxiosError(linked.error) && linked.error.response?.status === 404) ||
+      (!!linked.data && linked.data.sourceDocumentId !== document.id));
   const mutation = useCreateComposition();
   const busy = useRef(false);
   const automaticAttempted = useRef(false);
@@ -79,6 +80,7 @@ export function useDocumentEvaluation(
       const record = await mutation.mutateAsync({
         title,
         content: plainTextToCompositionHtml(text),
+        sourceDocumentId: document.id,
       });
       const saved = { compositionId: String(record.id), pending: false };
       saveDocumentAssociation(document.id, saved);
@@ -101,7 +103,12 @@ export function useDocumentEvaluation(
   useEffect(() => {
     if (!automatic || automaticAttempted.current || association.pending) return;
     if (association.compositionId) {
-      if (linked.data && linked.isFetchedAfterMount && !linked.isError) {
+      if (
+        linked.data &&
+        linked.data.sourceDocumentId === document.id &&
+        linked.isFetchedAfterMount &&
+        !linked.isError
+      ) {
         automaticAttempted.current = true;
         router.replace(`/compositions/${linked.data.id}`);
       }

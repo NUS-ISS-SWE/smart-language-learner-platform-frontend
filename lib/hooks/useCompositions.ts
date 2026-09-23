@@ -91,6 +91,9 @@ export function useCreateComposition() {
       createComposition({
         title: draft.title,
         content: draft.content,
+        ...("sourceDocumentId" in draft && draft.sourceDocumentId
+          ? { sourceDocumentId: draft.sourceDocumentId }
+          : {}),
       }),
     onSuccess: (composition) =>
       refreshCompositionCache(queryClient, composition),

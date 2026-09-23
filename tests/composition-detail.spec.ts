@@ -1,6 +1,7 @@
 import { test, expect, signIn, composition } from "./fixtures";
+import type { Composition } from "../types/composition";
 
-const assessed = (language = "en") =>
+const assessed = (language = "en", overrides: Partial<Composition> = {}) =>
   composition(1, {
     compositionStatus: "REVIEWED",
     language: language === "zh" ? "CHINESE" : "ENGLISH",
@@ -39,6 +40,7 @@ const assessed = (language = "en") =>
         },
       },
     ],
+    ...overrides,
   });
 
 test("editing rechecks cached status before mounting a writable session", async ({
@@ -105,11 +107,8 @@ test("source document keeps its metadata, view and download links", async ({
   page,
 }) => {
   await signIn(page);
-  await page.addInitScript(() =>
-    localStorage.setItem("sllp.comp.1.docId", "fictional-doc"),
-  );
   await page.route("**/api/v1/composition/1", (route) =>
-    route.fulfill({ json: assessed() }),
+    route.fulfill({ json: assessed("en", { sourceDocumentId: "fictional-doc" }) }),
   );
   await page.route("**/api/documents/fictional-doc", (route) =>
     route.fulfill({
@@ -136,30 +135,27 @@ test("source document keeps its metadata, view and download links", async ({
     "href",
     "https://example.test/fictional.txt",
   );
-  await expect(
-    source.getByText("This document association is saved in this browser."),
-  ).toBeVisible();
 });
 
-test("generation ignores stale browser document associations", async ({ page }) => {
+test("manual compositions ignore stale browser document associations", async ({ page }) => {
   await signIn(page);
   await page.addInitScript(() =>
     localStorage.setItem("sllp.comp.1.docId", "1"),
   );
   await page.route("**/api/v1/composition/1", (route) =>
-    route.fulfill({ json: composition(1, { compositionSource: "SYSTEM" }) }),
+    route.fulfill({ json: composition(1, { compositionSource: "RAW_TEXT" }) }),
   );
   let documentRequests = 0;
   await page.route("**/api/documents/1", (route) => {
     documentRequests += 1;
     return route.fulfill({ status: 404, json: { code: "DOCUMENT_NOT_FOUND" } });
   });
-
   await page.goto("/compositions/1");
   await expect(page.getByRole("region", { name: "Source document" })).toHaveCount(0);
   await page.waitForTimeout(300);
   expect(documentRequests).toBe(0);
 });
+
 
 test("generation polls its returned record and stops when ready", async ({
   page,

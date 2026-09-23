@@ -1,48 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
 import { Download, FileText } from "lucide-react";
 import { useDocument } from "@/lib/hooks/useDocuments";
 import { useAdminDocumentDetail } from "@/lib/hooks/useAdminContent";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { Button } from "@/components/ui/Button";
 import { formatBytes, formatDate } from "@/lib/utils";
-import type { CompositionSource } from "@/types/composition";
 
-const subscribe = (notify: () => void) => {
-  window.addEventListener("storage", notify);
-  return () => window.removeEventListener("storage", notify);
-};
-
+/** Renders only a document link explicitly stored with this composition. */
 export function CompositionSourceDocument({
-  id,
   inspection,
-  compositionSource,
+  sourceDocumentId,
 }: {
-  id: number;
   inspection: boolean;
-  compositionSource: CompositionSource;
+  sourceDocumentId: string | null;
 }) {
   const { t, language } = useTranslation("feedback");
-  const documentId = useSyncExternalStore(
-    subscribe,
-    () => {
-      try {
-        return localStorage.getItem(`sllp.comp.${id}.docId`);
-      } catch {
-        return null;
-      }
-    },
-    () => null,
-  );
-  // AI-generated compositions have no uploaded source document. Local
-  // associations are browser hints and can be stale after a local DB reset.
-  const linkedDocumentId = compositionSource === "SYSTEM" ? null : documentId;
-  const own = useDocument(inspection ? null : linkedDocumentId);
-  const admin = useAdminDocumentDetail(inspection ? linkedDocumentId : null);
+  const own = useDocument(inspection ? null : sourceDocumentId);
+  const admin = useAdminDocumentDetail(inspection ? sourceDocumentId : null);
   const query = inspection ? admin : own;
-  if (!linkedDocumentId) return null;
+
+  // Manually written and system-generated compositions have no source document.
+  // In particular, never infer a document from a browser-local composition ID.
+  if (!sourceDocumentId) return null;
   if (query.isError)
     return (
       <div className="space-y-2 text-sm">
@@ -53,6 +34,7 @@ export function CompositionSourceDocument({
       </div>
     );
   if (!query.data) return null;
+
   const { document, downloadUrl } = query.data;
   return (
     <section
@@ -71,13 +53,12 @@ export function CompositionSourceDocument({
             {" · "}
             {formatDate(document.createdAt, language)}
           </p>
-          <p className="text-xs text-muted-foreground">{t("localLink")}</p>
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" asChild>
           <Link
-            href={`/documents/${encodeURIComponent(linkedDocumentId)}${inspection ? "?context=admin" : ""}`}
+            href={`/documents/${encodeURIComponent(sourceDocumentId)}${inspection ? "?context=admin" : ""}`}
           >
             {t("viewDocument")}
           </Link>
