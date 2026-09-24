@@ -11,6 +11,7 @@ type AssessmentProgressProps = {
 
 const stages: Array<{ key: GradingProgressStage; labelKey: string }> = [
   { key: "PREPARING", labelKey: "assessmentStages.preparing" },
+  { key: "EVIDENCING", labelKey: "assessmentStages.evidencing" },
   { key: "GRADING", labelKey: "assessmentStages.grading" },
   { key: "REVIEWING", labelKey: "assessmentStages.reviewing" },
   { key: "SUGGESTING", labelKey: "assessmentStages.suggesting" },

@@ -129,6 +129,7 @@ export const en = {
     assessmentCurrent: 'Current assessment stage',
     assessmentStages: {
       preparing: 'Preparing your assessment',
+      evidencing: 'Gathering supporting passages',
       grading: 'Reviewing the composition',
       reviewing: 'Checking the assessment',
       refining: 'Refining the assessment',
@@ -417,6 +418,7 @@ export const zh = {
     assessmentCurrent: '当前评估阶段',
     assessmentStages: {
       preparing: '正在准备评估',
+      evidencing: '正在收集支持段落',
       grading: '正在审阅作文',
       reviewing: '正在检查评估',
       refining: '正在完善评估',

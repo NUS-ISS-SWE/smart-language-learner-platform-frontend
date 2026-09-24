@@ -6,6 +6,7 @@
   "assessmentCurrent": "进行中",
   "assessmentStages": {
     "preparing": "准备评估",
+    "evidencing": "收集支持段落",
     "grading": "评估作文",
     "reviewing": "检查评估准确性",
     "refining": "优化评估",

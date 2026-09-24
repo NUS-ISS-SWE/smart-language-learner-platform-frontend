@@ -29,6 +29,7 @@
   "assessmentCurrent": "In progress",
   "assessmentStages": {
     "preparing": "Preparing your assessment",
+    "evidencing": "Gathering supporting passages",
     "grading": "Assessing your composition",
     "reviewing": "Checking the assessment for accuracy",
     "refining": "Refining the assessment",

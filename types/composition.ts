@@ -12,6 +12,7 @@ export type CompositionStatus =
   | "REVIEWED";
 export type GradingProgressStage =
   | "PREPARING"
+  | "EVIDENCING"
   | "GRADING"
   | "REVIEWING"
   | "REGRADING"
