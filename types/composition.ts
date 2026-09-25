@@ -17,6 +17,11 @@ export type GradingProgressStage =
   | "REVIEWING"
   | "REGRADING"
   | "SUGGESTING";
+export type SuggestionStatus =
+  | "AVAILABLE"
+  | "NOT_AVAILABLE_FOR_LANGUAGE"
+  | "TEMPORARILY_UNAVAILABLE"
+  | "NO_PRIORITY_IMPROVEMENT";
 
 export type ImprovementSuggestion = {
   criterion: string | null;
@@ -39,7 +44,7 @@ export type Composition = {
   language: CompositionLanguage;
   compositionStatus: CompositionStatus;
   systemFeedback?: string | null;
-  suggestionStatus?: string | null;
+  suggestionStatus?: SuggestionStatus | null;
   suggestions?: ImprovementSuggestion[] | null;
   gradingProgressMessage?: string | null;
   gradingProgressStage?: string | null;

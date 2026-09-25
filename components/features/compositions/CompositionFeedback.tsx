@@ -2,7 +2,13 @@
 
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { Badge } from "@/components/ui/Badge";
-import type { ImprovementSuggestion } from "@/types/composition";
+import type { ImprovementSuggestion, SuggestionStatus } from "@/types/composition";
+
+const unavailableSuggestionMessage: Partial<Record<SuggestionStatus, string>> = {
+  NOT_AVAILABLE_FOR_LANGUAGE: "languageUnavailable",
+  TEMPORARILY_UNAVAILABLE: "suggestionsUnavailable",
+  NO_PRIORITY_IMPROVEMENT: "noPriorityImprovement",
+};
 
 export function CompositionFeedback({
   feedback,
@@ -12,11 +18,14 @@ export function CompositionFeedback({
 }: {
   feedback?: string | null;
   suggestions?: ImprovementSuggestion[] | null;
-  suggestionStatus?: string | null;
+  suggestionStatus?: SuggestionStatus | null;
   reviewed?: boolean;
 }) {
   const { t } = useTranslation("feedback");
   const items = suggestions ?? [];
+  const suggestionMessage = suggestionStatus
+    ? unavailableSuggestionMessage[suggestionStatus]
+    : undefined;
   const full = (
     <div className="whitespace-pre-wrap break-words text-base leading-7">
       {feedback?.trim() ? (
@@ -125,8 +134,8 @@ export function CompositionFeedback({
         <>
           {reviewed && (
             <p className="text-sm leading-6 text-muted-foreground">
-              {suggestionStatus === "NOT_AVAILABLE_FOR_LANGUAGE"
-                ? t("languageUnavailable")
+              {suggestionMessage
+                ? t(suggestionMessage)
                 : suggestionStatus && suggestionStatus !== "AVAILABLE"
                   ? t("suggestionStatus", { status: suggestionStatus })
                   : t("noSuggestions")}

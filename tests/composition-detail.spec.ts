@@ -393,6 +393,28 @@ test("missing suggestions preserve complete feedback and unknown stages stay neu
   await expect(page.getByLabel("Complete", { exact: true })).toHaveCount(0);
 });
 
+test("temporarily unavailable suggestions preserve the completed assessment", async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.route("**/api/v1/composition/1", (route) =>
+    route.fulfill({
+      json: assessed("en", {
+        suggestionStatus: "TEMPORARILY_UNAVAILABLE",
+        suggestions: null,
+      }),
+    }),
+  );
+
+  await page.goto("/compositions/1");
+  await expect(page.getByText(assessed().systemFeedback!)).toBeVisible();
+  await expect(
+    page.getByText("improvement suggestions are temporarily unavailable", {
+      exact: false,
+    }),
+  ).toBeVisible();
+});
+
 test("admin inspection is read only while own work uses the learner endpoint", async ({
   page,
 }) => {

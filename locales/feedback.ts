@@ -14,6 +14,10 @@ export const feedbackEn = {
     "No structured suggestions were returned. Your full assessment feedback is shown below.",
   languageUnavailable:
     "Structured suggestions are not available for this composition’s language. Your full assessment feedback is shown below.",
+  suggestionsUnavailable:
+    "Your assessment is complete, but improvement suggestions are temporarily unavailable. Your full assessment feedback is shown below.",
+  noPriorityImprovement:
+    "Your assessment did not identify a priority area for improvement. Your full assessment feedback is shown below.",
   suggestionStatus:
     "Structured suggestions: {{status}}. Your full assessment feedback is shown below.",
   missingFeedback:
@@ -89,6 +93,8 @@ export const feedbackZh: Record<
   evidence: "来自你的作文",
   noSuggestions: "未返回结构化建议。以下保留完整的评估反馈。",
   languageUnavailable: "此作文语言暂不支持结构化建议。以下保留完整的评估反馈。",
+  suggestionsUnavailable: "评估已完成，但改进建议暂时不可用。以下保留完整的评估反馈。",
+  noPriorityImprovement: "评估未发现需要优先改进的部分。以下保留完整的评估反馈。",
   suggestionStatus: "结构化建议状态：{{status}}。以下保留完整的评估反馈。",
   missingFeedback: "评估已标记完成，但未返回反馈。请尝试刷新状态。",
   notReviewed: "作文评估完成后，反馈将显示在这里。",
