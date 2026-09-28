@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { Badge } from "@/components/ui/Badge";
+import { CompositionModerationControls } from "@/components/features/admin/CompositionModerationControls";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { getApiErrorMessage } from "@/lib/api/client";
@@ -39,12 +41,14 @@ export function UserCompositionsList({
         </p>
       )}
       {compositions.map((c) => (
-        <Link
+        <div
           key={c.id}
-          href={`/compositions/${c.id}?context=admin&returnTo=${encodeURIComponent(returnTo)}`}
           className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card px-5 py-4 text-sm transition-colors hover:bg-soft-teal/40"
         >
-          <div className="min-w-0">
+          <Link
+            href={`/compositions/${c.id}?context=admin&returnTo=${encodeURIComponent(returnTo)}`}
+            className="min-w-0 flex-1"
+          >
             <p className="break-words font-medium">
               {c.title || t("untitled")}
             </p>
@@ -54,9 +58,13 @@ export function UserCompositionsList({
                 ? new Date(c.createdAt).toLocaleDateString(language)
                 : "\u2014"}
             </p>
+          </Link>
+          <div className="flex items-center gap-2">
+            <StatusBadge status={c.compositionStatus} />
+            {c.moderation?.status === "REMOVED" && <Badge variant="destructive">Removed</Badge>}
+            <CompositionModerationControls compositionId={c.id} status={c.moderation?.status ?? "ACTIVE"} />
           </div>
-          <StatusBadge status={c.compositionStatus} />
-        </Link>
+        </div>
       ))}
     </div>
   );

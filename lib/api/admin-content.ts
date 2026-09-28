@@ -1,5 +1,6 @@
 import { apiClient } from "./client";
 import type { Composition } from "@/types/composition";
+import type { ModerationAction, ModerationReasonCategory } from "@/types/moderation";
 import type { DocumentDTO } from "@/types/document";
 import {
   normalizeDocument,
@@ -31,6 +32,22 @@ export async function getAdminUserCompositions(
     await apiClient.get<Composition[]>("/api/v1/admin/compositions", {
       params: { userId, ...params },
     })
+  ).data;
+}
+
+export async function moderateComposition(
+  id: number,
+  body: {
+    action: ModerationAction;
+    reasonCategory?: ModerationReasonCategory;
+    reasonNote?: string;
+  },
+) {
+  return (
+    await apiClient.patch<Composition>(
+      `/api/v1/admin/compositions/${id}/moderation`,
+      body,
+    )
   ).data;
 }
 

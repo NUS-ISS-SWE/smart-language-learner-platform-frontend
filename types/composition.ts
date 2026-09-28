@@ -10,6 +10,20 @@ export type CompositionStatus =
   | "GENERATION_FAILED"
   | "REVIEWING"
   | "REVIEWED";
+export type ModerationStatus = "ACTIVE" | "REMOVED";
+export type ModerationReasonCategory =
+  | "SPAM_OR_IRRELEVANT"
+  | "ABUSIVE_OR_HARMFUL"
+  | "PRIVACY_OR_PERSONAL_DATA"
+  | "COPYRIGHT_OR_IP"
+  | "OTHER";
+export type Moderation = {
+  status: ModerationStatus;
+  reasonCategory: ModerationReasonCategory | null;
+  reasonNote: string | null;
+  moderatedAt: string | null;
+  ownerRedacted: boolean;
+};
 export type GradingProgressStage =
   | "PREPARING"
   | "EVIDENCING"
@@ -53,6 +67,7 @@ export type Composition = {
   sourceDocumentId: string | null;
   createdAt: string;
   updatedAt: string;
+  moderation?: Moderation | null;
 };
 
 export type CompositionDraft = {

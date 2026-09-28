@@ -7,6 +7,7 @@ import {
   WalletCards,
   BarChart3,
   ScrollText,
+  ShieldAlert,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -19,7 +20,8 @@ export type NavItem = {
     | "rubrics"
     | "pricing"
     | "metrics"
-    | "audit";
+    | "audit"
+    | "moderation";
   readonly href: string;
   readonly icon: LucideIcon;
   readonly isActive: (pathname: string) => boolean;
@@ -48,6 +50,12 @@ export const navigationConfig: NavItem[] = [
 ];
 
 export const adminNavigationConfig: NavItem[] = [
+  {
+    key: "moderation",
+    href: "/admin/moderation",
+    icon: ShieldAlert,
+    isActive: (p) => p.startsWith("/admin/moderation"),
+  },
   {
     key: "users",
     href: "/admin/users",

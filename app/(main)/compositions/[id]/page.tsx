@@ -17,6 +17,8 @@ import {
   useRequestGrading,
 } from "@/lib/hooks/useCompositions";
 import { useAdminCompositionDetail } from "@/lib/hooks/useAdminContent";
+import { CompositionModerationControls } from "@/components/features/admin/CompositionModerationControls";
+import { moderationReasonLabel } from "@/lib/moderation";
 import { CompositionFeedback } from "@/components/features/compositions/CompositionFeedback";
 import { CompositionReader } from "@/components/features/compositions/CompositionReader";
 import { CompositionSourceDocument } from "@/components/features/compositions/CompositionSourceDocument";
@@ -106,6 +108,7 @@ function CompositionDetail({ id }: { id: string }) {
       </div>
     );
   const status = composition.compositionStatus;
+  const ownerRemoved = !inspection && composition.moderation?.status === "REMOVED";
   const reviewed = status === "REVIEWED";
   const processing = status === "GENERATING" || status === "REVIEWING";
   const content = composition.content ?? "";
@@ -149,7 +152,7 @@ function CompositionDetail({ id }: { id: string }) {
             )}
           </p>
         </div>
-        {!inspection && (
+        {!inspection && !ownerRemoved && (
           <div className="flex flex-wrap items-start gap-3">
             {reviewed && meaningful && (
               <CreateCompositionCopy
@@ -194,6 +197,12 @@ function CompositionDetail({ id }: { id: string }) {
             </Button>
           </div>
         )}
+        {inspection && (
+          <CompositionModerationControls
+            compositionId={composition.id}
+            status={composition.moderation?.status ?? "ACTIVE"}
+          />
+        )}
         {reviewed && !inspection && (
           <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
             {t("revisionHint")}
@@ -220,9 +229,26 @@ function CompositionDetail({ id }: { id: string }) {
           </Button>
         </div>
       )}
-      <CompositionSourceDocument
-        inspection={inspection}
-        sourceDocumentId={composition.sourceDocumentId}
+      {ownerRemoved ? (
+        <section className="rounded-xl border border-destructive/30 bg-destructive/5 p-6">
+          <h2 className="text-xl font-semibold text-primary">Composition removed</h2>
+          <p className="mt-2 leading-7 text-muted-foreground">
+            This composition is unavailable because it was removed by an administrator.
+          </p>
+          <p className="mt-4 text-sm font-medium">
+            Reason: {moderationReasonLabel(composition.moderation?.reasonCategory)}
+          </p>
+          {composition.moderation?.reasonNote && (
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {composition.moderation.reasonNote}
+            </p>
+          )}
+        </section>
+      ) : (
+        <>
+          <CompositionSourceDocument
+            inspection={inspection}
+            sourceDocumentId={composition.sourceDocumentId}
       />
       {status === "GENERATING" && (
         <section
@@ -339,6 +365,8 @@ function CompositionDetail({ id }: { id: string }) {
               )}
             </aside>
           </div>
+        </>
+      )}
         </>
       )}
       <Dialog

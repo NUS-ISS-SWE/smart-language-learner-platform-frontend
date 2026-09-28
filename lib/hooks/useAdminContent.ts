@@ -1,12 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getAdminCompositionById,
   getAdminDocumentById,
   getAdminDocumentContent,
   getAdminUserCompositions,
   getAdminUserDocuments,
+  moderateComposition,
 } from "@/lib/api/admin-content";
 import { adminKeys } from "./adminKeys";
 import { compositionPollingInterval } from "./useCompositions";
@@ -60,5 +61,26 @@ export function useAdminUserDocuments(userId: number) {
     queryKey: adminKeys.userDocuments(userId),
     queryFn: () => getAdminUserDocuments(userId),
     enabled: userId > 0,
+  });
+}
+
+export function useModerateComposition() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      body,
+    }: {
+      id: number;
+      body: Parameters<typeof moderateComposition>[1];
+    }) => moderateComposition(id, body),
+    onSuccess: (composition) => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.all });
+      void queryClient.invalidateQueries({ queryKey: ["compositions"] });
+      queryClient.setQueryData(
+        [...adminKeys.all, "composition-detail", composition.id],
+        composition,
+      );
+    },
   });
 }

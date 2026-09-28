@@ -1,6 +1,7 @@
 import type { AdminMetricsParams } from "@/lib/api/admin-metrics";
 import type { AdminUsersParams } from "@/lib/api/admin-users";
 import type { AuditEventsParams } from "@/lib/api/audit-events";
+import type { ModerationQueueParams } from "@/lib/api/admin-moderation";
 
 export const adminKeys = {
   all: ["admin"] as const,
@@ -15,4 +16,6 @@ export const adminKeys = {
     [...adminKeys.all, "user-usage-metrics", userId, params] as const,
   auditEvents: (params: AuditEventsParams) =>
     [...adminKeys.all, "audit-events", params] as const,
+  moderation: (params: ModerationQueueParams) =>
+    [...adminKeys.all, "moderation", params] as const,
 };

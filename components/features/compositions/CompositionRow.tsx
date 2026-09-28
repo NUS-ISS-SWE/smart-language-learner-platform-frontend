@@ -5,11 +5,13 @@ import { compositionPreview } from "@/lib/composition-content";
 import { ArrowUpRight, FileText } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { Badge } from "@/components/ui/Badge";
 import type { Composition } from "@/types/composition";
 
 export function CompositionRow({ composition }: { composition: Composition }) {
   const { t, i18n } = useTranslation("studio");
   const preview = compositionPreview(composition.content ?? "", 180);
+  const removed = composition.moderation?.status === "REMOVED";
   const date = (value: string) =>
     new Date(value).toLocaleDateString(
       i18n.language.startsWith("zh") ? "zh-CN" : "en-GB",
@@ -29,6 +31,7 @@ export function CompositionRow({ composition }: { composition: Composition }) {
             {composition.title || t("untitled")}
           </h3>
           <StatusBadge status={composition.compositionStatus} />
+          {removed && <Badge variant="destructive">Removed</Badge>}
         </div>
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm leading-5 text-muted-foreground">
           <span>
@@ -38,7 +41,9 @@ export function CompositionRow({ composition }: { composition: Composition }) {
           <span>{t("created", { date: date(composition.createdAt) })}</span>
         </div>
         <p className="mt-2 line-clamp-2 break-words text-sm leading-6 text-muted-foreground">
-          {preview || t("noContent")}
+          {removed
+            ? `Removed: ${composition.moderation?.reasonNote || composition.moderation?.reasonCategory || "Reason provided by an administrator."}`
+            : preview || t("noContent")}
         </p>
       </div>
       <ArrowUpRight
