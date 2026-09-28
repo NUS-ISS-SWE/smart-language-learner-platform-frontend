@@ -7,11 +7,13 @@ export const APP_NAME = "Smart Language Learner Platform";
 
 /**
  * API base URL for communicating with backend services.
- * Uses NEXT_PUBLIC_ prefix to expose to browser at build time.
- * Defaults to API Gateway at localhost:8080 for local development.
+ * Production requests use the public API Gateway host. Local development can
+ * override the API Gateway URL with NEXT_PUBLIC_API_BASE_URL.
  */
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+  process.env.NODE_ENV === "production"
+    ? "https://nusmtechswe.com"
+    : process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
 /**
  * Key used for storing the JWT access token in localStorage.
