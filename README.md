@@ -121,8 +121,7 @@ Create a `.env.local` file with the following variables:
 
 ```env
 # API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_AUTH_API_URL=http://localhost:8080/api/auth
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
 
 # Feature Flags
 NEXT_PUBLIC_ENABLE_ADMIN=true
@@ -136,6 +135,9 @@ NEXT_PUBLIC_SUPPORTED_LANGUAGES=en,zh
 # Other
 NODE_ENV=development
 ```
+
+Production builds use `https://nusmtechswe.com` for API requests, regardless of
+`NEXT_PUBLIC_API_BASE_URL`. The variable only configures local development.
 
 **⚠️ Important**: Never commit `.env.local` to version control. Use `.env.example` as a template.
 
