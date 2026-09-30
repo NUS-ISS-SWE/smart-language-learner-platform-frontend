@@ -13,12 +13,14 @@ import {
   getComposition,
   getCompositions,
   requestCompositionGrading,
+  submitSuggestionFeedback,
   updateComposition,
 } from "@/lib/api/composition";
 import type {
   Composition,
   CompositionDraft,
   CompositionRequest,
+  SuggestionFeedbackRequest,
 } from "@/types/composition";
 
 export function compositionId(id: string | number): number {
@@ -137,4 +139,18 @@ export function useRequestGrading() {
 
 export function useGenerateComposition() {
   return useMutation({ mutationFn: generateComposition });
+}
+
+export function useSubmitSuggestionFeedback() {
+  return useMutation({
+    mutationFn: ({
+      compositionId,
+      suggestionIndex,
+      feedback,
+    }: {
+      compositionId: number;
+      suggestionIndex: number;
+      feedback: SuggestionFeedbackRequest;
+    }) => submitSuggestionFeedback(compositionId, suggestionIndex, feedback),
+  });
 }

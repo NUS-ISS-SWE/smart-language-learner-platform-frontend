@@ -349,6 +349,8 @@ function CompositionDetail({ id }: { id: string }) {
                 </section>
               )}
               <CompositionFeedback
+                compositionId={inspection ? undefined : composition.id}
+                composition={inspection ? undefined : composition}
                 feedback={composition.systemFeedback}
                 suggestions={composition.suggestions}
                 suggestionStatus={composition.suggestionStatus}

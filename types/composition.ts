@@ -37,6 +37,26 @@ export type SuggestionStatus =
   | "TEMPORARILY_UNAVAILABLE"
   | "NO_PRIORITY_IMPROVEMENT";
 
+export type SuggestionFeedbackRating = "HELPFUL" | "NOT_HELPFUL";
+export type SuggestionFeedbackReason =
+  | "NOT_RELEVANT"
+  | "UNCLEAR"
+  | "TOO_GENERIC"
+  | "UNSAFE";
+
+export type SuggestionFeedbackRequest = {
+  rating: SuggestionFeedbackRating;
+  reason?: SuggestionFeedbackReason | null;
+};
+
+export type SuggestionFeedback = SuggestionFeedbackRequest & {
+  id: number;
+  compositionId: number;
+  suggestionIndex: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ImprovementSuggestion = {
   criterion: string | null;
   priority: string | null;

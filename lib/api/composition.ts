@@ -1,5 +1,11 @@
 import { apiClient } from "./client";
-import type { Composition, CompositionRequest, GenerateCompositionRequest } from "@/types/composition";
+import type {
+  Composition,
+  CompositionRequest,
+  GenerateCompositionRequest,
+  SuggestionFeedback,
+  SuggestionFeedbackRequest,
+} from "@/types/composition";
 
 export async function getCompositions(params?: { page?: number; size?: number }) {
   const response = await apiClient.get<Composition[]>("/api/v1/composition", {
@@ -34,5 +40,17 @@ export async function requestCompositionGrading(id: number) {
 
 export async function generateComposition(payload: GenerateCompositionRequest) {
   const response = await apiClient.post<Composition>("/api/v1/composition/generate", payload);
+  return response.data;
+}
+
+export async function submitSuggestionFeedback(
+  compositionId: number,
+  suggestionIndex: number,
+  payload: SuggestionFeedbackRequest,
+) {
+  const response = await apiClient.post<SuggestionFeedback>(
+    `/api/v1/composition/${compositionId}/suggestions/${suggestionIndex}/feedback`,
+    payload,
+  );
   return response.data;
 }

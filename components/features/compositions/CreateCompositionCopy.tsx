@@ -8,6 +8,10 @@ import { createComposition, generateComposition } from "@/lib/api/composition";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { isUncertainMutationError } from "@/lib/api/mutation-outcome";
 import { refreshCompositionCache } from "@/lib/hooks/useCompositions";
+import {
+  applySuggestionReplacements,
+  type SuggestionReplacement,
+} from "@/lib/suggestion-revision";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/shared/ErrorState";
@@ -17,9 +21,13 @@ import type { Composition } from "@/types/composition";
 export function CreateCompositionCopy({
   composition,
   kind = "revision",
+  replacements,
+  buttonText,
 }: {
   composition: Composition;
   kind?: "revision" | "generation";
+  replacements?: SuggestionReplacement[];
+  buttonText?: string;
 }) {
   const { t } = useTranslation("feedback");
   const router = useRouter();
@@ -38,7 +46,9 @@ export function CreateCompositionCopy({
       kind === "revision"
         ? createComposition({
             title: t("revisionTitle", { title: composition.title }),
-            content: composition.content ?? "",
+            content: replacements?.length
+              ? applySuggestionReplacements(composition.content ?? "", replacements)
+              : composition.content ?? "",
           })
         : generateComposition({ title: composition.title }),
     onSuccess: (record) => refreshCompositionCache(cache, record),
@@ -70,13 +80,10 @@ export function CreateCompositionCopy({
         ) : (
           <CopyPlus className="h-4 w-4" />
         )}
-        {t(
-          mutation.isPending
-            ? "creating"
-            : kind === "revision"
-              ? "createRevision"
-              : "generateAgain",
-        )}
+        {mutation.isPending
+          ? t("creating")
+          : buttonText ??
+            t(kind === "revision" ? "createRevision" : "generateAgain")}
       </Button>
       {mutation.isError && (
         <div className="max-w-lg space-y-3">
