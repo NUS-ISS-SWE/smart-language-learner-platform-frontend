@@ -16,6 +16,7 @@ import { RecentCompositions } from "@/components/features/dashboard/RecentCompos
 import { ScoreSummary } from "@/components/features/dashboard/ScoreSummary";
 import { useAuth } from "@/context/AuthContext";
 import { WritingNextStep } from "@/components/features/dashboard/WritingNextStep";
+import { LearningMomentum } from "@/components/features/dashboard/LearningMomentum";
 import { compositionPreview } from "@/lib/composition-content";
 
 function AdminOverview() {
@@ -132,6 +133,8 @@ export default function DashboardPage() {
         </section>
         <WritingNextStep compositions={data} />
       </div>
+
+      <LearningMomentum />
 
       {compositions.isLoading && <LoadingState label={t("recent")} />}
       {compositions.isError && (

@@ -32,22 +32,56 @@ export function WorkspaceNavigation({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <nav aria-label={t("navigation")} className="space-y-1 px-3 py-5">
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            aria-current={item.isActive(pathname) ? "page" : undefined}
-            className={cn(
-              linkClass,
-              item.isActive(pathname) &&
-                "bg-white/10 text-white shadow-[inset_3px_0_0_var(--color-accent)]",
-            )}
-          >
-            <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-            {t(item.key)}
-          </Link>
-        ))}
+        {admin &&
+          (["learningContent", "operations", "administration"] as const).map(
+            (group) => (
+              <div key={group} className="mb-4 space-y-1">
+                <p className="px-3 pt-2 text-xs font-semibold uppercase tracking-wide text-white/55">
+                  {t(group)}
+                </p>
+                {items
+                  .filter((item) => item.group === group)
+                  .map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onNavigate}
+                      aria-current={
+                        item.isActive(pathname) ? "page" : undefined
+                      }
+                      className={cn(
+                        linkClass,
+                        item.isActive(pathname) &&
+                          "bg-white/10 text-white shadow-[inset_3px_0_0_var(--color-accent)]",
+                      )}
+                    >
+                      <item.icon
+                        className="h-4 w-4 shrink-0"
+                        aria-hidden="true"
+                      />
+                      {t(item.key)}
+                    </Link>
+                  ))}
+              </div>
+            ),
+          )}
+        {!admin &&
+          items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onNavigate}
+              aria-current={item.isActive(pathname) ? "page" : undefined}
+              className={cn(
+                linkClass,
+                item.isActive(pathname) &&
+                  "bg-white/10 text-white shadow-[inset_3px_0_0_var(--color-accent)]",
+              )}
+            >
+              <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {t(item.key)}
+            </Link>
+          ))}
       </nav>
       <div className="mx-3 mt-auto space-y-1 border-t border-white/15 py-4">
         {admin ? (

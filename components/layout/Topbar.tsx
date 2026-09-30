@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { ChevronDown, CreditCard, LogOut, Menu } from "lucide-react";
+import { ChevronDown, CreditCard, LogOut, Menu, Target } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
@@ -13,6 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCurrentSubscription } from "@/lib/hooks/useSubscription";
 import { planBadgeLabel } from "@/lib/subscription-utils";
 import { adminNavigationConfig, navigationConfig } from "@/lib/navigation";
+import { useLearningGoals } from "@/lib/hooks/useLearning";
 
 export function Topbar({
   admin = false,
@@ -24,6 +25,7 @@ export function Topbar({
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const { data: subscription } = useCurrentSubscription();
+  const { data: goals } = useLearningGoals();
   const { t } = useTranslation("common");
   const { t: s } = useTranslation("studio");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,6 +35,26 @@ export function Topbar({
   const current = (admin ? adminNavigationConfig : navigationConfig).find(
     (item) => item.isActive(pathname),
   );
+  const focusedGoal = !admin
+    ? goals?.find((goal) => goal.focused && goal.status === "ACTIVE")
+    : undefined;
+  const focusedProgress = focusedGoal
+    ? Math.min(
+        100,
+        Math.round((focusedGoal.progress / focusedGoal.target) * 100),
+      )
+    : 0;
+  const focusedLabel = focusedGoal
+    ? {
+        DAILY_CHALLENGE_COMPLETIONS: "Daily challenges",
+        WEEKLY_CHALLENGE_COMPLETIONS: "Weekly challenges",
+        CATEGORY_CHALLENGE_COMPLETIONS: `${focusedGoal.category?.toLowerCase().replaceAll("_", " ")} challenges`,
+        CURRENT_STREAK_DAYS: "Practice streak",
+        REVIEWED_COMPOSITIONS: "Reviewed compositions",
+        OVERALL_ASSESSMENT_SCORE: "Overall writing score",
+        VOCABULARY_RUBRIC_SCORE: "Vocabulary score",
+      }[focusedGoal.metric]
+    : "";
   useEffect(() => {
     if (!menuOpen) return;
     firstLink.current?.focus();
@@ -78,6 +100,27 @@ export function Topbar({
             {current ? s(current.key) : t("subscription")}
           </p>
         </div>
+        {focusedGoal && (
+          <Link
+            href="/goals"
+            title={`${focusedLabel}: ${focusedGoal.progress} of ${focusedGoal.target}. Open goals to change focus.`}
+            className="ml-auto hidden min-h-11 max-w-48 items-center gap-2 rounded-lg border border-secondary/40 bg-soft-teal/50 px-2.5 py-1.5 text-sm shadow-sm transition hover:bg-soft-teal lg:flex"
+            aria-label={`View focused goal: ${focusedLabel}, ${focusedGoal.progress} of ${focusedGoal.target}`}
+          >
+            <span className="rounded-lg bg-secondary p-1.5 text-white">
+              <Target className="h-4 w-4" />
+            </span>
+            <span className="min-w-0">
+              <p className="truncate font-semibold text-primary">
+                {focusedLabel}
+              </p>
+              <p className="truncate text-xs text-muted-foreground">
+                Focused · {focusedGoal.progress} / {focusedGoal.target} (
+                {focusedProgress}%)
+              </p>
+            </span>
+          </Link>
+        )}
         <div
           className="relative shrink-0"
           ref={menuRef}
