@@ -1,0 +1,163 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
+        GIT_CREDENTIALS_ID    = 'github-pat'
+        DOCKER_HUB_USER       = 'maxin0525'
+        DOCKER_IMAGE          = "${DOCKER_HUB_USER}/sllp-frontend"
+        // npm runs directly on the agent, which has Node 22 (Next.js 16 needs >= 20.9).
+        CI                    = 'true'
+        NEXT_TELEMETRY_DISABLED = '1'
+    }
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'mx_CI', description: 'Git branch to build')
+        booleanParam(name: 'UPLOAD_DOCKER_HUB', defaultValue: false, description: 'Push image to Docker Hub')
+        string(name: 'IMAGE_TAG', defaultValue: '', trim: true,
+               description: 'Release tag pushed to Docker Hub (required when UPLOAD_DOCKER_HUB), format vX.Y.Z e.g. v1.0.0. ' +
+                            'Must not already exist on Docker Hub — use a new version, or delete the old tag there first.')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                dir('source') {
+                    git branch: "${params.BRANCH_NAME}",
+                        credentialsId: "${GIT_CREDENTIALS_ID}",
+                        url: 'https://github.com/NUS-ISS-SWE/smart-language-learner-platform-frontend.git'
+                }
+            }
+        }
+
+        stage('Prepare') {
+            steps {
+                script {
+                    // Checked up front so a bad or already-used tag fails the build before
+                    // the build runs rather than at the push.
+                    if (params.UPLOAD_DOCKER_HUB) {
+                        if (!(params.IMAGE_TAG ==~ /^v\d+\.\d+\.\d+$/)) {
+                            error "IMAGE_TAG '${params.IMAGE_TAG}' is invalid: expected vX.Y.Z, e.g. v1.0.0"
+                        }
+                        // Release tags are immutable: never overwrite one that is already pushed.
+                        withCredentials([usernamePassword(
+                            credentialsId: "${DOCKER_CREDENTIALS_ID}",
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )]) {
+                            sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                            def taken = sh(script: "docker manifest inspect ${DOCKER_IMAGE}:${params.IMAGE_TAG} > /dev/null 2>&1",
+                                           returnStatus: true) == 0
+                            if (taken) {
+                                error "Tag ${params.IMAGE_TAG} already exists on Docker Hub for ${DOCKER_IMAGE}. " +
+                                      "Use a new version, or delete that tag on Docker Hub first."
+                            }
+                        }
+                        currentBuild.description = "Image tag: ${params.IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+
+        stage('Install') {
+            steps {
+                dir('source') {
+                    sh '''
+                        node -v
+                        npm ci --no-audit --no-fund
+                    '''
+                }
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                dir('source') {
+                    // Reports first (|| true: they must be written even when lint fails),
+                    // then the real run, which prints to the console and gates the build.
+                    sh '''
+                        rm -rf ../lint-reports && mkdir -p ../lint-reports
+                        npx eslint -f html -o ../lint-reports/eslint-report.html || true
+                        npx eslint -f json -o ../lint-reports/eslint-report.json || true
+                        npm run lint
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'lint-reports/*', allowEmptyArchive: true
+                    // Adds an "ESLint Report" link to the build page (HTML Publisher plugin).
+                    publishHTML(target: [
+                        reportName           : 'ESLint Report',
+                        reportDir            : 'lint-reports',
+                        reportFiles          : 'eslint-report.html',
+                        keepAll              : true,
+                        alwaysLinkToLastBuild: true,
+                        allowMissing         : true
+                    ])
+                }
+            }
+        }
+
+        stage('Dependency Audit') {
+            steps {
+                // Known-vulnerable dependencies mark the build UNSTABLE rather than failing it,
+                // since a fix often has to wait for an upstream release.
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    dir('source') {
+                        sh '''
+                            rm -rf ../audit-reports && mkdir -p ../audit-reports
+                            npm audit --omit=dev --json > ../audit-reports/npm-audit.json || true
+                            npm audit --omit=dev > ../audit-reports/npm-audit.txt || true
+                            npm audit --omit=dev --audit-level=high
+                        '''
+                    }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'audit-reports/*', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Build') {
+            // next build also type-checks. Runs here so a broken build fails
+            // even when the image isn't being pushed.
+            steps {
+                dir('source') { sh 'npm run build' }
+            }
+        }
+
+        stage('Docker Build & Push') {
+            when { expression { return params.UPLOAD_DOCKER_HUB } }
+            environment {
+                DOCKER_BUILDKIT = '1'
+            }
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: "${DOCKER_CREDENTIALS_ID}",
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                    // .dockerignore keeps the host's node_modules/.next out of the build context.
+                    sh """
+                        docker build --network=host -t ${DOCKER_IMAGE}:${params.IMAGE_TAG} -t ${DOCKER_IMAGE}:latest source
+                        docker push ${DOCKER_IMAGE}:${params.IMAGE_TAG}
+                        docker push ${DOCKER_IMAGE}:latest
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo params.UPLOAD_DOCKER_HUB
+                ? "Frontend CI complete — pushed to Docker Hub as ${DOCKER_IMAGE}:${params.IMAGE_TAG}"
+                : "Frontend CI complete — built (not pushed)"
+        }
+        failure { echo "Frontend CI failed" }
+    }
+}
