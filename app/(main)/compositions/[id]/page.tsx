@@ -62,7 +62,7 @@ function CompositionDetail({ id }: { id: string }) {
     if (
       inspection ||
       !composition ||
-      composition.compositionStatus !== "DRAFT" ||
+      !["DRAFT", "ASSESSMENT_FAILED"].includes(composition.compositionStatus) ||
       grading.current ||
       uncertainReview
     )
@@ -110,6 +110,7 @@ function CompositionDetail({ id }: { id: string }) {
   const status = composition.compositionStatus;
   const ownerRemoved = !inspection && composition.moderation?.status === "REMOVED";
   const reviewed = status === "REVIEWED";
+  const assessmentFailed = status === "ASSESSMENT_FAILED";
   const processing = status === "GENERATING" || status === "REVIEWING";
   const content = composition.content ?? "";
   const meaningful = hasCompositionText(content);
@@ -170,9 +171,9 @@ function CompositionDetail({ id }: { id: string }) {
                 </Link>
               </Button>
             )}
-            {status === "DRAFT" && (
+            {(status === "DRAFT" || assessmentFailed) && (
               <Button
-                variant="outline"
+                variant={assessmentFailed ? "default" : "outline"}
                 onClick={() => void requestReview()}
                 disabled={
                   grade.isPending ||
@@ -184,7 +185,9 @@ function CompositionDetail({ id }: { id: string }) {
                 {grade.isPending && (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 )}
-                {t("requestReview")}
+                {t(assessmentFailed ? "retryAssessment" : "requestReview", {
+                  defaultValue: assessmentFailed ? "Try assessment again" : "Request review",
+                })}
               </Button>
             )}
             <Button
@@ -368,6 +371,21 @@ function CompositionDetail({ id }: { id: string }) {
             </aside>
           </div>
         </>
+      )}
+      {assessmentFailed && (
+        <section className="space-y-3 rounded-xl border border-destructive/30 bg-destructive/5 p-6">
+          <h2 className="text-xl font-semibold text-primary">
+            {t("assessmentFailed", { defaultValue: "We could not verify this assessment" })}
+          </h2>
+          <p className="leading-7 text-muted-foreground">
+            {composition.systemFeedback}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {t("assessmentRetryHint", {
+              defaultValue: "Your composition is safe. You can revise it or try the assessment again.",
+            })}
+          </p>
+        </section>
       )}
         </>
       )}
