@@ -20,7 +20,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
     return <Badge variant="warning">{t(value)}</Badge>;
   }
 
-  if (value === "GENERATION_FAILED" || value === "ASSESSMENT_FAILED") {
+  if (value === "GENERATION_FAILED") {
     return <Badge variant="destructive">{t(value, { defaultValue: "Assessment needs attention" })}</Badge>;
   }
 

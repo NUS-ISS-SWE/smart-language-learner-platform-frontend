@@ -23,11 +23,11 @@ export function AssessmentProgress({
 }: AssessmentProgressProps) {
   const { t } = useTranslation("composition");
   const { t: feedbackT } = useTranslation("feedback");
-  const isRefining = stage === "REGRADING";
-  const visibleStages = isRefining
+  const isRechecking = stage === "REGRADING";
+  const visibleStages = isRechecking
     ? [
         ...stages.slice(0, 3),
-        { key: "REGRADING" as const, labelKey: "assessmentStages.refining" },
+        { key: "REGRADING" as const, labelKey: "assessmentStages.rechecking" },
         stages[3],
       ]
     : stages;
@@ -49,9 +49,19 @@ export function AssessmentProgress({
     <section
       aria-live="polite"
       aria-label={t("assessmentInProgress")}
-      className="space-y-4"
+      className={
+        isRechecking
+          ? "space-y-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4"
+          : "space-y-4"
+      }
     >
-      <p className="text-sm text-muted-foreground">
+      <p
+        className={
+          isRechecking
+            ? "text-sm font-medium text-amber-700 dark:text-amber-300"
+            : "text-sm text-muted-foreground"
+        }
+      >
         {message || t("preparingAssessment")}
       </p>
       <ol className="space-y-3">
@@ -68,7 +78,9 @@ export function AssessmentProgress({
               ) : null}
               {current ? (
                 <Loader2
-                  className="h-4 w-4 animate-spin text-primary"
+                  className={`h-4 w-4 animate-spin ${
+                    isRechecking ? "text-amber-600 dark:text-amber-300" : "text-primary"
+                  }`}
                   aria-label={t("assessmentCurrent")}
                 />
               ) : null}

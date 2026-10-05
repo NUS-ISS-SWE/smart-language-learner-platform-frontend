@@ -62,7 +62,7 @@ function CompositionDetail({ id }: { id: string }) {
     if (
       inspection ||
       !composition ||
-      !["DRAFT", "ASSESSMENT_FAILED"].includes(composition.compositionStatus) ||
+      composition.compositionStatus !== "DRAFT" ||
       grading.current ||
       uncertainReview
     )
@@ -110,7 +110,7 @@ function CompositionDetail({ id }: { id: string }) {
   const status = composition.compositionStatus;
   const ownerRemoved = !inspection && composition.moderation?.status === "REMOVED";
   const reviewed = status === "REVIEWED";
-  const assessmentFailed = status === "ASSESSMENT_FAILED";
+  const assessmentFailed = status === "DRAFT" && Boolean(composition.systemFeedback?.trim());
   const processing = status === "GENERATING" || status === "REVIEWING";
   const content = composition.content ?? "";
   const meaningful = hasCompositionText(content);

@@ -9,8 +9,7 @@ export type CompositionStatus =
   | "GENERATING"
   | "GENERATION_FAILED"
   | "REVIEWING"
-  | "REVIEWED"
-  | "ASSESSMENT_FAILED";
+  | "REVIEWED";
 export type ModerationStatus = "ACTIVE" | "REMOVED";
 export type ModerationReasonCategory =
   | "SPAM_OR_IRRELEVANT"
