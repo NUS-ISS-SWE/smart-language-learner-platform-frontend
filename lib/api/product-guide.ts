@@ -14,6 +14,7 @@ export interface StreamProductGuideOptions {
 export type ProductGuideApiErrorCode =
   | "authenticationRequired"
   | "forbidden"
+  | "contentBlocked"
   | "serviceUnavailable"
   | "requestFailed"
   | "emptyResponse";
@@ -34,6 +35,7 @@ function redirectToLogin(): void {
 function getResponseErrorCode(status: number): ProductGuideApiErrorCode {
   if (status === 401) return "authenticationRequired";
   if (status === 403) return "forbidden";
+  if (status === 422) return "contentBlocked";
   if (status >= 500) return "serviceUnavailable";
   return "requestFailed";
 }

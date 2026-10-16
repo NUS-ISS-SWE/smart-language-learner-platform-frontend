@@ -23,6 +23,7 @@ const SUGGESTION_KEYS = [
 const ERROR_TRANSLATION_KEYS: Record<ProductGuideApiErrorCode, string> = {
   authenticationRequired: "authenticationRequired",
   forbidden: "forbidden",
+  contentBlocked: "contentBlocked",
   serviceUnavailable: "serviceUnavailable",
   requestFailed: "requestFailed",
   emptyResponse: "emptyResponse",
