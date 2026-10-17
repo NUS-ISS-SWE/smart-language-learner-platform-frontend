@@ -131,13 +131,25 @@ NEXT_PUBLIC_ENABLE_COMPOSITIONS=true
 # Internationalization
 NEXT_PUBLIC_DEFAULT_LANGUAGE=en
 NEXT_PUBLIC_SUPPORTED_LANGUAGES=en,zh
-
-# Other
-NODE_ENV=development
 ```
 
-Production builds use `https://nusmtechswe.com` for API requests, regardless of
-`NEXT_PUBLIC_API_BASE_URL`. The variable only configures local development.
+`NEXT_PUBLIC_API_BASE_URL` controls the API Gateway URL in both development and
+production builds. Next.js embeds it in the browser bundle during `npm run build`,
+so set it before building and rebuild after changing it. When unset, builds use
+`https://nusmtechswe.com` and development uses `http://localhost:8080`.
+Do not set `NODE_ENV` in `.env.local`; Next.js selects it for each command.
+
+The backend repository's Docker Compose file uses a prebuilt frontend image.
+To use frontend changes locally, run `npm run dev` from this repository and
+open `http://localhost:3000` while the API Gateway runs on port 8080.
+If you use the Compose frontend on port 3000, rebuild its image from this
+repository and then recreate only that container:
+
+```bash
+docker build --build-arg NEXT_PUBLIC_API_BASE_URL=http://localhost:8080 -t 961125mingwei/sllp-frontend-service:latest .
+cd ../smart-language-learner-platform-backend
+docker compose up -d --no-deps --force-recreate --pull never frontend-service
+```
 
 **⚠️ Important**: Never commit `.env.local` to version control. Use `.env.example` as a template.
 

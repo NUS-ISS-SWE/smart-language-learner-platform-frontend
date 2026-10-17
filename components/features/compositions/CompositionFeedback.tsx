@@ -33,6 +33,8 @@ const criterionLabels: Record<string, string> = {
   VOCABULARY_WORD_CHOICE: "Word choice",
 };
 
+const editableSuggestionBlank = /\[(?:your feeling|our feeling|your reason|your thought|what happened|what you did|what we did)\]/i;
+
 type AssessmentCriterion = {
   criterion: string;
   score: number;
@@ -248,11 +250,14 @@ export function CompositionFeedback({
                 {item.exampleRevision && (
                   <div className="space-y-1 rounded-lg bg-soft-teal p-4">
                     <h4 className="text-sm font-semibold text-secondary">
-                      {t("example")}
+                      {t(editableSuggestionBlank.test(item.exampleRevision) ? "exampleTemplate" : "example")}
                     </h4>
                     <p className="whitespace-pre-wrap break-words leading-7">
                       {item.exampleRevision}
                     </p>
+                    {editableSuggestionBlank.test(item.exampleRevision) && (
+                      <p className="text-sm leading-6 text-muted-foreground">{t("exampleTemplateHint")}</p>
+                    )}
                   </div>
                 )}
                 {composition && (() => {
@@ -379,6 +384,9 @@ export function CompositionFeedback({
             ))}
           </ol>
           <p className="text-sm leading-6 text-muted-foreground">{t("appliedTextHighlightHint")}</p>
+          {selectedReplacements.some((replacement) => editableSuggestionBlank.test(replacement.revision)) && (
+            <p className="text-sm leading-6 text-muted-foreground">{t("exampleTemplateHint")}</p>
+          )}
           <div className="flex flex-wrap justify-end gap-2">
             <Button variant="outline" onClick={() => setRevisionPreviewOpen(false)}>
               {t("cancel")}

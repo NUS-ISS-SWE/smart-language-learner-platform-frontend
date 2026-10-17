@@ -27,6 +27,8 @@ export const feedbackEn = {
   reviewOutcome: "Review outcome: {{outcome}}",
   suggestion: "Suggestion {{number}}",
   example: "Example revision",
+  exampleTemplate: "Example to complete",
+  exampleTemplateHint: "Replace the bracketed words with your own details in the editable revision.",
   learningTip: "Try this as you revise",
   evidence: "From your writing",
   noSuggestions:
@@ -125,6 +127,8 @@ export const feedbackZh: Record<
   reviewOutcome: "审核结果：{{outcome}}",
   suggestion: "建议 {{number}}",
   example: "修改示例",
+  exampleTemplate: "待补充的修改示例",
+  exampleTemplateHint: "请在可编辑的修改稿中，用自己的真实细节替换方括号中的文字。",
   learningTip: "修改时可以这样做",
   evidence: "来自你的作文",
   noSuggestions: "未返回结构化建议。以下保留完整的评估反馈。",
